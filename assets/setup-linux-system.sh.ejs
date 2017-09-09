@@ -1,0 +1,50 @@
+#!/bin/sh
+
+if [ "$(id -u)" != "0" ]; then
+	echo "This script must be run as root" 1>&2
+	exit 1
+fi
+
+if [ ! -f $(pwd)/<%= binaryName %> ]; then
+	echo "Executable file <%= binaryName %> is not in the current directory"
+	exit 0
+fi
+
+FIREFOX_MANIFEST=$(cat <<-EOM
+{
+	"name": "<%= config.id %>",
+	"description": "<%= config.description %>",
+	"path": "$(pwd)/<%= binaryName %>",
+	"type": "stdio",
+	"allowed_extensions": [
+		<% config.allowed_extensions.firefox.forEach((ext,index)=>{ %>
+			<% if(index>0) { %>,<% } %>
+			"<%= ext %>"
+		<%}) %>]
+}
+EOM
+)
+
+mkdir -p /usr/lib/mozilla/native-messaging-hosts
+echo "$FIREFOX_MANIFEST" > /usr/lib/mozilla/native-messaging-hosts/<%= config.id %>.json
+
+CHROME_MANIFEST=$(cat <<-EOM
+{
+	"name": "<%= config.id %>",
+	"description": "<%= config.description %>",
+	"path": "$(pwd)/<%= binaryName %>",
+	"type": "stdio",
+	"allowed_origins": [
+		<% config.allowed_extensions.chrome.forEach((ext,index)=>{ %>
+			<% if(index>0) { %>,<% } %>
+			"<%= ext %>"
+		<%}) %>]
+}
+EOM
+)
+
+mkdir -p /etc/opt/chrome/native-messaging-hosts
+echo "$CHROME_MANIFEST" > /etc/opt/chrome/native-messaging-hosts/<%= config.id %>.json
+mkdir -p /etc/chromium/native-messaging-hosts
+echo "$CHROME_MANIFEST" > /etc/chromium/native-messaging-hosts/<%= config.id %>.json
+

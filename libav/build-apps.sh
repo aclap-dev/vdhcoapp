@@ -1,0 +1,898 @@
+#!/bin/bash
+# Copyright (C) 2016 Michel Gutierrez
+# This file is license under GPL 2.0
+
+HOST_PLATFORM=$(uname)
+BASEDIR=$(cd "$(dirname "$0")"; pwd)
+BUILDDIR="$BASEDIR/build"
+SRCDIR="$BASEDIR/src-build"
+SRCCLEANDIR="$BASEDIR/src"
+case $HOST_PLATFORM in
+	Darwin) LIBTOOLIZE=glibtoolize ;;
+	Linux) LIBTOOLIZE=libtoolize ;;
+	*) echo "$HOST_PLATFORM not supported as a build platform"
+esac	
+
+build_lame() {
+	(
+	echo "Building lame"
+	cd $ARCHSRCDIR/lame
+	OLD_CFLAGS="$CFLAGS"
+	case $PLATFORM in
+	win)
+		if [ "$ARCH" == "i686" ]; then
+		    export CFLAGS="$OLD_CFLAGS -msse"
+		fi
+		./configure --prefix=$ARCHSRCDIR/libav-deps --host=$HOST --target=mingw32 || exit -1
+	;;
+	linux)
+		case $ARCH in
+		i686) sed -i -e '/xmmintrin\.h/d' configure ;;
+		esac
+		./configure --prefix=$ARCHSRCDIR/libav-deps --host=$HOST || exit -1
+	;;
+	mac)
+		./configure --prefix=$ARCHSRCDIR/libav-deps --host=$HOST || exit -1	
+	;;
+	esac
+	
+	CFLAGS="$OLD_CFLAGS"
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_ogg() {
+	(
+	echo "Building ogg"
+	cd $ARCHSRCDIR/ogg
+	./autogen.sh
+	case $PLATFORM in
+	win)
+		./configure --prefix=$ARCHSRCDIR/libav-deps --host=$HOST --target=mingw32 || exit -1
+		;;
+	*)
+		./configure --prefix=$ARCHSRCDIR/libav-deps --host=$HOST || exit -1
+		;;
+	esac
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_vorbis() {
+	(
+	echo "Building vorbis"
+	echo "HOST=$HOST"
+	cd $ARCHSRCDIR/vorbis
+	./autogen.sh || exit -1
+	export OLD_CFLAGS="$CFLAGS"
+	export CFLAGS="$OLD_CFLAGS -I$ARCHSRCDIR/libav-deps/include"
+	case $PLATFORM in
+	win)
+		./configure --prefix=$ARCHSRCDIR/libav-deps --host=$HOST --target=mingw32 || exit -1
+		;;
+	*)
+		./configure --prefix=$ARCHSRCDIR/libav-deps --host=$HOST || exit -1
+		;;
+	esac
+	export CFLAGS="$OLD_CFLAGS"
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_opus() {
+	(
+	echo "Building opus"
+	cd $ARCHSRCDIR/opus
+	./autogen.sh || exit -1
+	case $PLATFORM in
+	win)
+		./configure --prefix=$ARCHSRCDIR/libav-deps --host=$HOST --target=mingw32 || exit -1
+		;;
+	*)
+		./configure --prefix=$ARCHSRCDIR/libav-deps --host=$HOST || exit -1
+		;;
+	esac
+	make || exit -1
+	make install-am || exit -1
+	)
+}
+
+build_vpx() {
+	(
+	echo "Building vpx"
+	cd $ARCHSRCDIR/vpx
+	case $PLATFORM in
+	win)
+		OPTS="--target=x86_64-win64-gcc"
+		if [ "$ARCH" == "i686" ]; then
+			OPTS="--target=x86-win32-gcc"
+		fi
+	;;
+	linux)
+		OPTS="--target=x86_64-linux-gcc"
+		if [ "$ARCH" == "i686" ]; then
+			OPTS="--target=x86-linux-gcc"
+		fi
+		OPTS="$OPTS --enable-pic"
+		;;
+	mac)
+		OPTS="--target=x86_64-darwin14-gcc"
+		;;
+	esac
+
+	./configure --prefix=$ARCHSRCDIR/libav-deps $OPTS \
+        --disable-examples \
+        --disable-docs \
+        --disable-install-bins \
+        --disable-install-srcs \
+		--disable-unit-tests \
+        --size-limit=16384x16384 \
+        --enable-postproc \
+        --enable-multi-res-encoding \
+        --enable-temporal-denoising \
+        --enable-vp9-temporal-denoising \
+        --enable-vp9-postproc || exit -1
+	OPTS=
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_x264() {
+	(
+	echo "Building x264"
+	cd $ARCHSRCDIR/x264
+	case $PLATFORM in
+	win)
+		./configure --host=$ARCH-w64-mingw32 --cross-prefix=$ARCH-w64-mingw32- \
+    		--prefix=$ARCHSRCDIR/libav-deps --enable-shared --sysroot=/usr/$ARCH-w64-mingw32/ || exit -1
+		;;
+	*)
+		./configure \
+    		--prefix=$ARCHSRCDIR/libav-deps --host=$HOST --enable-shared || exit -1
+		;;
+	esac
+	make || exit -1
+	make install install-lib-dev install-lib-shared install-lib-static || exit -1
+	)
+}
+
+build_xvid() {
+	(
+	echo "Building xvid"
+	cd $ARCHSRCDIR/xvid/build/generic
+	./bootstrap.sh
+	case $PLATFORM in
+	win)
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/libav-deps --disable-assembly || exit -1
+		;;
+	*)
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/libav-deps --disable-assembly || exit -1
+		;;
+	esac	
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_ocamr() {
+	(
+	echo "Building ocamr (Opencore AMR)"
+	cd $ARCHSRCDIR/ocamr
+	"$LIBTOOLIZE"
+	aclocal
+	autoheader
+	automake --force-missing --add-missing
+	autoconf
+	case $PLATFORM in
+	win)
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/libav-deps || exit -1
+		;;
+	*)
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/libav-deps || exit -1
+		;;
+	esac
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_voaacenc() {
+	(
+	echo "Building voaacenc (Opencore Visual On AAC encoder)"
+	cd $ARCHSRCDIR/voaacenc
+	"$LIBTOOLIZE"
+	aclocal
+	autoheader
+	automake --force-missing --add-missing
+	autoconf
+	case $PLATFORM in
+	win)
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/libav-deps || exit -1
+		;;
+	*)
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/libav-deps || exit -1
+		;;
+	esac	
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_voamrwbenc() {
+	(
+	echo "Building voamrwbenc (Opencore Visual On AMR WB encoder)"
+	cd $ARCHSRCDIR/voamrwbenc
+	"$LIBTOOLIZE"
+	aclocal
+	autoheader
+	automake --force-missing --add-missing
+	autoconf
+	case $PLATFORM in
+	win)
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/libav-deps || exit -1
+		;;
+	*)
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/libav-deps || exit -1
+		;;
+	esac
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_sdl() {
+	(
+	echo "Building sdl"
+	cd $ARCHSRCDIR/sdl
+	rm -r autom4te.cache configure config.h config.h.i config.status config.mak Makefile libtool ltmain.sh
+	./autogen.sh || exit -1
+	case $PLATFORM in
+	win)
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/libav-deps || exit -1
+		;;
+	linux)
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/libav-deps \
+			--enable-video-x11=no \
+			|| exit -1
+		;;
+	mac)
+		sed -i -e '/CGDirectPaletteRef/d' src/video/quartz/SDL_QuartzVideo.h
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/libav-deps \
+			--enable-video-x11=no \
+			|| exit -1
+		;;
+	esac		
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_webp() {
+	(
+	echo "Building webp"
+	cd $ARCHSRCDIR/webp
+	"$LIBTOOLIZE"
+	aclocal
+	autoheader
+	automake --force-missing --add-missing
+	autoconf
+	case $PLATFORM in
+	win)
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/libav-deps \
+		    --enable-libwebpmux --enable-libwebpdemux  --enable-libwebpdecoder|| exit -1
+		;;
+	*)
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/libav-deps \
+		    --enable-libwebpmux --enable-libwebpdemux  --enable-libwebpdecoder|| exit -1
+		;;
+	esac
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_zlib() {
+	(
+	echo "Building zlib"
+	cd $ARCHSRCDIR/zlib
+	case $PLATFORM in
+	win)
+	    sed -i "s/PREFIX =/PREFIX = $ARCH-w64-mingw32-/" win32/Makefile.gcc
+    	make \
+			INCLUDE_PATH="/include" \
+			LIBRARY_PATH="/lib" \
+			BINARY_PATH="/bin" \
+			DESTDIR="$ARCHSRCDIR/libav-deps" install \
+			-f win32/Makefile.gcc SHARED_MODE=1 || exit -1
+		;;
+	*)
+		./configure --prefix=$ARCHSRCDIR/libav-deps || exit -1
+    	make \
+			INCLUDE_PATH="/include" \
+			LIBRARY_PATH="/lib" \
+			BINARY_PATH="/bin" \
+			DESTDIR="$ARCHSRCDIR/libav-deps" install \
+				SHARED_MODE=1 || exit -1
+		;;
+	esac
+	)
+}
+
+build_jpeg() {
+	(
+	echo "Building jpeg"
+	cd $ARCHSRCDIR/jpeg
+	case $PLATFORM in
+	win) SYSTEM_NAME=Windows ;;
+	linux) SYSTEM_NAME=Linux ;;
+	mac) SYSTEM_NAME=Darwin ;;
+	esac	
+	cmake -DCMAKE_SYSTEM_NAME="$SYSTEM_NAME" -DBUILD_THIRDPARTY=1 \
+		-DCMAKE_INSTALL_PREFIX="$ARCHSRCDIR/libav-deps" \
+		-DOPENJPEG_INSTALL_INCLUDE_DIR="$ARCHSRCDIR/libav-deps/include" \
+		-DOPENJPEG_INSTALL_LIB_DIR="$ARCHSRCDIR/libav-deps/lib" \
+		-DOPENJPEG_INSTALL_DOC_DIR="$ARCHSRCDIR/libav-deps/doc" \
+		-DOPENJPEG_INSTALL_BIN_DIR="$ARCHSRCDIR/libav-deps/bin" \
+		-DOPENJPEG_INSTALL_DATA_DIR="$ARCHSRCDIR/libav-deps/data" \
+		-DOPENJPEG_INSTALL_SHARE_DIR="$ARCHSRCDIR/libav-deps/share" \
+		. || exit -1
+	SYSTEM_NAME=
+    make install
+	)
+}
+
+build_x265() {
+	(
+	echo "Building x265"
+	cd $ARCHSRCDIR/x265
+	case $PLATFORM in
+	win)
+		cmake \
+			-DWINXP_SUPPORT=1 \
+			-DCMAKE_INSTALL_PREFIX="$ARCHSRCDIR/libav-deps" \
+			-DCMAKE_SYSTEM_NAME="Windows" \
+			-DCMAKE_C_COMPILER="$ARCH-w64-mingw32-gcc" \
+			-DCMAKE_CXX_COMPILER="$ARCH-w64-mingw32-g++" \
+			-DCMAKE_RC_COMPILER="$ARCH-w64-mingw32-windres" \
+			-DCMAKE_RANLIB="$ARCH-w64-mingw32-ranlib" \
+			-DCMAKE_ASM_YASM_COMPILER="yasm" \
+			source
+		make x265-shared
+		cp libx265.dll.a "$ARCHSRCDIR/libav-deps/lib"
+		cp libx265.dll "$ARCHSRCDIR/libav-deps/bin"
+		cp source/x265.h "$ARCHSRCDIR/libav-deps/include"
+		cp x265_config.h "$ARCHSRCDIR/libav-deps/include"
+		cp x265.pc "$ARCHSRCDIR/libav-deps/lib/pkgconfig"
+		;;
+	*)
+		case $PLATFORM in
+			linux) SYSTEM_NAME="Linux"; LIBEXT="so" ;;
+			mac) SYSTEM_NAME="Darwin"; LIBEXT="dylib" ;;
+		esac
+		cmake \
+			-DWINXP_SUPPORT=1 \
+			-DCMAKE_INSTALL_PREFIX="$ARCHSRCDIR/libav-deps" \
+			-DCMAKE_SYSTEM_NAME="$SYSTEM_NAME" \
+			-DCMAKE_C_COMPILER="gcc" \
+			-DCMAKE_CXX_COMPILER="g++" \
+			-DCMAKE_RANLIB="ranlib" \
+			-DCMAKE_ASM_YASM_COMPILER="yasm" \
+			source
+		make x265-shared
+		cp libx265.$LIBEXT "$ARCHSRCDIR/libav-deps/lib"
+		cp source/x265.h "$ARCHSRCDIR/libav-deps/include"
+		cp x265_config.h "$ARCHSRCDIR/libav-deps/include"
+		cp x265.pc "$ARCHSRCDIR/libav-deps/lib/pkgconfig"
+		SYSTEM_NAME=
+		LIBEXT=
+		;;
+	esac
+	)
+}
+
+build_orc() {
+	(
+	echo "Building orc"
+	cd $ARCHSRCDIR/orc
+	OLD_CFLAGS="$CFLAGS"
+	./autogen.sh
+	case $PLATFORM in
+	win)
+		if [ "$ARCH" == "i686" ]; then
+			export LDFLAGS="-L$GCC_LIBDIR -L/usr/$ARCH-w64-mingw32/lib -L$ARCHSRCDIR/libav-deps/lib"
+			export CFLAGS="$OLD_CFLAGS -I$ARCHSRCDIR/libav-deps/include/orc-0.4"
+		fi
+		./configure --host=$ARCH-w64-mingw32 --prefix=$ARCHSRCDIR/libav-deps \
+		--enable-shared --enable-static \
+		|| exit -1
+		;;
+	*)
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/libav-deps \
+		--enable-shared --enable-static \
+		|| exit -1
+		;;
+	esac
+	make || exit -1
+	make install
+    export LDFLAGS=
+	CFLAGS="$OLD_CFLAGS"
+	)
+}
+
+build_schro() {
+	(
+	echo "Building schro"
+	cd $ARCHSRCDIR/schro
+	./autogen.sh
+	case $PLATFORM in
+	win)
+		if [ "$ARCH" == "i686" ]; then
+			export LDFLAGS="-L$GCC_LIBDIR -L/usr/$ARCH-w64-mingw32/lib"
+			export PATH_OLD=$PATH
+			export PATH="$PATH:$GCC_LIBDIR"
+		fi
+		./configure --host=$ARCH-w64-mingw32 --build=mingw32 --prefix=$ARCHSRCDIR/libav-deps \
+		--enable-shared --disable-static --disable-testsuite \
+		|| exit -1
+		sed -i "s/testsuite//" Makefile
+		make || exit -1
+		make install
+		if [ "$ARCH" == "i686" ]; then
+			export LDFLAGS=
+			export PATH=$PATH_OLD
+		fi
+		;;
+	*)
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/libav-deps \
+		--enable-shared --disable-static --disable-testsuite \
+		|| exit -1
+		sed -i -e "s/testsuite//" Makefile
+		make || exit -1
+		make install
+		;;
+	esac
+	)
+}
+
+build_theora() {
+	(
+	echo "Building theora"
+	cd $ARCHSRCDIR/theora
+	"$LIBTOOLIZE"
+	aclocal
+	autoheader
+	automake --force-missing --add-missing
+	autoconf
+	case $PLATFORM in
+	win)
+		./configure --host=$ARCH-w64-mingw32 --prefix=$ARCHSRCDIR/libav-deps \
+			--disable-examples --without-vorbis --disable-oggtest \
+		|| exit -1
+		sed -i -e 's#\r##g' win32/xmingw32/libtheoradec-all.def
+		sed -i -e 's#\r##g' win32/xmingw32/libtheoraenc-all.def
+		;;
+	*)
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/libav-deps \
+			--disable-examples --without-vorbis --disable-oggtest \
+		|| exit -1
+		;;
+	esac
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_ssl() {
+	(
+	echo "Building ssl"
+	cd $ARCHSRCDIR/ssl
+	case $PLATFORM in
+	win)
+		CROSS_COMPILE_BAK="$CROSS_COMPILE"
+		export CROSS_COMPILE="$CROSS_COMPILE"
+		CC_BAK="$CC"
+		export CC="gcc"
+		./Configure shared no-asm no-dso zlib-dynamic no-gost \
+			--prefix=$ARCHSRCDIR/libav-deps mingw64 \
+			-L"$ARCHSRCDIR/libav-deps/lib" -I"$ARCHSRCDIR/libav-deps/include" || exit -1
+		make || exit -1
+		(
+			cd engines;
+			touch lib4758cca.bad libaep.bad libatalla.bad libcswift.bad libchil.bad libgmp.bad \
+			libnuron.bad libsureware.bad libubsec.bad libcapi.bad libpadlock.bad
+		)
+		make install_sw install || exit -1
+		export CROSS_COMPILE=
+		export CC="$CC_BAK"
+		CROSS_COMPILE="$CROSS_COMPILE_BAK"
+		;;
+	linux)
+		case $ARCH in
+		i686) 
+			setarch i386 ./config -m32 --prefix=$ARCHSRCDIR/libav-deps -L"$ARCHSRCDIR/libav-deps/lib" \
+				-I"$ARCHSRCDIR/libav-deps/include" \
+				-fPIC || exit -1
+			;;
+		x86_64)
+			./config --prefix=$ARCHSRCDIR/libav-deps -L"$ARCHSRCDIR/libav-deps/lib" \
+				-I"$ARCHSRCDIR/libav-deps/include" \
+				-fPIC || exit -1
+			;;
+		esac
+		make || exit -1
+		make install_sw install || exit -1
+	;;
+	mac)
+		./config --prefix=$ARCHSRCDIR/libav-deps -L"$ARCHSRCDIR/libav-deps/lib" \
+			-I"$ARCHSRCDIR/libav-deps/include" \
+			-fPIC || exit -1
+		make || exit -1
+		make install_sw install || exit -1
+		;;
+	esac
+	)
+}
+
+build_rtmp() {
+	(
+	echo "Building rtmp"
+	cd $ARCHSRCDIR/rtmp/librtmp
+    sed -i -e "s/prefix=.*/prefix=..\/..\/libav-deps/" Makefile
+	case $PLATFORM in
+	win)
+		XLDFLAGS="-L$ARCHSRCDIR/libav-deps/lib -shared -Wl,--out-implib,librtmp.dll.a" \
+		SHARED=yes \
+		make install \
+		SYS=mingw CROSS_COMPILE=$ARCH-w64-mingw32- INC="-I$ARCHSRCDIR/libav-deps/include" \
+		LIB="-L$ARCHSRCDIR/libav-deps/lib"
+		;;
+	*)
+		XCFLAGS="$CFLAGS"
+		SHARED="yes"
+		INC="-I$ARCHSRCDIR/libav-deps/include"
+		LIB="-L$ARCHSRCDIR/libav-deps/lib"
+		case $PLATFORM in
+		linux) 
+			XLDFLAGS="$LDFLAGS -L$ARCHSRCDIR/libav-deps/lib -L$ARCHSRCDIR/zlib -shared -ldl"
+			SYS="posix"
+			;;
+		mac) 
+			XLDFLAGS="$LDFLAGS -L$ARCHSRCDIR/libav-deps/lib -L$ARCHSRCDIR/zlib -shared"
+			SYS="darwin"
+
+			;;
+		esac
+		make install XCFLAGS="$XCFLAGS" SHARED="$SHARED" INC="$INC" LIB="$LIB" \
+			XLDFLAGS="$XLDFLAGS" SYS="$SYS"
+		XCFLAGS=
+		SHARED=
+		INC=
+		LIB=
+		XLDFLAGS=
+		SYS=
+		;;
+	esac
+	)
+}
+
+build_libav() {
+	(
+	echo "Building libav"
+	cd $ARCHSRCDIR/libav
+    sed -i -e "s/#define.*OPJ_STATIC//" libavcodec/libopenjpegenc.c
+    sed -i -e "s/#define.*OPJ_STATIC//" libavcodec/libopenjpegdec.c
+    sed -i -e "s/-DOPJ_STATIC//" configure
+	case $PLATFORM in
+	win)
+		./configure \
+			--cross-prefix=$ARCH-w64-mingw32- \
+			--arch=$ARCH \
+			--sysroot=/usr/$ARCH-w64-mingw32/ \
+			--extra-ldflags=-static-libgcc \
+			--target-os=mingw32 \
+			--enable-memalign-hack \
+			--enable-runtime-cpudetect \
+			--enable-cross-compile \
+			--enable-gpl \
+			--enable-shared \
+			--enable-pthreads \
+			--prefix=$BUILDARCHDIR \
+			--enable-version3 \
+			--extra-cflags="-I$ARCHSRCDIR/libav-deps/include" \
+			--extra-ldflags="-L$ARCHSRCDIR/libav-deps/lib" \
+			--pkg-config=$PKG_CONFIG \
+			--enable-libvo-aacenc \
+			--enable-libvo-amrwbenc \
+			--enable-libopus \
+			--enable-libvorbis \
+			--enable-libx264 \
+			--enable-libmp3lame \
+			--enable-libvpx \
+			--enable-libxvid \
+			--enable-libopencore_amrnb \
+			--enable-libopencore_amrwb \
+			--enable-encoder=libvpx-vp9 \
+			--enable-libwebp \
+			--enable-zlib \
+			--enable-libopenjpeg \
+			--enable-libx265 \
+			--enable-libschroedinger \
+			--enable-libtheora \
+			--enable-librtmp \
+			|| exit -1
+		;;
+	linux)
+		./configure \
+			--arch=$ARCH \
+			--extra-ldflags=-static-libgcc \
+			--extra-libs="-ldl" \
+			--enable-memalign-hack \
+			--enable-runtime-cpudetect \
+			--enable-gpl \
+			--enable-shared \
+			--enable-pthreads \
+			--prefix=$BUILDARCHDIR \
+			--enable-version3 \
+			--extra-cflags="-I$ARCHSRCDIR/libav-deps/include" \
+			--extra-ldflags="-L$ARCHSRCDIR/libav-deps/lib -L$ARCHSRCDIR/zlib" \
+			--pkg-config=$PKG_CONFIG \
+			--enable-libvo-aacenc \
+			--enable-libvo-amrwbenc \
+			--enable-libopus \
+			--enable-libvorbis \
+			--enable-libx264 \
+			--enable-libmp3lame \
+			--enable-libvpx \
+			--enable-libxvid \
+			--enable-libopencore_amrnb \
+			--enable-libopencore_amrwb \
+			--enable-encoder=libvpx-vp9 \
+			--enable-libwebp \
+			--enable-zlib \
+			--enable-libopenjpeg \
+			--enable-libx265 \
+			--enable-libschroedinger \
+			--enable-libtheora \
+			--enable-librtmp \
+			--disable-indev=sndio --disable-outdev=sndio \
+			|| exit -1
+		;;
+	mac)
+		./configure \
+			--arch=$ARCH \
+			--enable-memalign-hack \
+			--enable-runtime-cpudetect \
+			--enable-gpl \
+			--enable-shared \
+			--enable-pthreads \
+			--prefix=$BUILDARCHDIR \
+			--enable-version3 \
+			--extra-cflags="-I$ARCHSRCDIR/libav-deps/include" \
+			--extra-ldflags="-L$ARCHSRCDIR/libav-deps/lib -L$ARCHSRCDIR/zlib" \
+			--pkg-config=$PKG_CONFIG \
+			--enable-libvo-aacenc \
+			--enable-libvo-amrwbenc \
+			--enable-libopus \
+			--enable-libvorbis \
+			--enable-libx264 \
+			--enable-libmp3lame \
+			--enable-libvpx \
+			--enable-libxvid \
+			--enable-libopencore_amrnb \
+			--enable-libopencore_amrwb \
+			--enable-encoder=libvpx-vp9 \
+			--enable-libwebp \
+			--enable-zlib \
+			--enable-libopenjpeg \
+			--enable-libx265 \
+			--enable-libschroedinger \
+			--enable-libtheora \
+			--enable-librtmp \
+			|| exit -1
+		;;
+	esac
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+build_arch() {
+	PLATFORM="$1"
+	ARCH="$2"
+	FINALARCHDIR="$3"
+	ARCHSRCDIR="$4"
+	BUILDARCHDIR="$ARCHSRCDIR/libav-build"
+
+	echo "Build for $ARCH to $BUILDARCHDIR via $ARCHSRCDIR"
+
+	case $PLATFORM in
+	win)
+		HOST="$ARCH-w64-mingw32"
+		CROSS_COMPILE="/usr/bin/${ARCH}-w64-mingw32-"
+		;;
+	linux)
+		HOST="$ARCH-pc-linux-gnu"
+		CROSS_COMPILE=""
+		;;
+	esac
+
+	export CC="${CROSS_COMPILE}gcc"
+	export CXX="${CROSS_COMPILE}g++"
+	export NM="${CROSS_COMPILE}nm"
+	export STRIP="${CROSS_COMPILE}strip"
+	export RANLIB="${CROSS_COMPILE}ranlib"
+	export AR="${CROSS_COMPILE}ar"
+	export LD="${CROSS_COMPILE}ld"
+	export PKG_CONFIG="${CROSS_COMPILE}pkg-config"
+	export PKG_CONFIG_PATH=$ARCHSRCDIR/libav-deps/lib/pkgconfig
+	export PKG_CONFIG_LIBDIR=$ARCHSRCDIR/libav-deps/lib/pkgconfig
+	export GCC_LIBDIR=$(ls -d /usr/lib/gcc/$ARCH-w64-mingw32/*-posix)
+
+	echo "ARCH=\"$1\""
+	echo "FINALARCHDIR=\"$2\""
+	echo "ARCHSRCDIR=\"$3\""
+	echo 'BUILDARCHDIR="$ARCHSRCDIR/libav-build"'
+	echo 'HOST="$ARCH-w64-mingw32"'
+	echo 'CROSS_COMPILE="/usr/bin/${ARCH}-w64-mingw32-"'
+	echo 'export CC="${CROSS_COMPILE}gcc"'
+	echo 'export CXX="${CROSS_COMPILE}g++"'
+	echo 'export NM="${CROSS_COMPILE}nm"'
+	echo 'export STRIP="${CROSS_COMPILE}strip"'
+	echo 'export RANLIB="${CROSS_COMPILE}ranlib"'
+	echo 'export AR="${CROSS_COMPILE}ar"'
+	echo 'export LD="${CROSS_COMPILE}ld"'
+	echo 'export PKG_CONFIG="${CROSS_COMPILE}pkg-config"'
+	echo 'export PKG_CONFIG_PATH=$ARCHSRCDIR/libav-deps/lib/pkgconfig'
+	echo "export GCC_LIBDIR=\"$GCC_LIBDIR\""
+
+#if [[ "true" = "false" ]]; then
+	build_lame || exit -1
+	build_ogg || exit -1
+#fi
+	build_vorbis || exit -1
+#if [[ "true" = "false" ]]; then
+	build_opus || exit -1
+	build_vpx || exit -1
+	build_x264 || exit -1
+	build_xvid || exit -1
+	build_ocamr || exit -1
+	build_voaacenc || exit -1
+	build_voamrwbenc || exit -1
+	build_sdl || exit -1
+	build_webp || exit -1
+	build_zlib || exit -1
+    build_jpeg || exit -1
+    build_x265 || exit -1
+    build_orc || exit -1
+    build_schro || exit -1
+    build_theora || exit -1
+#fi
+    build_ssl || exit -1
+    build_rtmp || exit -1
+#if [[ "true" = "false" ]]; then
+	build_libav || exit -1
+#fi
+
+	export CROSS_COMPILE=
+	export CC=
+	export CXX=
+	export NM=
+	export STRIP=
+	export RANLIB=
+	export AR=
+	export LD=
+	export PKG_CONFIG="${CROSS_COMPILE}pkg-config"
+	export PKG_CONFIG_PATH=
+	export PKG_CONFIG_LIBDIR=
+
+	case $PLATFORM in
+
+	win)
+
+		cp $BUILDARCHDIR/bin/avconv.exe $BUILDARCHDIR/bin/avprobe.exe $BUILDARCHDIR/bin/avplay.exe $BUILDARCHDIR/bin/*.dll $FINALARCHDIR
+    	cp /usr/$ARCH-w64-mingw32/lib/libwinpthread-1.dll $FINALARCHDIR
+    	cp $GCC_LIBDIR/libstdc++-6.dll $FINALARCHDIR
+    	if [ "$ARCH" == "i686" ]; then
+	        cp $GCC_LIBDIR/libgcc_s_sjlj-1.dll $FINALARCHDIR
+		fi
+	    if [ "$ARCH" == "x86_64" ]; then
+        	cp $GCC_LIBDIR/libgcc_s_seh-1.dll $FINALARCHDIR
+		fi
+		cp $(find "$ARCHSRCDIR/libav-deps" -name "*.dll") $FINALARCHDIR
+	;;
+
+	mac)
+		cp $BUILDARCHDIR/bin/avconv $BUILDARCHDIR/bin/avprobe $BUILDARCHDIR/bin/avplay \
+			$(find $ARCHSRCDIR/libav-deps/lib -regex "[^\\.]*\\.[0-9]*\\.dylib") \
+			$(find $BUILDARCHDIR -regex ".*\\.[0-9]*\\.dylib") \
+			$ARCHSRCDIR/zlib/libz.1.dylib \
+			$FINALARCHDIR
+	;;
+	
+	linux)
+		cp $BUILDARCHDIR/bin/avconv $BUILDARCHDIR/bin/avprobe $BUILDARCHDIR/bin/avplay \
+			$(find $ARCHSRCDIR/libav-deps/lib -regex ".*\\.so\\.[0-9]+") \
+			$(find $BUILDARCHDIR/lib -regex ".*\\.so\\.[0-9]+") \
+			$FINALARCHDIR
+	;;
+
+	esac
+
+	(cd $FINALARCHDIR; strip *)
+
+	export GCC_LIBDIR=
+}
+
+build_win() {
+	mkdir -p "$SRCDIR/win/32" "$SRCDIR/win/64"
+	cp -r $SRCCLEANDIR/* "$SRCDIR/win/64"
+	mkdir -p "$SRCDIR/win/64/libav-deps"
+	cp -r $SRCCLEANDIR/* "$SRCDIR/win/32"
+	mkdir -p "$SRCDIR/win/32/libav-deps"
+	mkdir -p "$SRCDIR/win/32/libav-build"
+
+	mkdir -p "$BUILDDIR/win/32" "$BUILDDIR/win/64"
+
+	build_arch win x86_64 $BUILDDIR/win/64 $SRCDIR/win/64 || exit -1
+	build_arch win i686 $BUILDDIR/win/32 $SRCDIR/win/32 || exit -1
+}
+
+build_linux() {
+	mkdir -p "$SRCDIR/linux/32" "$SRCDIR/linux/64"
+	cp -r $SRCCLEANDIR/* "$SRCDIR/linux/64"
+	mkdir -p "$SRCDIR/linux/64/libav-deps"
+	cp -r $SRCCLEANDIR/* "$SRCDIR/linux/32"
+	mkdir -p "$SRCDIR/linux/32/libav-deps"
+	mkdir -p "$SRCDIR/linux/32/libav-build"
+	mkdir -p "$BUILDDIR/linux/32" "$BUILDDIR/linux/64"
+	build_arch linux x86_64 $BUILDDIR/linux/64 $SRCDIR/linux/64 || exit -1
+	export CFLAGS="-m32"
+	export CXXFLAGS="-m32"
+	export LDFLAGS="-m32"
+	build_arch linux i686 $BUILDDIR/linux/32 $SRCDIR/linux/32 || exit -1
+	export CFLAGS=
+	export CXXFLAGS=
+	export LDFLAGS=
+}
+
+build_linux64() {
+	mkdir -p "$SRCDIR/linux/64"
+	cp -r $SRCCLEANDIR/* "$SRCDIR/linux/64"
+	mkdir -p "$SRCDIR/linux/64/libav-deps"
+	mkdir -p "$BUILDDIR/linux/64"
+	build_arch linux x86_64 $BUILDDIR/linux/64 $SRCDIR/linux/64 || exit -1
+}
+
+build_linux32() {
+	mkdir -p "$SRCDIR/linux/32"
+	cp -r $SRCCLEANDIR/* "$SRCDIR/linux/32"
+	mkdir -p "$SRCDIR/linux/32/libav-deps"
+	mkdir -p "$BUILDDIR/linux/32"
+	export CFLAGS="-m32"
+	export CXXFLAGS="-m32"
+	export LDFLAGS="-m32"
+	build_arch linux i686 $BUILDDIR/linux/32 $SRCDIR/linux/32 || exit -1
+}
+
+build_mac() {
+	echo "Building for Mac"
+	mkdir -p "$SRCDIR/mac/64"
+	cp -r $SRCCLEANDIR/* "$SRCDIR/mac/64"
+	mkdir -p "$SRCDIR/mac/64/libav-deps"
+	mkdir -p "$BUILDDIR/mac/64"
+	build_arch mac x86_64 $BUILDDIR/mac/64 $SRCDIR/mac/64 || exit -1
+}
+
+rm -rf $BUILDDIR
+rm -rf $SRCDIR
+
+if [[ "$HOST_PLATFORM" = "Darwin" ]]; then
+	build_mac || exit -1
+else
+	build_win || exit -1
+	build_linux || exit -1
+fi

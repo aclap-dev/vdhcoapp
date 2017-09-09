@@ -1,0 +1,8 @@
+.vscode
+profile
+test
+private
+build-config.json
+weh-ext-test.sh
+node_modules
+package-lock.json

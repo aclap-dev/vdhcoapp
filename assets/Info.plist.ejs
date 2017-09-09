@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>BuildMachineOSBuild</key>
+    <string>15G31</string>
+    <key>CFBundleDisplayName</key>
+    <string><%= config.name %></string>
+    <key>CFBundleExecutable</key>
+	<string>bin/<%= binaryName %></string>
+	<!--
+	<key>CFBundleIconFile</key>
+	<string>JoclyBoard.icns</string>
+	-->
+    <key>CFBundleIdentifier</key>
+    <string><%= config.id %></string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string><%= config.id %></string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string><%= manifest.version %></string>
+    <key>CFBundleVersion</key>
+	<string><%= manifest.version %></string>
+    <key>DTSDKBuild</key>
+    <string>14D125</string>
+    <key>DTSDKName</key>
+    <string>macosx10.1010.10</string>
+    <key>DTXcode</key>
+    <string>0821</string>
+    <key>DTXcodeBuild</key>
+	<string>8C1002</string>
+    <key>LSApplicationCategoryType</key>
+    <string><%= config.mac.category || "public.app-category.utilities" %></string>
+    <key>LSMinimumSystemVersion</key>
+	<string>10.9.0</string>
+	<!--
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSMainNibFile</key>
+    <string>MainMenu</string>
+    <key>NSPrincipalClass</key>
+    <string>AtomApplication</string>
+    <key>NSSupportsAutomaticGraphicsSwitching</key>
+	<true/>
+	-->
+    <key>NSHumanReadableCopyright</key>
+    <string><%= config.copyright || "Copyright © "+new Date().getFullYear()+" "+config.id+" developers" %></string>
+  </dict>
+</plist>
