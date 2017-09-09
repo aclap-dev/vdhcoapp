@@ -653,7 +653,7 @@ function OnDemandRequire(packageName) {
 						manifest.wehOptionalDevDependencies[packageName] || null;
 					var pkgVersion = packageName + (version && "@"+version || "");
 					console.info("Installing",pkgVersion);
-					var npmProcess = spawn(npmPath,["install",pkgVersion]);
+					var npmProcess = spawn(npmPath,["install","--no-save",pkgVersion]);
 					npmProcess.stdout.on("data",(data)=>{
 						process.stdout.write(data)
 					});
