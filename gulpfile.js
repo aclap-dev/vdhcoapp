@@ -485,6 +485,7 @@ function MakeDmgFiles() {
 		CopyBinary("mac","64",appPath+"MacOS/bin"),
 		CopyExtra("mac",null,"/"+appPath+"MacOS"),
 		CreateMacInfoPlist(appPath),
+		fs.copy("assets/"+config.mac.iconIcns,"dist/mac/"+appPath+"Resources/"+config.mac.iconIcns),
 		new Promise((resolve, reject) => {
 			fs.writeFile("dist/mac/"+appPath+"PkgInfo","APPL????",(err)=>{
 				if(err)
@@ -503,7 +504,7 @@ function MakeDmgFiles() {
 			})
 		.then((lnPath)=>{
 			return new Promise((resolve, reject) => {
-				var lnProcess = spawn(lnPath,["-s","/Applications","dist/mac/dmg/Application"]);
+				var lnProcess = spawn(lnPath,["-s","-f","/Applications","dist/mac/dmg/Application"]);
 				lnProcess.stderr.on("data",(data)=>{
 					process.stderr.write(data);
 				});
