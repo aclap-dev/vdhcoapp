@@ -554,11 +554,42 @@ gulp.task("dmg-make-mac",(callback)=>{
 	})
 });
 
+gulp.task("dmg-sign-mac",(callback)=>{
+	if(!config.mac.sign)
+		return callback();
+	new Promise((resolve,reject)=>{
+		which("codesign",(err,path)=>{
+			if(err) throw err;
+			resolve(path);
+		})
+	})
+	.then((path)=>{
+		var args = [
+			"--deep","--force","--verbose",
+			"--sign",config.mac.sign,
+			"builds/"+config.id+"-"+manifest.version+".dmg"
+		];
+		console.info("codesign",args.join(" "));
+		var codesignProcess = spawn(path, args);
+		codesignProcess.stderr.on("data",(data)=>{
+			process.stderr.write(data);
+		});
+		codesignProcess.stdout.on("data",(data)=>{
+			process.stderr.write(data);
+		});
+		codesignProcess.on("exit",(exitCode)=>{
+			console.info("codesign returns",exitCode);
+			callback();
+		});			
+	})
+});
+
 gulp.task("dmg-mac",(callback)=>{
 	runSequence(
 		"build-mac-64",
 		"dmg-files-mac",
 		"dmg-make-mac",
+		"dmg-sign-mac",
 	callback);
 });
 
