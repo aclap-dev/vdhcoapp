@@ -18,7 +18,7 @@ const ejs = require('gulp-ejs');
 const debug = require('gulp-debug');
 const which = require('which');
 
-const config = require('./build-config');
+const config = require('./config');
 const manifest = require('./package.json');
 
 const ARCH_BITS = {
@@ -514,8 +514,17 @@ function MakeDmgFiles() {
 					resolve();
 				})
 			})
-		})
+		}),
+		fs.outputFile("dist/mac/"+appPath+"config.json",
+			MakeConfigJsonStr,"utf8")
 	]);
+}
+
+function MakeConfigJsonStr() {
+	return JSON.stringify({
+		id: config.id,
+		allowed_extensions: config.allowed_extensions
+	},null,4);
 }
 
 gulp.task("dmg-files-mac",(callback)=>{
