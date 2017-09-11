@@ -7,7 +7,6 @@ const { spawn } = require('child_process');
 const gulp=require('gulp');
 const pkg=require('pkg');
 const deb=require('gulp-deb');
-const yargs=require('yargs').args;
 const runSequence = require('run-sequence');
 const execPkg = require('pkg').exec;
 const clean = require('gulp-clean');
