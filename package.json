@@ -36,7 +36,8 @@
 		"yargs": "^8.0.2"
 	},
 	"wehOptionalDevDependencies": {
-		"regedit": "^2.2.7"
+		"regedit": "^2.2.7",
+		"appdmg": "^0.4.5"
 	},
 	"dependencies": {
 		"log4js": "^2.3.3"
