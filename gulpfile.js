@@ -486,6 +486,7 @@ function MakeDmgFiles() {
 		CopyExtra("mac",null,"/"+appPath+"MacOS"),
 		CreateMacInfoPlist(appPath),
 		fs.copy("assets/"+config.mac.iconIcns,"dist/mac/"+appPath+"Resources/"+config.mac.iconIcns),
+		fs.copy("assets/"+config.mac.background,"dist/mac/"+appPath+"Resources/"+config.mac.background),
 		new Promise((resolve, reject) => {
 			fs.writeFile("dist/mac/"+appPath+"PkgInfo","APPL????",(err)=>{
 				if(err)
@@ -523,65 +524,97 @@ gulp.task("dmg-files-mac",(callback)=>{
 	.then(()=>callback())		
 });
 
-gulp.task("dmg-make-mac",(callback)=>{
-	new Promise((resolve,reject)=>{
-		which("hdiutil",(err,path)=>{
-			if(err) throw err;
+function Exec(command,args) {
+	return new Promise((resolve,reject)=>{
+		which(command,(err,path)=>{
+			if(err) return reject(err);
 			resolve(path);
 		})
 	})
 	.then((path)=>{
-		var args = [
-			"create","-volname",config.mac.dmgVolName || config.name,
-			"-srcfolder","dist/mac/dmg",
-			"-fsargs", "-c c=64,a=16,e=16",
-			"-anyowners", "-nospotlight", "-fs","HFS+","-ov",
-			"-format", "UDRW",
-			"builds/"+config.id+"-"+manifest.version+".dmg"
-		];
-		console.info("hdiutil",args.join(" "));
-		var hdiutilProcess = spawn(path, args);
-		hdiutilProcess.stderr.on("data",(data)=>{
-			process.stderr.write(data);
+		return new Promise((resolve,reject)=>{
+			var stdout = [];
+			var stderr = [];
+			console.info(command,args.join(" "));
+			var cmdProcess = spawn(path, args);
+			cmdProcess.stderr.on("data",(data)=>{
+				stderr.push(data);
+			});
+			cmdProcess.stdout.on("data",(data)=>{
+				stdout.push(data);
+			});
+			cmdProcess.on("exit",(exitCode)=>{
+				var stderrStr = Buffer.concat(stderr).toString("utf8");
+				if(exitCode)
+					console.info("Error:",stderrStr);
+				resolve({ exitCode,
+					stdout: Buffer.concat(stdout).toString("utf8"),
+					stderr: stderrStr
+				});
+			});
+		})
+	})	
+}
+
+gulp.task("dmg-make-mac",(callback)=>{
+	fs.remove("builds/"+config.id+"-"+manifest.version+".dmg")
+		.then(()=> {
+			return OnDemandRequire("appdmg");
+		})
+		.then((appdmg)=>{
+			var ee = appdmg({
+				target: "builds/"+config.id+"-"+manifest.version+".dmg",
+				basepath: "dist/mac/dmg",
+				specification: {
+					"title": config.name,
+					"icon": config.id+".app/Contents/Resources/"+config.mac.iconIcns,
+					"background": config.id+".app/Contents/Resources/"+config.mac.background,
+					"contents": [
+						{ "x": 400, "y": 160, "type": "link", "path": "/Applications" },
+						{ "x": 400, "y": 280, "type": "link", "path": process.env.HOME },
+						{ "x": 140, "y": 220, "type": "file", "path": config.id+".app" }
+					]
+				}
+			});
+			ee.on("finish",()=>{
+				callback();
+			});
+			ee.on("error",(err)=>{
+				throw err;
+			})
 		});
-		hdiutilProcess.stdout.on("data",(data)=>{
-			process.stderr.write(data);
-		});
-		hdiutilProcess.on("exit",(exitCode)=>{
-			console.info("hdiutil returns",exitCode);
-			callback();
-		});			
-	})
 });
 
 gulp.task("dmg-sign-mac",(callback)=>{
 	if(!config.mac.sign)
 		return callback();
-	new Promise((resolve,reject)=>{
-		which("codesign",(err,path)=>{
-			if(err) throw err;
-			resolve(path);
-		})
-	})
-	.then((path)=>{
-		var args = [
+	Exec("codesign",[
 			"--deep","--force","--verbose",
 			"--sign",config.mac.sign,
 			"builds/"+config.id+"-"+manifest.version+".dmg"
-		];
-		console.info("codesign",args.join(" "));
-		var codesignProcess = spawn(path, args);
-		codesignProcess.stderr.on("data",(data)=>{
-			process.stderr.write(data);
-		});
-		codesignProcess.stdout.on("data",(data)=>{
-			process.stderr.write(data);
-		});
-		codesignProcess.on("exit",(exitCode)=>{
-			console.info("codesign returns",exitCode);
+		])
+		.then((ret)=>{
 			callback();
-		});			
-	})
+		})
+		.catch((err)=>{
+			console.error("Error",err)
+			throw err;
+		});
+});
+
+gulp.task("dmg-checksign-mac",(callback)=>{
+	Exec("codesign",[
+			"--verify","-vvvv",
+			"builds/"+config.id+"-"+manifest.version+".dmg"
+		])
+		.then((ret)=>{
+			console.info(ret.stderr);
+			callback();
+		})
+		.catch((err)=>{
+			console.error("Error",err)
+			throw err;
+		});
 });
 
 gulp.task("dmg-mac",(callback)=>{
@@ -815,3 +848,4 @@ gulp.task('unsetup-local',(callback) => {
 	return runSequence(
 		"unsetup-local-"+PLATFORMS[os.platform()]);
 });
+
