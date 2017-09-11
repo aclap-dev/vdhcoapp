@@ -515,14 +515,16 @@ function MakeDmgFiles() {
 				})
 			})
 		}),
-		fs.outputFile("dist/mac/"+appPath+"config.json",
-			MakeConfigJsonStr,"utf8")
+		fs.outputFile("dist/mac/"+appPath+"MacOS/config.json",
+			MakeConfigJsonStr(),"utf8")
 	]);
 }
 
 function MakeConfigJsonStr() {
 	return JSON.stringify({
 		id: config.id,
+		name: config.name,
+		description: config.description,
 		allowed_extensions: config.allowed_extensions
 	},null,4);
 }
