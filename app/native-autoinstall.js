@@ -4,6 +4,17 @@ const fs = require("fs-extra");
 const path = require("path");
 const { spawn } = require('child_process');
 
+function DisplayMessage(body,title) {
+	switch(os.platform()) {
+		case "darwin":
+			spawn("/usr/bin/osascript",["-e","display notification \""+
+				body+"\" with title \""+(title||"")+"\""]);
+			break;
+		default:
+			console.info((title && title+": " || "") + body);
+	}
+}
+
 function GetManifests(config) {
 	return {
 		firefox: {
@@ -34,7 +45,7 @@ function DarwinInstall() {
 	try {
 		config = JSON.parse(fs.readFileSync(path.resolve(path.dirname(process.execPath),"../config.json"),"utf8"));
 	} catch(err) {
-		console.error("Cannot read config file:",err);
+		DisplayMessage("Cannot read config file: "+err.message,"Error");
 		process.exit(-1);
 		return;
 	}
@@ -67,14 +78,13 @@ function DarwinInstall() {
 			fs.outputFileSync(manif.file,manif.manifest,"utf8");
 		});
 	} catch(err) {
-		console.error("Cannot remove manifest file:",err);
+		DisplayMessage("Cannot remove manifest file: "+err.message,config.name);
 		process.exit(-1);
 		return;
 	}
 	var text = config.name+" is ready to be used";
 	spawn("/usr/bin/osascript",["-e","display notification \""+
 		text+"\" with title \""+config.name+"\""]);
-	console.info(text);
 }
 
 function DarwinUninstall() {
@@ -87,7 +97,7 @@ function DarwinUninstall() {
 	try {
 		config = JSON.parse(fs.readFileSync(path.resolve(path.dirname(process.execPath),"../config.json"),"utf8"));
 	} catch(err) {
-		console.error("Cannot read config file:",err);
+		DisplayMessage("Cannot read config file: "+err.message,"Error");
 		process.exit(-1);
 	}
 
@@ -109,13 +119,11 @@ function DarwinUninstall() {
 			fs.removeSync(file);
 		});
 	} catch(err) {
-		console.error("Cannot remove manifest file:",err);
+		DisplayMessage("Cannot remove manifest file: "+err.message,config.name);
 		process.exit(-1);
 	}
 	var text = config.name+" manifests have been removed";
-	spawn("/usr/bin/osascript",["-e","display notification \""+
-		text+"\" with title \""+config.name+"\""]);
-	console.info(text);	
+	DisplayMessage(text,config.name);
 }
 	
 exports.install = () => {
@@ -124,7 +132,7 @@ exports.install = () => {
 			DarwinInstall();
 			break;
 		default:
-			console.error("Auto-install not supported for platform",os.platform());
+			DisplayMessage("Auto-install not supported for "+ os.platform() + " platform");
 	}
 	process.exit(0);
 }
@@ -135,7 +143,7 @@ exports.uninstall = () => {
 			DarwinUninstall();
 			break;
 		default:
-			console.error("Auto-install not supported for platform",os.platform());
+			DisplayMessage("Auto-install not supported for "+ os.platform() + " platform");
 	}
 	process.exit(0);
 }
