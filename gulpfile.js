@@ -707,6 +707,21 @@ gulp.task("pkg-make-mac",(callback)=>{
 	})
 });	
 
+gulp.task("pkg-checksign-mac",(callback)=>{
+	Exec("pkgutil",[
+			"--check-signature",
+			"builds/"+config.id+"-"+manifest.version+".pkg"
+		])
+		.then((ret)=>{
+			console.info(ret.stdout);
+			callback();
+		})
+		.catch((err)=>{
+			console.error("Error",err)
+			throw err;
+		});
+});
+
 gulp.task("pkg-mac",(callback)=>{
 	runSequence(
 		"build-mac-64",
