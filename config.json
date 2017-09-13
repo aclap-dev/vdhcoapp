@@ -1,0 +1,52 @@
+{
+	"id": "net.downloadhelper.coapp",
+	"name": "VdhCoApp",
+	"description": "Video DownloadHelper companion app",
+	"node_major": 7,
+	"extra": [{
+			"source": "libav/build/${platform}/${arch}/"
+		},{
+			"source": "assets/gpl-2.0.txt",
+			"dest": "LICENSE.txt"
+		},{
+			"source": "assets/README.txt",
+			"dest": "README.txt"
+		}],
+	"allowed_extensions": {
+		"firefox": ["weh-native-test@downloadhelper.net"],
+		"chrome": [
+			"chrome-extension://ocgbelnknlgoiofcepicgpicjibclfdg/",
+			"chrome-extension://lpheobkpibijgligoklmllibbbdhfghg/"
+		]
+	},
+	"win": {
+		"appPublisher": "DownloadHelper",
+		"licenseFile": "LICENSE.txt",
+		"sources": [{
+			"source": "libav\\build\\win\\64\\*",
+			"DestDir": "\"{app}\\libav\\build\\win\\64\"",
+			"Flags": "recursesubdirs createallsubdirs",
+			"Check": "IsX64"
+		},{
+			"source": "libav\\build\\win\\32\\*",
+			"DestDir": "\"{app}\\libav\\build\\win\\32\"",
+			"Flags": "recursesubdirs createallsubdirs",
+			"Check": "IsOtherArch"
+		},{
+			"source": "LICENSE.txt",
+			"DestDir": "\"{app}\""
+		},{
+			"source": "README.txt",
+			"DestDir": "\"{app}\""
+		}],
+		"certificate": "private/certificate.json"
+	},
+	"mac": {
+		"category": "public.app-category.utilities",
+		"copyright": "Copyright © 2017 DownloadHelper",
+		"iconIcns": "icon.icns",
+		"dmgBackground": "dmg-background.tiff",
+		"sign": "ACLAP",
+		"signApp": false
+	}
+}

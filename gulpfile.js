@@ -388,24 +388,44 @@ function ExecSign(args) {
 }
 
 function SignFile(file) {
+	if(!config.win.certificate)
+		return Promise.resolve();
 	return new Promise((resolve, reject) => {
-		ExecSign(["sign","-pkcs12",config.win.certificateFile,
-				"-pass",config.win.certificatePass,"-n",config.name,"-i",
-				config.win.certificateUrl || manifest.homepage,
-				"-h","sha1","-in",file,"-out",file+".sha1.exe"])
-			.then(()=>{
-				return ExecSign(["sign","-pkcs12",config.win.certificateFile,
-					"-pass",config.win.certificatePass,"-n",config.name,"-i",
-					config.win.certificateUrl || manifest.homepage,
-					"-nest","-h","sha2","-in",file+".sha1.exe","-out",file]);
+		fs.readFile(config.win.certificate,"utf8",(err,data)=>{
+			if(err)
+				return reject(err);
+			var certificate = JSON.parse(data);
+			resolve({
+				certificateFile: path.resolve(path.dirname(config.win.certificate),certificate.certificateFile),
+				certificatePass: certificate.certificatePass
 			})
-			.then(()=>{
-				fs.remove(file+".sha1.exe",()=>{
-					resolve();					
-				});
-			})
-			.catch(reject);
+		})
 	})
+	.then(({certificateFile,certificatePass})=>{
+		return new Promise((resolve, reject) => {
+			ExecSign(["sign","-pkcs12",certificateFile,
+					"-pass",certificatePass,"-n",config.name,"-i",
+					config.win.certificateUrl || manifest.homepage,
+					"-h","sha1","-in",file,"-out",file+".sha1.exe"])
+				.then(()=>{
+					return ExecSign(["sign","-pkcs12",certificateFile,
+						"-pass",certificatePass,"-n",config.name,"-i",
+						config.win.certificateUrl || manifest.homepage,
+						"-nest","-h","sha2","-in",file+".sha1.exe","-out",file]);
+				})
+				.then(()=>{
+					fs.remove(file+".sha1.exe",()=>{
+						resolve();					
+					});
+				})
+				.catch(reject);
+		})
+	})
+	.catch((err)=>{
+		console.error("Error signing",file,":",err);
+		throw err;
+	})
+
 }
 
 function SignFiles(dir,filter) {
@@ -425,7 +445,7 @@ function SignFiles(dir,filter) {
 }
 
 gulp.task("sign-iss-files",(callback)=>{
-	if(!config.win.certificateFile)
+	if(!config.win.certificate)
 		return callback();
 	new Promise((resolve, reject) => {
 		which("osslsigncode",(err,path)=>{
@@ -451,7 +471,8 @@ gulp.task("sign-iss-files",(callback)=>{
 gulp.task("iss-win",(callback)=>{
 	runSequence(
 		["check-wine","check-iss"],
-		["build-win-64","build-win-32"],
+		"build-win-64",
+		"build-win-32",
 		"iss-files-win",
 		"sign-iss-files",
 		"iss-make-win",
