@@ -478,23 +478,30 @@ function CreateMacInfoPlist(extraPath="") {
 	})
 }
 
-function MakeDmgFiles() {
-	var appPath = "dmg/"+config.id+".app/Contents/";
-	return Promise.all([
+function MakeMacFiles(type) {
+	var appPath;
+	switch(type) {
+		case "dmg":
+			appPath = "dmg/"+config.id+".app/Contents/";
+			break;
+		case "pkg":
+			appPath = "pkg/content/"+config.id+".app/Contents/";
+			break;
+	}
+
+	var promises = [
 		CopyBinary("mac","64",appPath+"MacOS/bin"),
 		CopyExtra("mac",null,"/"+appPath+"MacOS"),
 		CreateMacInfoPlist(appPath),
 		fs.copy("assets/"+config.mac.iconIcns,"dist/mac/"+appPath+"Resources/"+config.mac.iconIcns),
-		fs.copy("assets/"+config.mac.background,"dist/mac/"+appPath+"Resources/"+config.mac.background),
-		new Promise((resolve, reject) => {
-			fs.writeFile("dist/mac/"+appPath+"PkgInfo","APPL????",(err)=>{
-				if(err)
-					reject(err);
-				else
-					resolve();
-			})	
-		}),
-		new Promise((resolve, reject) => {
+		fs.outputFile("dist/mac/"+appPath+"PkgInfo","APPL????","utf8"),
+		fs.outputFile("dist/mac/"+appPath+"MacOS/config.json",
+			MakeConfigJsonStr(),"utf8")
+	];
+	switch(type) {
+		case "dmg":
+			promises.push(fs.copy("assets/"+config.mac.background,"dist/mac/"+appPath+"Resources/"+config.mac.background));
+			promises.push(new Promise((resolve, reject) => {
 				which("ln",(err,path)=>{
 					if(err)
 						return reject(err);
@@ -502,23 +509,41 @@ function MakeDmgFiles() {
 						resolve(path);
 				})
 			})
-		.then((lnPath)=>{
-			return new Promise((resolve, reject) => {
-				var lnProcess = spawn(lnPath,["-s","-f","/Applications","dist/mac/dmg/Application"]);
-				lnProcess.stderr.on("data",(data)=>{
-					process.stderr.write(data);
-				});
-				lnProcess.on("exit",(exitCode)=>{
-					if(exitCode)
-						return reject(new Error("ln Applications returns "+exitCode));
-					resolve();
+			.then((lnPath)=>{
+				return new Promise((resolve, reject) => {
+					var lnProcess = spawn(lnPath,["-s","-f","/Applications","dist/mac/dmg/Application"]);
+					lnProcess.stderr.on("data",(data)=>{
+						process.stderr.write(data);
+					});
+					lnProcess.on("exit",(exitCode)=>{
+						if(exitCode)
+							return reject(new Error("ln Applications returns "+exitCode));
+						resolve();
+					})
 				})
-			})
-		}),
-		fs.outputFile("dist/mac/"+appPath+"MacOS/config.json",
-			MakeConfigJsonStr(),"utf8")
-	]);
+			}));
+			break;
+		case "pkg": 
+			promises.push(new Promise((resolve, reject) => {
+				gulp.src("assets/setup-mac-pkg.sh.ejs")
+					.pipe(ejs({ config, manifest }))
+					.pipe(rename((filePath)=>{
+						filePath.extname="";
+						filePath.basename="postinstall";
+					}))
+					.pipe(gulp.dest("dist/mac/pkg/scripts"))
+					.on("end",()=>{
+						resolve();
+					})
+			}));
+			break;
+	}
+	return Promise.all(promises);
 }
+
+function MakeDmgFiles() {
+	return MakeMacFiles("dmg");
+}	
 
 function MakeConfigJsonStr() {
 	return JSON.stringify({
@@ -633,6 +658,55 @@ gulp.task("dmg-mac",(callback)=>{
 		"dmg-files-mac",
 		"dmg-make-mac",
 		"dmg-sign-mac",
+	callback);
+});
+
+function MakePkgFiles() {
+	return MakeMacFiles("pkg");
+}	
+
+gulp.task("pkg-files-mac",(callback)=>{
+	MakePkgFiles()
+	.then(()=>callback())		
+});
+
+gulp.task("pkg-make-mac",(callback)=>{
+	var version = Math.floor(Date.now()/1000);
+	new Promise((resolve, reject) => {
+		gulp.src("assets/{pkg-distribution.xml,pkg-component.plist}.ejs")
+			.pipe(ejs({ config, manifest, version }))
+			.pipe(rename((filePath)=>{
+				if(filePath.extname==".ejs") // should be done by gulp-ejs ?
+					filePath.extname="";
+			}))
+			.pipe(gulp.dest("dist/mac/pkg"))
+			.on("end",()=>resolve());		
+	}).then(()=>{
+		return Exec("pkgbuild",[
+			"--root","dist/mac/pkg/content",
+			"--install-location","/Applications",
+			"--scripts","dist/mac/pkg/scripts/",
+			"--identifier",config.id,
+			"--component-plist","dist/mac/pkg/pkg-component.plist",
+			"--version",version,
+			"dist/mac/pkg/app.pkg"
+		])
+	}).then(()=>{
+		return 	Exec("productbuild",[
+			"--distribution","dist/mac/pkg/pkg-distribution.xml",
+			"--package-path","dist/mac/pkg",
+			"builds/"+config.id+"-"+manifest.version+".pkg"
+		])
+	}).then(()=>{
+		callback();		
+	})
+});	
+
+gulp.task("pkg-mac",(callback)=>{
+	runSequence(
+		"build-mac-64",
+		"pkg-files-mac",
+		"pkg-make-mac",
 	callback);
 });
 
