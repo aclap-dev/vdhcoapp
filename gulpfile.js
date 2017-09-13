@@ -500,7 +500,7 @@ function MakeMacFiles(type) {
 	];
 	switch(type) {
 		case "dmg":
-			promises.push(fs.copy("assets/"+config.mac.background,"dist/mac/"+appPath+"Resources/"+config.mac.background));
+			promises.push(fs.copy("assets/"+config.mac.dmgBackground,"dist/mac/"+appPath+"Resources/"+config.mac.dmgBackground));
 			promises.push(new Promise((resolve, reject) => {
 				which("ln",(err,path)=>{
 					if(err)
@@ -603,7 +603,7 @@ gulp.task("dmg-make-mac",(callback)=>{
 				specification: {
 					"title": config.name,
 					"icon": config.id+".app/Contents/Resources/"+config.mac.iconIcns,
-					"background": config.id+".app/Contents/Resources/"+config.mac.background,
+					"background": config.id+".app/Contents/Resources/"+config.mac.dmgBackground,
 					"contents": [
 						{ "x": 400, "y": 160, "type": "link", "path": "/Applications" },
 						{ "x": 400, "y": 280, "type": "link", "path": process.env.HOME },
@@ -623,11 +623,13 @@ gulp.task("dmg-make-mac",(callback)=>{
 gulp.task("dmg-sign-mac",(callback)=>{
 	if(!config.mac.sign)
 		return callback();
-	Exec("codesign",[
-			"--deep","--force","--verbose",
-			"--sign",config.mac.sign,
-			"builds/"+config.id+"-"+manifest.version+".dmg"
-		])
+	var args = [
+		"--deep","--force","--verbose",
+		"builds/"+config.id+"-"+manifest.version+".dmg"
+	];
+	if(config.mac.sign)
+		args.push("--sign",config.mac.sign);
+	Exec("codesign",args)
 		.then((ret)=>{
 			callback();
 		})
@@ -692,11 +694,14 @@ gulp.task("pkg-make-mac",(callback)=>{
 			"dist/mac/pkg/app.pkg"
 		])
 	}).then(()=>{
-		return 	Exec("productbuild",[
+		var args = [
 			"--distribution","dist/mac/pkg/pkg-distribution.xml",
 			"--package-path","dist/mac/pkg",
 			"builds/"+config.id+"-"+manifest.version+".pkg"
-		])
+		];
+		if(config.mac.sign)
+			args.push("--sign",config.mac.sign);
+		return 	Exec("productbuild",args)
 	}).then(()=>{
 		callback();		
 	})
