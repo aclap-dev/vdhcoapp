@@ -482,25 +482,26 @@ function MakeMacFiles(type) {
 	var appPath;
 	switch(type) {
 		case "dmg":
-			appPath = "dmg/"+config.id+".app/Contents/";
+			appPath = "dmg/"+config.id+".app";
 			break;
 		case "pkg":
-			appPath = "pkg/content/"+config.id+".app/Contents/";
+			appPath = "pkg/content/"+config.id+".app";
 			break;
 	}
+	var contentPath = appPath+"/Contents/";
 
 	var promises = [
-		CopyBinary("mac","64",appPath+"MacOS/bin"),
-		CopyExtra("mac",null,"/"+appPath+"MacOS"),
-		CreateMacInfoPlist(appPath),
-		fs.copy("assets/"+config.mac.iconIcns,"dist/mac/"+appPath+"Resources/"+config.mac.iconIcns),
-		fs.outputFile("dist/mac/"+appPath+"PkgInfo","APPL????","utf8"),
-		fs.outputFile("dist/mac/"+appPath+"MacOS/config.json",
+		CopyBinary("mac","64",contentPath+"MacOS/bin"),
+		CopyExtra("mac",null,"/"+contentPath+"MacOS"),
+		CreateMacInfoPlist(contentPath),
+		fs.copy("assets/"+config.mac.iconIcns,"dist/mac/"+contentPath+"Resources/"+config.mac.iconIcns),
+		fs.outputFile("dist/mac/"+contentPath+"PkgInfo","APPL????","utf8"),
+		fs.outputFile("dist/mac/"+contentPath+"MacOS/config.json",
 			MakeConfigJsonStr(),"utf8")
 	];
 	switch(type) {
 		case "dmg":
-			promises.push(fs.copy("assets/"+config.mac.dmgBackground,"dist/mac/"+appPath+"Resources/"+config.mac.dmgBackground));
+			promises.push(fs.copy("assets/"+config.mac.dmgBackground,"dist/mac/"+contentPath+"Resources/"+config.mac.dmgBackground));
 			promises.push(new Promise((resolve, reject) => {
 				which("ln",(err,path)=>{
 					if(err)
@@ -538,7 +539,11 @@ function MakeMacFiles(type) {
 			}));
 			break;
 	}
-	return Promise.all(promises);
+	return Promise.all(promises)
+		.then(()=>{
+			if(config.mac.signApp)
+				return MacSign("dist/mac/"+appPath);
+		});
 }
 
 function MakeDmgFiles() {
@@ -620,23 +625,29 @@ gulp.task("dmg-make-mac",(callback)=>{
 		});
 });
 
+function MacSign(component) {
+	if(!config.mac.sign) {
+		console.warn("No signature specified, skipping "+component+" signing");
+		return Promise.resolve();
+	}
+	return Exec("codesign",[
+		"--deep","--force","--verbose","--ignore-resources",
+		"--sign",config.mac.sign,
+		component
+	]);
+}
+
 gulp.task("dmg-sign-mac",(callback)=>{
 	if(!config.mac.sign)
 		return callback();
-	var args = [
-		"--deep","--force","--verbose",
-		"builds/"+config.id+"-"+manifest.version+".dmg"
-	];
-	if(config.mac.sign)
-		args.push("--sign",config.mac.sign);
-	Exec("codesign",args)
-		.then((ret)=>{
-			callback();
-		})
-		.catch((err)=>{
-			console.error("Error",err)
-			throw err;
-		});
+	MacSign("builds/"+config.id+"-"+manifest.version+".dmg")
+	.then((ret)=>{
+		callback();
+	})
+	.catch((err)=>{
+		console.error("Error",err)
+		throw err;
+	});
 });
 
 gulp.task("dmg-checksign-mac",(callback)=>{
