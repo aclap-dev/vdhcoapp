@@ -151,8 +151,10 @@ function MakeDebFiles(platform,arch) {
 			CopyBinary(platform,arch,arch+"/deb"+appPath+"/bin"),
 			CopyExtra(platform,arch,"/deb"+appPath),
 			CreateLinuxFirefoxNativeManifest(arch,"/deb"),
-			CreateLinuxChromeNativeManifest(arch,"/deb")
-		]);
+			CreateLinuxChromeNativeManifest(arch,"/deb"),
+			fs.outputFile("dist/linux/"+arch+"/deb"+appPath+"/config.json",
+				MakeConfigJsonStr(),"utf8")
+	]);
 }
 
 function MakeDeb(platform,arch) {
@@ -196,7 +198,9 @@ function MakeTarGzFiles(platform,arch) {
 	return Promise.all([
 			CopyBinary(platform,arch,arch+"/targz"+appPath+"/bin"),
 			CopyExtra(platform,arch,"/targz"+appPath),
-			CreateLinuxSetupScripts(arch,"/targz"+appPath)
+			CreateLinuxSetupScripts(arch,"/targz"+appPath),
+			fs.outputFile("dist/linux/"+arch+"/targz"+appPath+"/config.json",
+				MakeConfigJsonStr(),"utf8")
 		]);
 }
 
