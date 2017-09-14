@@ -2,13 +2,16 @@
 const os = require("os");
 const fs = require("fs-extra");
 const path = require("path");
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 
 function DisplayMessage(body,title) {
 	switch(os.platform()) {
 		case "darwin":
 			spawn("/usr/bin/osascript",["-e","display notification \""+
 				body+"\" with title \""+(title||"")+"\""]);
+			break;
+		case "win32":
+			spawnSync("msg",["*","/TIME:5",(title && title+": " || "") + body]);
 			break;
 		default:
 			console.info((title && title+": " || "") + body);
@@ -34,11 +37,18 @@ function GetManifests(config) {
 	}
 }
 
-function UnixParseModeConfig() {
+function ParseModeConfig() {
+	var homeVar = "HOME";
+	if(os.platform()=="win32")
+		homeVar = "USERPROFILE";
 	var mode;
-	if(process.execPath.startsWith(process.env.HOME))
+	if(process.execPath.startsWith(process.env[homeVar]))
 		mode = "user";
 	else
+		mode = "system";
+	if(process.argv.indexOf("--user")>=0)
+		mode = "user";
+	else if(process.argv.indexOf("--system")>=0)
 		mode = "system";
 	var config;
 	try {
@@ -52,7 +62,7 @@ function UnixParseModeConfig() {
 }
 
 function DarwinInstall() {
-	var { mode, config } = UnixParseModeConfig();
+	var { mode, config } = ParseModeConfig();
 	var { chrome: chromeManifest, firefox: firefoxManifest } = GetManifests(config);
 	var manifests;
 	if(mode=="user") 
@@ -90,7 +100,7 @@ function DarwinInstall() {
 }
 
 function DarwinUninstall() {
-	var { mode, config } = UnixParseModeConfig();
+	var { mode, config } = ParseModeConfig();
 	
 	var manifests;
 	if(mode=="user") 
@@ -118,7 +128,7 @@ function DarwinUninstall() {
 }
 
 function LinuxInstall() {
-	var { mode, config } = UnixParseModeConfig();
+	var { mode, config } = ParseModeConfig();
 	var { chrome: chromeManifest, firefox: firefoxManifest } = GetManifests(config);
 	var manifests;
 	if(mode=="user") 
@@ -156,7 +166,7 @@ function LinuxInstall() {
 }
 
 function LinuxUninstall() {
-	var { mode, config } = UnixParseModeConfig();
+	var { mode, config } = ParseModeConfig();
 	
 	var manifests;
 	if(mode=="user") 
@@ -182,14 +192,88 @@ function LinuxUninstall() {
 	var text = config.name+" manifests have been removed";
 	DisplayMessage(text,config.name);
 }
-	
+
+function WriteRegistry(regRoot,path,key,value) {
+	var fullKey = regRoot+path+"\\"+key;
+	var args = ["ADD",fullKey,"/f","/t","REG_SZ","/d",value];
+	var ret = spawnSync("reg",args);
+	if(ret.status!==0) {
+		DisplayMessage("Failed writing registry key "+fullKey);
+		process.exit(-1);
+	}
+}
+
+function WindowsInstall() {
+	var { mode, config } = ParseModeConfig();
+	if(mode=="system") {
+		// check if elevated
+		var processRet = spawnSync("net",["session"]);
+		if(processRet.exitCode!=0) {
+			DisplayMessage("To setup "+config.name+" system-wide, you must execute the program as Administrator",
+				config.name);
+			return process.exit(-1);
+		}
+	}
+	var manifestsDir = path.resolve(path.dirname(process.execPath),"../manifests");
+	try {
+		fs.mkdirpSync(manifestsDir);
+	} catch(e) {
+		DisplayMessage("Error creating directory",manifestsDir,":",e.message);
+		process.exit(-1);
+	}
+	var { firefox: firefoxManifest, chrome: chromeManifest} = GetManifests(config);
+	var firefoxManifestFile = path.resolve(path.join(manifestsDir,"firefox."+config.id+".json"));
+	fs.outputFileSync(firefoxManifestFile,JSON.stringify(firefoxManifest,null,4),"utf8");
+	var chromeManifestFile = path.resolve(path.join(manifestsDir,"chrome."+config.id+".json"));
+	fs.outputFileSync(chromeManifestFile,JSON.stringify(chromeManifest,null,4),"utf8");
+
+	var regRoot = "HKLM";
+	if(mode=="user")
+		regRoot = "HKCU";
+	WriteRegistry(regRoot,"\\Software\\Google\\Chrome\\NativeMessagingHosts",config.id,chromeManifestFile);
+	WriteRegistry(regRoot,"\\Software\\Chromium\\NativeMessagingHosts",config.id,chromeManifestFile);
+	WriteRegistry(regRoot,"\\Software\\Mozilla\\NativeMessagingHosts",config.id,firefoxManifestFile);
+	var text = config.name+" is ready to be used";
+	DisplayMessage(text);
+}
+
+function DeleteRegistry(regRoot,path,key) {
+	var fullKey = regRoot+path+"\\"+key;
+	var args = ["DELETE",fullKey,"/f"];
+	spawnSync("reg",args);
+}
+
+function WindowsUninstall() {
+	var { mode, config } = ParseModeConfig();
+	if(mode=="system") {
+		// check if elevated
+		var processRet = spawnSync("net",["session"]);
+		if(processRet.exitCode!=0) {
+			DisplayMessage("To setup "+config.name+" system-wide, you must execute the program as Administrator",
+				config.name);
+			return process.exit(-1);
+		}
+	}
+	var regRoot = "HKLM";
+	if(mode=="user")
+		regRoot = "HKCU";
+	DeleteRegistry(regRoot,"\\Software\\Google\\Chrome\\NativeMessagingHosts",config.id);
+	DeleteRegistry(regRoot,"\\Software\\Chromium\\NativeMessagingHosts",config.id);
+	DeleteRegistry(regRoot,"\\Software\\Mozilla\\NativeMessagingHosts",config.id);
+	var text = config.name+" manifests have been removed";
+	DisplayMessage(text);
+}
+
 exports.install = () => {
 	switch(os.platform()) {
 		case "darwin":
 			DarwinInstall();
 			break;
-		case "linux":
+			case "linux":
 			LinuxInstall();
+			break;
+		case "win32":
+			WindowsInstall();
 			break;
 		default:
 			DisplayMessage("Auto-install not supported for "+ os.platform() + " platform");
@@ -204,6 +288,9 @@ exports.uninstall = () => {
 			break;
 		case "linux":
 			LinuxUninstall();
+			break;
+		case "win32":
+			WindowsUninstall();
 			break;
 		default:
 			DisplayMessage("Auto-install not supported for "+ os.platform() + " platform");

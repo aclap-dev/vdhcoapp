@@ -307,8 +307,10 @@ function MakeIssFiles() {
 				.on("end",()=>{
 					resolve();				
 				})
-		})
-	]);
+		}),
+		fs.outputFile("dist/win/iss"+appPath+"/config.json",
+			MakeConfigJsonStr(),"utf8")
+		]);
 }
 
 function MakeIss() {
@@ -383,7 +385,7 @@ function ExecSign(args) {
 			process.stderr.write(data);
 		});
 		osslsigncodeProcess.stdout.on("data",(data)=>{
-			process.stderr.write(data);
+			//process.stderr.write(data);
 		});
 		osslsigncodeProcess.on("exit",(exitCode)=>{
 			resolve(exitCode);
