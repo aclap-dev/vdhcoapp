@@ -10,10 +10,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-const yargs = require('yargs').argv;
-if(yargs._.length==0 || yargs._[0]=="install")
+if(process.argv[2]=="install")
 	require("./native-autoinstall").install();
-if(yargs._[0]=="uninstall")
+if(process.argv[2]=="uninstall")
 	require("./native-autoinstall").uninstall();
 
 require('./native-messaging');
