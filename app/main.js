@@ -22,7 +22,10 @@ const rpc = require('./weh-rpc');
 rpc.setLogger(logger);
 rpc.setDebugLevel(2);
 
-require('./converter');
+const converter = require('./converter');
+require('./file');
+const manifest = require('../package');
+const config = require('../config');
 
 rpc.listen({
 	quit: () => {
@@ -30,8 +33,34 @@ rpc.listen({
 			process.exit(0);						
 		});
 	},
-	getEnv: () => {
+	env: () => {
 		return process.env;
+	},
+	ping: (arg) => {
+		return arg;
+	},
+	info: () => {
+		var result = {
+			id: config.id,
+			name: manifest.name,
+			version: manifest.version,
+			binary: process.execPath,
+			displayName: config.name,
+			description: config.description
+		};
+		return converter.info()
+			.then((convInfo)=>{
+				return Object.assign(result, {
+					converterBinary: convInfo.converterBinary,
+					converterBase: convInfo.program,
+					converterBaseVersion: convInfo.version
+				});
+			})
+			.catch((error)=>{
+				return Object.assign(result, {
+					converterError: error.message
+				});
+			});
 	}
 });
 
