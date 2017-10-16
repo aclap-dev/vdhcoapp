@@ -22,7 +22,7 @@ X265_VER="2.5"
 ORC_VER="upstream/0.4.27"
 THEORA_VER="HEAD@{2017-09-6 00:00:00}"
 SSL_VER="OpenSSL_1_0.2l"
-FFMPEG_VER="n3.4"
+FFMPEG_VER="n3.1.11"
 
 LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl webp zlib jpeg x265 orc theora ssl"
 
