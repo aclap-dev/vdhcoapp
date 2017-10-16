@@ -438,9 +438,20 @@ build_ssl() {
 		CROSS_COMPILE_BAK="$CROSS_COMPILE"
 		export CROSS_COMPILE="$CROSS_COMPILE"
 		CC_BAK="$CC"
+		AR_BACK="$AR"
+		TARGET_BACK="$TARGET"
+		case $ARCH in
+			i686)
+				export TARGET="mingw"
+				;;
+			x86_64)
+				export TARGET="mingw64"
+				;;
+		esac
 		export CC="gcc"
+		export AR=
 		./Configure shared no-asm no-dso zlib-dynamic no-gost \
-			--prefix=$ARCHSRCDIR/deps mingw64 \
+			--prefix=$ARCHSRCDIR/deps $TARGET \
 			-L"$ARCHSRCDIR/deps/lib" -I"$ARCHSRCDIR/deps/include" || exit -1
 		make || exit -1
 		(
@@ -451,6 +462,8 @@ build_ssl() {
 		make install_sw install || exit -1
 		export CROSS_COMPILE=
 		export CC="$CC_BAK"
+		export AR="$AR_BAK"
+		export TARGET="$TARGET_BAK"
 		CROSS_COMPILE="$CROSS_COMPILE_BAK"
 		;;
 	linux)
@@ -670,7 +683,7 @@ build_arch() {
 
 	win)
 
-		cp $BUILDARCHDIR/bin/avconv.exe $BUILDARCHDIR/bin/avprobe.exe $BUILDARCHDIR/bin/avplay.exe $BUILDARCHDIR/bin/*.dll $FINALARCHDIR
+		cp $BUILDARCHDIR/bin/ffmpeg.exe $BUILDARCHDIR/bin/ffprobe.exe $BUILDARCHDIR/bin/ffplay.exe $BUILDARCHDIR/bin/*.dll $FINALARCHDIR
     	cp /usr/$ARCH-w64-mingw32/lib/libwinpthread-1.dll $FINALARCHDIR
     	cp $GCC_LIBDIR/libstdc++-6.dll $FINALARCHDIR
     	if [ "$ARCH" == "i686" ]; then
@@ -683,7 +696,7 @@ build_arch() {
 	;;
 
 	mac)
-		cp $BUILDARCHDIR/bin/avconv $BUILDARCHDIR/bin/avprobe $BUILDARCHDIR/bin/avplay \
+		cp $BUILDARCHDIR/bin/ffmpeg $BUILDARCHDIR/bin/ffprobe $BUILDARCHDIR/bin/ffplay \
 			$(find $ARCHSRCDIR/deps/lib -regex "[^\\.]*\\.[0-9]*\\.dylib") \
 			$(find $BUILDARCHDIR -regex ".*\\.[0-9]*\\.dylib") \
 			$ARCHSRCDIR/zlib/libz.1.dylib \
@@ -691,10 +704,6 @@ build_arch() {
 	;;
 	
 	linux)
-		cp $BUILDARCHDIR/bin/avconv $BUILDARCHDIR/bin/avprobe $BUILDARCHDIR/bin/avplay \
-			$(find $ARCHSRCDIR/deps/lib -regex ".*\\.so\\.[0-9]+") \
-			$(find $BUILDARCHDIR/lib -regex ".*\\.so\\.[0-9]+") \
-			$FINALARCHDIR
 		cp $BUILDARCHDIR/bin/ffmpeg $BUILDARCHDIR/bin/ffprobe $BUILDARCHDIR/bin/ffplay \
 			$(find $ARCHSRCDIR/deps/lib -regex ".*\\.so\\.[0-9]+") \
 			$(find $BUILDARCHDIR/lib -regex ".*\\.so\\.[0-9]+") \
@@ -718,8 +727,8 @@ build_win() {
 
 	mkdir -p "$BUILDDIR/win/32" "$BUILDDIR/win/64"
 
-	build_arch win x86_64 $BUILDDIR/win/64 $SRCDIR/win/64 || exit -1
 	build_arch win i686 $BUILDDIR/win/32 $SRCDIR/win/32 || exit -1
+	build_arch win x86_64 $BUILDDIR/win/64 $SRCDIR/win/64 || exit -1
 }
 
 build_linux() {
