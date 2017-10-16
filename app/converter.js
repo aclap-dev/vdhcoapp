@@ -24,10 +24,10 @@ else if(process.arch=="ia32")
 else
 	throw new Error("Unsupported architecture",process.arch);
 
-const binaryDir = path.join(path.dirname(process.execPath),"..","libav","build",platform,arch);
-const binaryPath = path.join(binaryDir,"avconv");
-const probeBinaryPath = path.join(binaryDir,"avprobe");
-const playBinaryPath = path.join(binaryDir,"avplay");
+const binaryDir = path.join(path.dirname(process.execPath),"..","converter","build",platform,arch);
+const binaryPath = path.join(binaryDir,"ffmpeg");
+const probeBinaryPath = path.join(binaryDir,"ffprobe");
+const playBinaryPath = path.join(binaryDir,"ffplay");
 
 logger.info("process.cwd",process.cwd);
 logger.info("__dirname",__dirname);
@@ -120,7 +120,7 @@ rpc.listen({
 			});
 		});
 	},
-	"avplay": (filePath) => {
+	"play": (filePath) => {
 		return new Promise((resolve, reject) => {
 			var playProcess = spawn(playBinaryPath, [filePath], {
 				env: Object.assign({},process.env,{

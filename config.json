@@ -4,7 +4,7 @@
 	"description": "Video DownloadHelper companion app",
 	"node_major": 7,
 	"extra": [{
-			"source": "libav/build/${platform}/${arch}/"
+			"source": "converter/build/${platform}/${arch}/"
 		},{
 			"source": "assets/gpl-2.0.txt",
 			"dest": "LICENSE.txt"
@@ -24,13 +24,13 @@
 		"appPublisher": "DownloadHelper",
 		"licenseFile": "LICENSE.txt",
 		"sources": [{
-			"source": "libav\\build\\win\\64\\*",
-			"DestDir": "\"{app}\\libav\\build\\win\\64\"",
+			"source": "converter\\build\\win\\64\\*",
+			"DestDir": "\"{app}\\converter\\build\\win\\64\"",
 			"Flags": "recursesubdirs createallsubdirs",
 			"Check": "IsX64"
 		},{
-			"source": "libav\\build\\win\\32\\*",
-			"DestDir": "\"{app}\\libav\\build\\win\\32\"",
+			"source": "converter\\build\\win\\32\\*",
+			"DestDir": "\"{app}\\converter\\build\\win\\32\"",
 			"Flags": "recursesubdirs createallsubdirs",
 			"Check": "IsOtherArch"
 		},{

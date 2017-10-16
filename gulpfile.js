@@ -465,7 +465,7 @@ gulp.task("sign-iss-files",(callback)=>{
 		var promises = [];
 		["64","32"].forEach((arch)=>{
 			promises.push(SignFile("dist/win/iss/bin/"+config.id+"-win-"+arch+".exe"));
-			promises.push(SignFiles("dist/win/iss/libav/build/win/"+arch),/\.(exe|dll)$/);
+			promises.push(SignFiles("dist/win/iss/converter/build/win/"+arch),/\.(exe|dll)$/);
 		})
 		return Promise.all(promises);
 	})
