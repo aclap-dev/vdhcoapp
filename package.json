@@ -1,45 +1,48 @@
 {
-	"name": "vdhcoapp",
-	"description": "Video DownloadHelper companion application",
-	"version": "0.9.0",
-	"productName": "VdhCoApp",
-	"keywords": [
-		"DownloadHelper",
-		"WebExtensions",
-		"nativeMessaging"
-	],
-	"homepage": "https://downloadhelper.net",
-	"author": {
-		"name": "Michel Gutierrez",
-		"email": "mig@downloadhelper.net",
-		"url": "https://github.com/mi-g"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/mi-g/vdhcoapp"
-	},
-	"license": "GPL-2.0",
-	"devDependencies": {
-		"fs-extra": "^4.0.1",
-		"gulp": "^3.9.1",
-		"gulp-clean": "^0.3.2",
-		"gulp-deb": "^0.2.1",
-		"gulp-debug": "^3.1.0",
-		"gulp-ejs": "^3.0.1",
-		"gulp-gzip": "^1.4.0",
-		"gulp-if": "^2.0.2",
-		"gulp-rename": "^1.2.2",
-		"gulp-tar": "^2.0.0",
-		"pkg": "^4.2.4",
-		"run-sequence": "^2.1.0",
-		"which": "^1.3.0",
-		"yargs": "^8.0.2"
-	},
-	"wehOptionalDevDependencies": {
-		"regedit": "^2.2.7",
-		"appdmg": "^0.4.5"
-	},
-	"dependencies": {
-		"log4js": "^2.3.3"
-	}
+  "name": "vdhcoapp",
+  "description": "Video DownloadHelper companion application",
+  "version": "0.9.0",
+  "productName": "VdhCoApp",
+  "keywords": [
+    "DownloadHelper",
+    "WebExtensions",
+    "nativeMessaging"
+  ],
+  "homepage": "https://downloadhelper.net",
+  "author": {
+    "name": "Michel Gutierrez",
+    "email": "mig@downloadhelper.net",
+    "url": "https://github.com/mi-g"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mi-g/vdhcoapp"
+  },
+  "license": "GPL-2.0",
+  "devDependencies": {
+    "fs-extra": "^4.0.1",
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-deb": "^0.2.1",
+    "gulp-debug": "^3.1.0",
+    "gulp-ejs": "^3.0.1",
+    "gulp-gzip": "^1.4.0",
+    "gulp-if": "^2.0.2",
+    "gulp-rename": "^1.2.2",
+    "gulp-tar": "^2.0.0",
+    "pkg": "^4.2.4",
+    "run-sequence": "^2.1.0",
+    "which": "^1.3.0",
+    "yargs": "^8.0.2"
+  },
+  "wehOptionalDevDependencies": {
+    "regedit": "^2.2.7",
+    "appdmg": "^0.4.5"
+  },
+  "dependencies": {
+    "fs-extra": "^4.0.2",
+    "log4js": "^2.3.3",
+    "open": "0.0.5",
+    "tmp": "0.0.33"
+  }
 }
