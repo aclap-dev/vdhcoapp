@@ -13,10 +13,11 @@
 			"dest": "README.txt"
 		}],
 	"allowed_extensions": {
-		"firefox": ["weh-native-test@downloadhelper.net"],
+		"firefox": ["weh-native-test@downloadhelper.net","{b9db16a4-6edc-47ec-a1f4-b86292ed211d}"],
 		"chrome": [
 			"chrome-extension://ocgbelnknlgoiofcepicgpicjibclfdg/",
-			"chrome-extension://lpheobkpibijgligoklmllibbbdhfghg/"
+			"chrome-extension://lpheobkpibijgligoklmllibbbdhfghg/",
+			"chrome-extension://amnobfikmbfolbaeeadnkcppghfdjeke/"
 		]
 	},
 	"win": {
