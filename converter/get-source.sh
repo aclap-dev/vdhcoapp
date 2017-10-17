@@ -5,26 +5,25 @@
 BASEDIR=$(dirname "$0")
 SRCDIR="$BASEDIR/src"
 
+FFMPEG_VER="n2.9.13"
 LAME_VER="RELEASE__3_99_5"
 OGG_VER="v1.3.2"
-VORBIS_VER="HEAD@{2017-09-6 00:00:00}"
+VORBIS_VER="8ef0f8058854b2ef55d2d42bbe84487a9aadae12" 
 OPUS_VER="v1.2.1"
 VPX_VER="v1.6.1"
-X264_VER="HEAD@{2017-09-6 00:00:00}"
+X264_VER="stable"
 XVID_VER="release-1_3_3"
 OCAMR_VER="v0.1.5"
 VOAMRWBENC_VER="v0.1.3"
 SDL_VER="release-1.2.15"
 WEBP_VER="v0.6.0"
 ZLIB_VER="v1.2.9"
-JPEG_VER="version.1.5.2"
+JPEG_VER="version.1.5.1"
 X265_VER="2.5"
 ORC_VER="upstream/0.4.27"
-THEORA_VER="HEAD@{2017-09-6 00:00:00}"
-SSL_VER="OpenSSL_1_0.2l"
-FFMPEG_VER="n3.1.11"
+THEORA_VER="distrotech-libtheora-git"
 
-LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl webp zlib jpeg x265 orc theora ssl"
+LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl webp zlib jpeg x265 orc theora"
 
 rm -rf $SRCDIR
 mkdir -p $SRCDIR
@@ -46,7 +45,6 @@ mkdir -p $SRCDIR
 (cd $SRCDIR; git clone https://github.com/videolan/x265.git x265; cd x265; git checkout "$X265_VER")
 (cd $SRCDIR; git clone git://anonscm.debian.org/pkg-gstreamer/orc.git orc; cd orc; git checkout "$ORC_VER")
 (cd $SRCDIR; git clone https://github.com/Distrotech/libtheora.git theora; cd theora; git checkout "$THEORA_VER")
-(cd $SRCDIR; git clone git@github.com:openssl/openssl.git ssl; cd ssl; git checkout "$SSL_VER")
 
 for lib in $LIBS; do
     if [ ! -e "src/$lib" ]; then

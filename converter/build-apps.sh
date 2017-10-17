@@ -235,6 +235,42 @@ build_sdl() {
 	linux)
 		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
 			--enable-video-x11=no \
+			--enable-x11-shared=yes \
+			|| exit -1
+		;;
+	mac)
+		sed -i -e '/CGDirectPaletteRef/d' src/video/quartz/SDL_QuartzVideo.h
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
+			--enable-video-x11=no \
+			|| exit -1
+		;;
+	esac		
+	make || exit -1
+	make install || exit -1
+	)
+}
+
+# unused for now
+build_sdl2() {
+	(
+	echo "Building sdl2"
+	cd $ARCHSRCDIR/sdl2
+	rm -r autom4te.cache configure config.h config.h.i config.status config.mak Makefile libtool ltmain.sh
+	./autogen.sh || exit -1
+	case $PLATFORM in
+	win)
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps || exit -1
+		;;
+	linux)
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
+			--disable-rpath --enable-sdl-dlopen --disable-loadso \
+			--disable-nas --disable-esd --disable-arts \
+			--disable-alsa-shared --disable-pulseaudio-shared \
+			--enable-ibus \
+			--disable-video-directfb \
+			--enable-video-opengles \
+			--enable-video-wayland --disable-wayland-shared \
+			--enable-video-x11=no \
 			|| exit -1
 		;;
 	mac)
@@ -304,13 +340,18 @@ build_jpeg() {
 	(
 	echo "Building jpeg"
 	cd $ARCHSRCDIR/jpeg
+	JPEG_SHARED_LIBS=ON
 	case $PLATFORM in
-	win) SYSTEM_NAME=Windows ;;
+	win) 
+		SYSTEM_NAME=Windows 
+		JPEG_SHARED_LIBS=OFF
+		;;
 	linux) SYSTEM_NAME=Linux ;;
 	mac) SYSTEM_NAME=Darwin ;;
 	esac	
 	cmake -DCMAKE_SYSTEM_NAME="$SYSTEM_NAME" -DBUILD_THIRDPARTY=1 \
 		-DCMAKE_INSTALL_PREFIX="$ARCHSRCDIR/deps" \
+		-DBUILD_SHARED_LIBS=$JPEG_SHARED_LIBS \
 		-DOPENJPEG_INSTALL_INCLUDE_DIR="$ARCHSRCDIR/deps/include" \
 		-DOPENJPEG_INSTALL_LIB_DIR="$ARCHSRCDIR/deps/lib" \
 		-DOPENJPEG_INSTALL_DOC_DIR="$ARCHSRCDIR/deps/doc" \
@@ -429,70 +470,6 @@ build_theora() {
 	)
 }
 
-build_ssl() {
-	(
-	echo "Building ssl"
-	cd $ARCHSRCDIR/ssl
-	case $PLATFORM in
-	win)
-		CROSS_COMPILE_BAK="$CROSS_COMPILE"
-		export CROSS_COMPILE="$CROSS_COMPILE"
-		CC_BAK="$CC"
-		AR_BACK="$AR"
-		TARGET_BACK="$TARGET"
-		case $ARCH in
-			i686)
-				export TARGET="mingw"
-				;;
-			x86_64)
-				export TARGET="mingw64"
-				;;
-		esac
-		export CC="gcc"
-		export AR=
-		./Configure shared no-asm no-dso zlib-dynamic no-gost \
-			--prefix=$ARCHSRCDIR/deps $TARGET \
-			-L"$ARCHSRCDIR/deps/lib" -I"$ARCHSRCDIR/deps/include" || exit -1
-		make || exit -1
-		(
-			cd engines;
-			touch lib4758cca.bad libaep.bad libatalla.bad libcswift.bad libchil.bad libgmp.bad \
-			libnuron.bad libsureware.bad libubsec.bad libcapi.bad libpadlock.bad
-		)
-		make install_sw install || exit -1
-		export CROSS_COMPILE=
-		export CC="$CC_BAK"
-		export AR="$AR_BAK"
-		export TARGET="$TARGET_BAK"
-		CROSS_COMPILE="$CROSS_COMPILE_BAK"
-		;;
-	linux)
-		case $ARCH in
-		i686) 
-			setarch i386 ./config -m32 --prefix=$ARCHSRCDIR/deps -L"$ARCHSRCDIR/deps/lib" \
-				-I"$ARCHSRCDIR/deps/include" \
-				-fPIC || exit -1
-			;;
-		x86_64)
-			./config --prefix=$ARCHSRCDIR/deps -L"$ARCHSRCDIR/deps/lib" \
-				-I"$ARCHSRCDIR/deps/include" \
-				-fPIC || exit -1
-			;;
-		esac
-		make || exit -1
-		make install_sw install || exit -1
-	;;
-	mac)
-		./config --prefix=$ARCHSRCDIR/deps -L"$ARCHSRCDIR/deps/lib" \
-			-I"$ARCHSRCDIR/deps/include" \
-			-fPIC || exit -1
-		make || exit -1
-		make install_sw install || exit -1
-		;;
-	esac
-	)
-}
-
 build_ffmpeg() {
 	(
 	echo "Building ffmpeg"
@@ -501,66 +478,55 @@ build_ffmpeg() {
 	win)
 		./configure \
 			--cross-prefix=$ARCH-w64-mingw32- \
-			--arch=$ARCH \
 			--sysroot=/usr/$ARCH-w64-mingw32/ \
 			--extra-ldflags=-static-libgcc \
 			--target-os=mingw32 \
-			--enable-runtime-cpudetect \
-			--enable-cross-compile \
-			--enable-gpl \
-			--enable-shared \
-			--enable-pthreads \
+			--arch=$ARCH \
 			--prefix=$BUILDARCHDIR \
-			--enable-version3 \
+			--extra-version="vdhcoapp" \
 			--extra-cflags="-I$ARCHSRCDIR/deps/include" \
-			--extra-ldflags="-L$ARCHSRCDIR/deps/lib" \
+			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib" \
 			--pkg-config=$PKG_CONFIG \
-			--enable-libvo-amrwbenc \
-			--enable-libopus \
-			--enable-libvorbis \
-			--enable-libx264 \
+			--enable-shared \
+			--enable-gpl \
+			--enable-pthreads \
 			--enable-libmp3lame \
-			--enable-libvpx \
-			--enable-libxvid \
-			--enable-libopencore_amrnb \
-			--enable-libopencore_amrwb \
-			--enable-encoder=libvpx-vp9 \
-			--enable-libwebp \
-			--enable-zlib \
 			--enable-libopenjpeg \
-			--enable-libx265 \
+			--enable-libopus \
 			--enable-libtheora \
+			--enable-libvorbis \
+			--enable-libvpx \
+			--enable-libwebp \
+			--enable-libx265 \
+			--enable-libxvid \
+			--enable-libx264 \
+			--enable-avresample \
 			|| exit -1
 		;;
 	linux)
 		./configure \
 			--arch=$ARCH \
-			--extra-ldflags=-static-libgcc \
-			--extra-libs="-ldl" \
-			--enable-runtime-cpudetect \
-			--enable-gpl \
-			--enable-shared \
-			--enable-pthreads \
 			--prefix=$BUILDARCHDIR \
-			--enable-version3 \
+			--extra-version="vdhcoapp" \
 			--extra-cflags="-I$ARCHSRCDIR/deps/include" \
 			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib" \
 			--pkg-config=$PKG_CONFIG \
-			--enable-libvo-amrwbenc \
-			--enable-libopus \
-			--enable-libvorbis \
-			--enable-libx264 \
+			--pkgconfigdir=$PKG_CONFIG_PATH \
+			--extra-ldflags=-static-libgcc \
+			--extra-libs="-ldl" \
+			--enable-shared \
+			--enable-gpl \
 			--enable-libmp3lame \
-			--enable-libvpx \
-			--enable-libxvid \
-			--enable-libopencore_amrnb \
-			--enable-libopencore_amrwb \
-			--enable-encoder=libvpx-vp9 \
-			--enable-libwebp \
-			--enable-zlib \
 			--enable-libopenjpeg \
-			--enable-libx265 \
+			--enable-libopus \
 			--enable-libtheora \
+			--enable-libvorbis \
+			--enable-libvpx \
+			--enable-libwebp \
+			--enable-libx265 \
+			--enable-libxvid \
+			--enable-libx264 \
+			--enable-avresample \
 			--disable-indev=sndio --disable-outdev=sndio \
 			|| exit -1
 		;;
@@ -664,7 +630,6 @@ build_arch() {
     build_x265 || exit -1
     build_orc || exit -1
     build_theora || exit -1
-    build_ssl || exit -1
 	build_ffmpeg || exit -1
 
 	export CROSS_COMPILE=
@@ -727,8 +692,8 @@ build_win() {
 
 	mkdir -p "$BUILDDIR/win/32" "$BUILDDIR/win/64"
 
-	build_arch win i686 $BUILDDIR/win/32 $SRCDIR/win/32 || exit -1
 	build_arch win x86_64 $BUILDDIR/win/64 $SRCDIR/win/64 || exit -1
+	build_arch win i686 $BUILDDIR/win/32 $SRCDIR/win/32 || exit -1
 }
 
 build_linux() {
@@ -747,25 +712,6 @@ build_linux() {
 	export CFLAGS=
 	export CXXFLAGS=
 	export LDFLAGS=
-}
-
-build_linux64() {
-	mkdir -p "$SRCDIR/linux/64"
-	cp -r $SRCCLEANDIR/* "$SRCDIR/linux/64"
-	mkdir -p "$SRCDIR/linux/64/deps"
-	mkdir -p "$BUILDDIR/linux/64"
-	build_arch linux x86_64 $BUILDDIR/linux/64 $SRCDIR/linux/64 || exit -1
-}
-
-build_linux32() {
-	mkdir -p "$SRCDIR/linux/32"
-	cp -r $SRCCLEANDIR/* "$SRCDIR/linux/32"
-	mkdir -p "$SRCDIR/linux/32/deps"
-	mkdir -p "$BUILDDIR/linux/32"
-	export CFLAGS="-m32"
-	export CXXFLAGS="-m32"
-	export LDFLAGS="-m32"
-	build_arch linux i686 $BUILDDIR/linux/32 $SRCDIR/linux/32 || exit -1
 }
 
 build_mac() {
