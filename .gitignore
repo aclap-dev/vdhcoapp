@@ -8,3 +8,5 @@ node_modules
 package-lock.json
 tmp
 manifests
+.DS_Store
+._.DS_Store

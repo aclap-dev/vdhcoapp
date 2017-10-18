@@ -732,3 +732,5 @@ else
 	build_linux || exit -1
 	build_win || exit -1
 fi
+
+echo "*** Look's like a success !!! ***"
