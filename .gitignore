@@ -10,3 +10,4 @@ tmp
 manifests
 .DS_Store
 ._.DS_Store
+BUILD.windows.md
