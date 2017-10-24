@@ -146,7 +146,7 @@ rpc.listen({
 				var result = {};
 				lines.forEach((line)=>{
 					var m = /^\s*(\.|D)(\.|E)(\.|V|A|S)(\.|I)(\.|L)(\.|S)\s+([^\s]+)\s+(.*?)\s*$/.exec(line);
-					if(!m)
+					if(!m || m[7]==='=')
 						return;
 					result[m[7]] = {
 						d: m[1]!=".",
@@ -167,12 +167,12 @@ rpc.listen({
 				var lines = out.split("\n");
 				var result = {};
 				lines.forEach((line)=>{
-					var m = /^\s*(\.|D)(\.|E)\s+([^\s]+)\s+(.*?)\s*$/.exec(line);
-					if(!m)
+					var m = /^\s*(\.| |D)(\.| |E)\s+([^\s]+)\s+(.*?)\s*$/.exec(line);
+					if(!m || m[3]==='=')
 						return;
 					result[m[3]] = {
-						d: m[1]!=".",
-						e: m[2]!=".",
+						d: m[1]=="D",
+						e: m[2]=="E",
 						_: m[4]
 					}
 				});
