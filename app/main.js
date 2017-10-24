@@ -46,7 +46,8 @@ rpc.listen({
 			version: manifest.version,
 			binary: process.execPath,
 			displayName: config.name,
-			description: config.description
+			description: config.description,
+			home: process.env.HOME || process.env.HOMEDIR || ""
 		};
 		return converter.info()
 			.then((convInfo)=>{
