@@ -7,6 +7,6 @@
 - launching default application on a data file
 - a build of the [ffmpeg](http://ffmpeg.org/) video converter
 
-***vdhcoapp*** complies to the [native messaging protocol](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) and is not intended to be used directly from the command line.
+***vdhcoapp*** complies with the [native messaging protocol](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) and is not intended to be used directly from the command line.
 
 Installer executables for the various platforms are available from the [releases page](https://github.com/mi-g/vdhcoapp/releases).
