@@ -13,7 +13,7 @@ cd converter
 ./build-apps.sh
 ```
 
-Once built, the executables and libraries are available in ./converter/build/&lt;platform&gt;/&lt;architecture&gt;/
+Once built, the executables and libraries are available in `./converter/build/<platform>/<architecture>/`
 
 Part 2: the application
 ---
