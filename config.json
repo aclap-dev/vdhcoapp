@@ -48,6 +48,6 @@
 		"iconIcns": "icon.icns",
 		"dmgBackground": "dmg-background.tiff",
 		"sign": "ACLAP",
-		"signApp": false
+		"signApp": true
 	}
 }
