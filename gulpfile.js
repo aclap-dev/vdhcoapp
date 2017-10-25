@@ -1011,3 +1011,23 @@ gulp.task('unsetup-local',(callback) => {
 		"unsetup-local-"+PLATFORMS[os.platform()]);
 });
 
+gulp.task('build-source-tarball',() => {
+	const entries = [
+		"./app/**/*",
+		"./assets/**/*",
+		"./BUILD.md",
+		"./config.json",
+		"./converter/*.sh",
+		"./converter/src/**/*",
+		"./gulpfile.js",
+		"./LICENSE.txt",
+		"./package.json",
+		"./README.md"
+	];
+	const baseName = config.id+"-"+manifest.version
+	return gulp.src(entries, { base: "."} )
+		.pipe(tar(baseName+"-src.tar", { prefix: baseName } ))
+		.pipe(gzip())
+		.pipe(gulp.dest("builds"));
+
+});
