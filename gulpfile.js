@@ -494,6 +494,26 @@ gulp.task("sign-iss-files",(callback)=>{
 	})
 });
 
+gulp.task("sign-iss-installer",(callback)=>{
+	if(!config.win.certificate)
+		return callback();
+	new Promise((resolve, reject) => {
+		which("osslsigncode",(err,path)=>{
+			if(err)
+				return reject(err);
+			osslsigncodePath = path;
+			resolve();
+		});
+	})
+	.then(()=>{
+		return SignFile("builds/"+manifest.productName+"Setup-"+manifest.version+".exe");
+	})
+	.then(()=>{
+		callback();
+	})
+});
+
+
 gulp.task("iss-win",(callback)=>{
 	runSequence(
 		["check-wine","check-iss"],
@@ -502,6 +522,7 @@ gulp.task("iss-win",(callback)=>{
 		"iss-files-win",
 		"sign-iss-files",
 		"iss-make-win",
+		"sign-iss-installer",
 	callback);
 });
 
