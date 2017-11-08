@@ -86,18 +86,21 @@ rpc.listen({
 					LD_LIBRARY_PATH: binaryDir
 				}
 			});
+			var stdErrParts = [];
 			["stdout","stderr"].forEach((stream) => {
 				convProcess[stream].on("data", (data) => {
+					var str = data.toString("utf8");
 					if(options[stream])
-						rpc.call("convertOutput",stream,options[stream],data.toString("utf8"))
+						rpc.call("convertOutput",stream,options[stream],str)
 							.catch((err) => {
 								logger.error("Error calling convertOutput ("+stream+
 									") for convert call '"+args.join(" ")+"':",err);
 							});
+					stdErrParts.push(str);
 				});	
 			});
 			convProcess.on("exit", (exitCode) => {
-				resolve(exitCode);
+				resolve({exitCode,stderr:stdErrParts.join("")});
 			});
 		});
 	},
