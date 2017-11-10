@@ -862,6 +862,17 @@ gulp.task('unsetup-local-linux',(callback) => {
 	})
 });
 
+gulp.task('unsetup-local-mac',(callback) => {
+	Promise.all([
+		fs.remove(process.env.HOME+"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json"),
+		fs.remove(process.env.HOME+"/Library/Application Support/Google/Chrome/NativeMessagingHosts/"+config.id+".json"),
+		fs.remove(process.env.HOME+"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json"),
+	])
+	.then(()=>{
+		callback();
+	})
+});
+
 function GetWinManifests(arch,relativePath=false) {
 	return {
 		firefox: {
