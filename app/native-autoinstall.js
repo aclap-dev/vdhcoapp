@@ -87,7 +87,8 @@ function DarwinInstall() {
 	var manifests;
 	if(mode=="user") 
 		manifests = [{
-			file: process.env.HOME+"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json",			manifest: JSON.stringify(firefoxManifest,null,4),
+			file: process.env.HOME+"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json",			
+			manifest: JSON.stringify(firefoxManifest,null,4),
 		},{
 			file: process.env.HOME+"/Library/Application Support/Google/Chrome/NativeMessagingHosts/"+config.id+".json",
 			manifest: JSON.stringify(chromeManifest,null,4),
