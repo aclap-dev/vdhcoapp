@@ -49,12 +49,12 @@ Source: "<%= source.source %>"; <%
 <% }) %>
 
 [Registry]
-Root: HKLM32; Subkey: "Software\<%= config.win.appPublisher %>\<%= config.id %>"; Flags: uninsdeletekey;
-Root: HKLM32; Subkey: "Software\<%= config.win.appPublisher %>\<%= config.id %>"; ValueType: string; ValueName: "InstallFolder"; ValueData: "{app}"; 
-Root: HKLM32; Subkey: "Software\<%= config.win.appPublisher %>\<%= config.id %>"; ValueType: string; ValueName: "Version"; ValueData: "<%= manifest.version %>"; 
-Root: HKLM32; Subkey: "Software\Mozilla\NativeMessagingHosts\<%= config.id %>"; ValueType: string; ValueName: ""; ValueData: "{app}\firefox.<%= config.id %>.json"; Flags: uninsdeletekey;
-Root: HKLM32; Subkey: "Software\Chromium\NativeMessagingHosts\<%= config.id %>"; ValueType: string; ValueName: ""; ValueData: "{app}\chrome.<%= config.id %>.json"; Flags: uninsdeletekey;
-Root: HKLM32; Subkey: "Software\Google\Chrome\NativeMessagingHosts\<%= config.id %>"; ValueType: string; ValueName: ""; ValueData: "{app}\chrome.<%= config.id %>.json"; Flags: uninsdeletekey;
+Root: HKLM; Subkey: "Software\<%= config.win.appPublisher %>\<%= config.id %>"; Flags: uninsdeletekey;
+Root: HKLM; Subkey: "Software\<%= config.win.appPublisher %>\<%= config.id %>"; ValueType: string; ValueName: "InstallFolder"; ValueData: "{app}"; 
+Root: HKLM; Subkey: "Software\<%= config.win.appPublisher %>\<%= config.id %>"; ValueType: string; ValueName: "Version"; ValueData: "<%= manifest.version %>"; 
+Root: HKLM; Subkey: "Software\Mozilla\NativeMessagingHosts\<%= config.id %>"; ValueType: string; ValueName: ""; ValueData: "{app}\firefox.<%= config.id %>.json"; Flags: uninsdeletekey;
+Root: HKLM; Subkey: "Software\Chromium\NativeMessagingHosts\<%= config.id %>"; ValueType: string; ValueName: ""; ValueData: "{app}\chrome.<%= config.id %>.json"; Flags: uninsdeletekey;
+Root: HKLM; Subkey: "Software\Google\Chrome\NativeMessagingHosts\<%= config.id %>"; ValueType: string; ValueName: ""; ValueData: "{app}\chrome.<%= config.id %>.json"; Flags: uninsdeletekey;
 
 [Code]
 function IsX64: Boolean;
