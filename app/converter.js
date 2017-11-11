@@ -49,6 +49,8 @@ const binaryPath = path.join(binaryDir,"ffmpeg");
 const probeBinaryPath = path.join(binaryDir,"ffprobe");
 const playBinaryPath = path.join(binaryDir,"ffplay");
 
+const LIBRARY_PATH = platform == "mac" ? "DYLD_LIBRARY_PATH" : "LD_LIBRARY_PATH"
+
 logger.info("process.cwd",process.cwd);
 logger.info("__dirname",__dirname);
 logger.info("__filename",__filename);
@@ -60,7 +62,7 @@ function ExecConverter(args) {
 	return new Promise((resolve, reject) => {
 		var convProcess = spawn(binaryPath, args, {
 			env: {
-				LD_LIBRARY_PATH: binaryDir
+				[LIBRARY_PATH]: binaryDir
 			}
 		});
 		convProcess.stdout.on("data", (data) => {
@@ -83,7 +85,7 @@ rpc.listen({
 		return new Promise((resolve, reject) => {
 				var convProcess = spawn(binaryPath, args, {
 				env: {
-					LD_LIBRARY_PATH: binaryDir
+					[LIBRARY_PATH]: binaryDir
 				}
 			});
 			var stdErrParts = [];
@@ -106,9 +108,9 @@ rpc.listen({
 	},
 	"probe": (filePath) => {
 		return new Promise((resolve, reject) => {
-				var probeProcess = spawn(probeBinaryPath, [filePath], {
+				var probeProcess = spawn(probeBinaryPath, [filePath,"-XXXX"], {
 				env: {
-					LD_LIBRARY_PATH: binaryDir
+					[LIBRARY_PATH]: binaryDir
 				}
 			});
 			var streams = {
@@ -122,7 +124,7 @@ rpc.listen({
 			});
 			probeProcess.on("exit", (exitCode) => {
 				if(exitCode!==0)
-					return reject(new Error(""+exitCode+" "+streams.stderr));
+					return reject(new Error("Exit code: "+exitCode+"\n"+streams.stderr));
 				var info={};
 				var m=/([0-9]{2,})x([0-9]{2,})/g.exec(streams.stderr);
 				if(m) {
@@ -147,7 +149,7 @@ rpc.listen({
 		return new Promise((resolve, reject) => {
 			var playProcess = spawn(playBinaryPath, [filePath], {
 				env: Object.assign({},process.env,{
-					LD_LIBRARY_PATH: binaryDir,
+					[LIBRARY_PATH]: binaryDir
 				})
 			});
 			var stderr = [];
@@ -212,7 +214,7 @@ exports.info = () => {
 	return new Promise((resolve, reject) => {
 		var convProcess = spawn(binaryPath, ["-h"], {
 			env: {
-				LD_LIBRARY_PATH: binaryDir
+				[LIBRARY_PATH]: binaryDir
 			}
 		});
 		var done = false;
