@@ -108,7 +108,7 @@ rpc.listen({
 	},
 	"probe": (filePath) => {
 		return new Promise((resolve, reject) => {
-				var probeProcess = spawn(probeBinaryPath, [filePath,"-XXXX"], {
+				var probeProcess = spawn(probeBinaryPath, [filePath], {
 				env: {
 					[LIBRARY_PATH]: binaryDir
 				}
