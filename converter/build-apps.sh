@@ -329,7 +329,7 @@ build_zlib() {
 			INCLUDE_PATH="/include" \
 			LIBRARY_PATH="/lib" \
 			BINARY_PATH="/bin" \
-			DESTDIR="$ARCHSRCDIR/deps" install \
+			install \
 				SHARED_MODE=1 || exit -1
 		;;
 	esac
@@ -509,10 +509,9 @@ build_ffmpeg() {
 			--prefix=$BUILDARCHDIR \
 			--extra-version="vdhcoapp" \
 			--extra-cflags="-I$ARCHSRCDIR/deps/include" \
-			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib" \
+			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib -static-libgcc" \
 			--pkg-config=$PKG_CONFIG \
 			--pkgconfigdir=$PKG_CONFIG_PATH \
-			--extra-ldflags=-static-libgcc \
 			--extra-libs="-ldl" \
 			--enable-shared \
 			--enable-gpl \
@@ -535,6 +534,7 @@ build_ffmpeg() {
 			--arch=$ARCH \
 			--enable-runtime-cpudetect \
 			--enable-gpl \
+			--extra-version="vdhcoapp" \
 			--enable-shared \
 			--enable-pthreads \
 			--prefix=$BUILDARCHDIR \
@@ -733,4 +733,4 @@ else
 	build_win || exit -1
 fi
 
-echo "*** Look's like a success !!! ***"
+echo "*** Look's like a success !!! ***"		
