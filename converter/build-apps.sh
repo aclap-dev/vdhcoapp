@@ -402,7 +402,7 @@ build_x265() {
 			-DCMAKE_ASM_YASM_COMPILER="yasm" \
 			source
 		make x265-shared
-		cp libx265.$LIBEXT "$ARCHSRCDIR/deps/lib"
+		cp libx265*.$LIBEXT "$ARCHSRCDIR/deps/lib"
 		cp source/x265.h "$ARCHSRCDIR/deps/include"
 		cp x265_config.h "$ARCHSRCDIR/deps/include"
 		cp x265.pc "$ARCHSRCDIR/deps/lib/pkgconfig"
