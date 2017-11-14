@@ -99,19 +99,20 @@ rpc.listen({
 
 			convProcess.stderr.on("data",(data)=>{
 				var str = data.toString("utf8");
-				if(options.progressTime) {
-					var m = PARSETIME_RE.exec(str);
-					if(m) {
+				var m = PARSETIME_RE.exec(str);
+				if(m) {
+					if(options.progressTime) {
 						var frameTime = parseFloat(m[1])*3600 + parseFloat(m[2])*60 + parseFloat(m[3]);
 						rpc.call("convertOutput",options.progressTime,frameTime);
 					}
-				}
-				const maxSize = 200000;
-				if(stdErrSize+str.length>=maxSize)
-					str = str.substr(0,maxSize-stdErrSize);
-				if(str.length>0) {
-					stdErrParts.push(str);
-					stdErrSize+=str.length;
+				} else {
+					const maxSize = 20000;
+					if(stdErrSize+str.length>=maxSize)
+						str = str.substr(0,maxSize-stdErrSize);
+					if(str.length>0) {
+						stdErrParts.push(str);
+						stdErrSize+=str.length;
+					}
 				}
 			});
 
