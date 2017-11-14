@@ -80,6 +80,8 @@ function ExecConverter(args) {
 	});
 }
 
+const PARSETIME_RE = new RegExp("time=([0-9]+):([0-9]+):([0-9]+)");
+
 rpc.listen({
 	"convert": (args=["-h"],options={}) => {
 		return new Promise((resolve, reject) => {
@@ -89,26 +91,38 @@ rpc.listen({
 				}
 			});
 			var stdErrParts = [];
-			["stdout","stderr"].forEach((stream) => {
-				convProcess[stream].on("data", (data) => {
-					var str = data.toString("utf8");
-					if(options[stream])
-						rpc.call("convertOutput",stream,options[stream],str)
-							.catch((err) => {
-								logger.error("Error calling convertOutput ("+stream+
-									") for convert call '"+args.join(" ")+"':",err);
-							});
-					stdErrParts.push(str);
-				});	
+			var stdErrSize = 0;
+
+			convProcess.stderr.on("data",(data)=>{
+				// just consume data
 			});
+
+			convProcess.stderr.on("data",(data)=>{
+				var str = data.toString("utf8");
+				if(options.progressTime) {
+					var m = PARSETIME_RE.exec(str);
+					if(m) {
+						var frameTime = parseFloat(m[1])*3600 + parseFloat(m[2])*60 + parseFloat(m[3]);
+						rpc.call("convertOutput",options.progressTime,frameTime);
+					}
+				}
+				const maxSize = 200000;
+				if(stdErrSize+str.length>=maxSize)
+					str = str.substr(0,maxSize-stdErrSize);
+				if(str.length>0) {
+					stdErrParts.push(str);
+					stdErrSize+=str.length;
+				}
+			});
+
 			convProcess.on("exit", (exitCode) => {
-				resolve({exitCode,stderr:stdErrParts.join("")});
+				resolve({exitCode,stderr:stdErrParts});						
 			});
 		});
 	},
 	"probe": (filePath) => {
 		return new Promise((resolve, reject) => {
-				var probeProcess = spawn(probeBinaryPath, [filePath], {
+			var probeProcess = spawn(probeBinaryPath, [filePath], {
 				env: {
 					[LIBRARY_PATH]: binaryDir
 				}
