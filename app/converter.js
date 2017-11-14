@@ -117,7 +117,7 @@ rpc.listen({
 			});
 
 			convProcess.on("exit", (exitCode) => {
-				resolve({exitCode,stderr:stdErrParts});						
+				resolve({exitCode,stderr:stdErrParts.join("")});						
 			});
 		});
 	},
