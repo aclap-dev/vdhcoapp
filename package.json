@@ -1,7 +1,7 @@
 {
   "name": "vdhcoapp",
   "description": "Video DownloadHelper companion application",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "productName": "VdhCoApp",
   "keywords": [
     "DownloadHelper",
