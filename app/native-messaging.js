@@ -26,7 +26,7 @@ logger.info("started");
 
 function exitHandler(reason,err) {
     logger.info('ended');
-    if (err) logger.warn(err.stack);
+	if (err) logger.warn(err.stack);
 	if(reason=="exit")
 		logger.shutdown(()=>{
 			process.exit(err ? -1 : 0);
@@ -61,8 +61,7 @@ function AppendInputString(chunk) {
 }
 
 function Send(message) {
-	logger.info("Send",message);
-	let msgStr = JSON.stringify(message);
+	let msgStr = Buffer.from(JSON.stringify(message),"utf8");
 	let lengthBuf = Buffer.alloc(4);
 	lengthBuf.writeUInt32LE(msgStr.length,0);
 	process.stdout.write(lengthBuf);
