@@ -24,6 +24,8 @@ const path = require('path');
 const tmp = require('tmp');
 const logger = require('./logger');
 const rpc = require('./weh-rpc');
+const { spawn } = require('child_process');
+const os = require('os');
 
 const uniqueFileNames = {};
 
@@ -68,7 +70,40 @@ rpc.listen({
 				parents.push(parent);
 				directory = parent;
 			}
-		});
+		})
+		.then((parents)=>{
+			if(os.platform()=="win32") {
+				return new Promise((resolve, reject) => {
+					var outBuffers = [];
+					var process = spawn("cmd");
+					process.stdout.on("data", (data) => {
+						outBuffers.push(data);
+					});	
+					process.stderr.on("data", (data) => {
+						// need to consume data or process stalls
+					});	
+					process.on("exit", (exitCode) => {
+						var out = Buffer.concat(outBuffers).toString("utf8");
+						var lines = out.split("\n");
+						var lastParent = parents[parents.length-1];
+						lines.forEach((line)=>{
+							var m = /^([0-9]*)\s+([A-Z]):\s*$/.exec(line);
+							if(m) {
+								if(m[1]) {
+									var drive = m[2]+":\\";
+									if(lastParent!==drive)
+										parents.push(drive);
+								}
+							}
+						});
+						resolve(parents);
+					});
+					process.stdin.write('wmic logicaldisk get name,freespace\n');
+					process.stdin.end();						
+				});
+			} else
+				return parents;
+		})
 	},
 	"makeUniqueFileName": (...args) => {
 		return new Promise((resolve, reject) => {
