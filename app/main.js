@@ -33,6 +33,7 @@ rpc.setDebugLevel(2);
 
 const converter = require('./converter');
 require('./file');
+require('./downloads');
 const manifest = require('../package');
 const config = require('../config');
 
