@@ -28,8 +28,51 @@ const rpc = require('./weh-rpc');
 const uniqueFileNames = {};
 
 rpc.listen({
-	"makeUniqueFileName": (filePath) => {
+	"listFiles": (directory) => {
 		return new Promise((resolve, reject) => {
+			directory = path.resolve(process.env.HOME || process.env.HOMEDIR,directory);
+			fs.readdir(directory,(err,files)=>{
+				if(err)
+					return reject(err);
+				Promise.all(files.map((file)=>{
+					return new Promise((resolve, reject) => {
+						var fullPath = path.resolve(directory,file);
+						fs.stat(fullPath,(err,stats)=>{
+							if(err)
+								return resolve(null);
+							resolve([file,Object.assign(stats,{
+								dir: stats.isDirectory(),
+								path: fullPath
+							})]);
+						})
+					})
+				}))
+				.then((files)=>{
+					resolve(files);
+				})
+				.catch(reject);
+			});
+		});
+	},
+	"path.homeJoin": (...args)=>{
+		return path.resolve(process.env.HOME||process.env.HOMEDIR,path.join(...args));
+	},
+	"getParents": (directory) => {
+		return new Promise((resolve, reject) => {
+			directory = path.resolve(process.env.HOME || process.env.HOMEDIR,directory);
+			var parents = [];
+			while(true) {
+				var parent = path.resolve(directory,"..");
+				if(!parent || parent==directory)
+					return resolve(parents);
+				parents.push(parent);
+				directory = parent;
+			}
+		});
+	},
+	"makeUniqueFileName": (...args) => {
+		return new Promise((resolve, reject) => {
+			var filePath = path.resolve(process.env.HOME||process.env.HOMEDIR,path.join(...args));
 			var index = uniqueFileNames[filePath] || 0;
 			var dirName = path.dirname(filePath);
 			var extName = path.extname(filePath);
@@ -39,10 +82,15 @@ rpc.listen({
 				index = parseInt(fileParts[2]);
 			function Check() {
 				uniqueFileNames[filePath] = index + 1;
-				var fullName = path.join(dirName,fileParts[1] + (index ? "-"+index : "") + extName);
+				var fileName = fileParts[1] + (index ? "-"+index : "") + extName;
+				var fullName = path.join(dirName,fileName);
 				fs.stat(fullName, (err)=>{
 					if(err)
-						resolve(fullName);
+						resolve({
+							filePath: fullName,
+							fileName: fileName,
+							directory: dirName
+						});
 					else {
 						index = parseInt(index) + 1;
 						Check();
@@ -58,6 +106,19 @@ rpc.listen({
 				if(err)
 					return reject(err);	
 				resolve({ path, fd });
+			});							
+		});
+	},
+	"tmp.tmpName": (args={}) => {
+		return new Promise((resolve, reject) => {
+			tmp.tmpName(args,(err,filePath)=>{
+				if(err)
+					return reject(err);	
+				resolve({ 
+					filePath: filePath,
+					fileName: path.basename(filePath),
+					directory: path.dirname(filePath)
+				});
 			});							
 		});
 	},
@@ -114,6 +175,15 @@ rpc.listen({
 					return reject(err);
 				resolve();
 			});				
+		})
+	},
+	"fs.copyFile": (source,dest) => {
+		return new Promise((resolve, reject) => {
+			fs.copyFile(source,dest,(err)=>{
+				if(err)
+					return reject(err);
+				resolve();			
+			})
 		})
 	}
 });
