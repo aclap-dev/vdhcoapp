@@ -1,14 +1,14 @@
 {
   "name": "vdhcoapp",
   "description": "Video DownloadHelper companion application",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "productName": "VdhCoApp",
   "keywords": [
     "DownloadHelper",
     "Video DownloadHelper",
     "WebExtension",
-	"native messaging",
-	"video converter"
+    "native messaging",
+    "video converter"
   ],
   "homepage": "https://github.com/mi-g/vdhcoapp",
   "author": {
@@ -42,6 +42,7 @@
     "appdmg": "^0.4.5"
   },
   "dependencies": {
+    "download": "^6.2.5",
     "fs-extra": "^4.0.2",
     "log4js": "^2.3.3",
     "open": "0.0.5",
