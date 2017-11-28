@@ -44,6 +44,7 @@
   "dependencies": {
     "download": "^6.2.5",
     "fs-extra": "^4.0.2",
+    "got": "^8.0.0",
     "log4js": "^2.3.3",
     "open": "0.0.5",
     "tmp": "0.0.33"
