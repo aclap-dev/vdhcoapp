@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License
 along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 */
 
-const fs = require('fs');
+const fs = require('fs.extra');
 const path = require('path');
 const tmp = require('tmp');
 const logger = require('./logger');
@@ -220,6 +220,15 @@ rpc.listen({
 				resolve();			
 			})
 		})
+	},
+	"fs.mkdirp": (path) => {
+		return new Promise((resolve, reject) => {
+			fs.mkdirp(path,(err)=>{
+				if(err)
+					return reject(err);
+				resolve();			
+			})
+		})		
 	}
 });
 
