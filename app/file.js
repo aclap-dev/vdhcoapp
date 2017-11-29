@@ -28,6 +28,7 @@ const { spawn } = require('child_process');
 const os = require('os');
 
 const uniqueFileNames = {};
+const MAX_FILE_ENTRIES = 1000;
 
 rpc.listen({
 	"listFiles": (directory) => {
@@ -50,7 +51,17 @@ rpc.listen({
 					})
 				}))
 				.then((files)=>{
-					resolve(files);
+					if(files.length>MAX_FILE_ENTRIES) {
+						files.sort((a,b)=>{
+							if(a[1].dir && !b[1].dir)
+								return -1;
+							if(!a[1].dir && b[1].dir)
+								return 1;
+							return 0;
+						});
+						resolve(files.slice(0,MAX_FILE_ENTRIES));
+					} else
+						resolve(files);
 				})
 				.catch(reject);
 			});
