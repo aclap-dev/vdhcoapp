@@ -85,7 +85,7 @@ const PARSETIME_RE = new RegExp("time=([0-9]+):([0-9]+):([0-9]+)");
 rpc.listen({
 	"convert": (args=["-h"],options={}) => {
 		return new Promise((resolve, reject) => {
-				var convProcess = spawn(binaryPath, args, {
+			var convProcess = spawn(binaryPath, args, {
 				env: {
 					[LIBRARY_PATH]: binaryDir
 				}
@@ -103,7 +103,10 @@ rpc.listen({
 				if(m) {
 					if(options.progressTime) {
 						var frameTime = parseFloat(m[1])*3600 + parseFloat(m[2])*60 + parseFloat(m[3]);
-						rpc.call("convertOutput",options.progressTime,frameTime);
+						rpc.call("convertOutput",options.progressTime,frameTime)
+							.catch((err)=>{
+								convProcess.kill();
+							});
 					}
 				} else {
 					const maxSize = 20000;
