@@ -678,8 +678,7 @@ gulp.task("dmg-make-mac",(callback)=>{
 					"icon": config.id+".app/Contents/Resources/"+config.mac.iconIcns,
 					"background": config.id+".app/Contents/Resources/"+config.mac.dmgBackground,
 					"contents": [
-						{ "x": 400, "y": 160, "type": "link", "path": "/Applications" },
-						{ "x": 400, "y": 280, "type": "link", "path": process.env.HOME },
+						{ "x": 400, "y": 220, "type": "link", "path": "/Applications" },
 						{ "x": 140, "y": 220, "type": "file", "path": config.id+".app" }
 					]
 				}
