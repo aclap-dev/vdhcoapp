@@ -181,14 +181,13 @@ function MakeDeb(platform,arch) {
 	var archName = { 64: "amd64", 32: "i386" }[arch];
 	var debName = config.id+"-"+manifest.version+"-1_"+archName+".deb";
 	return gulp.src("dist/"+platform+"/"+arch+"/deb/**/*")
-		.pipe(deb(debName,{
+		.pipe(deb(debName,Object.assign({
 			name: config.id,
 			version: manifest.version,
-			maintainer: config.maintainer || {},
 			architecture: archName,
 			short_description: config.short_description || config.description,
 			long_description: config.description
-		}))
+		},config.deb)))
 		.pipe(gulp.dest("builds"));
 }
 
