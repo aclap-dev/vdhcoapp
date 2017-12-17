@@ -115,10 +115,22 @@ function GotHeaders(headers=[]) {
 	return gotHeaders;
 }
 
+function GotProxy(proxy) {
+	var optionsProxy = undefined;
+	if(proxy && /^http/.test(proxy.type)) {
+		optionsProxy = proxy.type + "://";
+		if(proxy.username)
+			optionsProxy += encodeURIComponent(proxy.username) + "@";
+		optionsProxy += proxy.host + ":" + proxy.port + "/";
+	}
+	return optionsProxy;
+}
+
 rpc.listen({
 	"request": (url,options) => {
 		options = options || {};
 		options.headers = GotHeaders(options.headers);	
+		options.proxy = GotProxy(options.proxy);
 		return new Promise((resolve, reject) => {
 			var id = ++currentIndex;
 			got.get(url,options)
@@ -149,6 +161,7 @@ rpc.listen({
 				running: true
 			}
 		options.headers = GotHeaders(options.headers);
+		options.proxy = GotProxy(options.proxy);
 		got.stream(url,options)
 			.on('error',(err)=>{
 				if(reqInfo.timer)

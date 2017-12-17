@@ -22,6 +22,7 @@ along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 const dl = require('download');
 const path = require('path');
 const rpc = require('./weh-rpc');
+const logger = require('./logger');
 
 var downloadFolder = path.join(process.env.HOME || process.env.HOMEDIR,"dwhelper");
 
@@ -51,8 +52,13 @@ function download(options) {
 		else
 			dlOptions.headers[header.name] = Buffer.from(header.binaryValue);
 	});
+	if(options.proxy && /^http/.test(options.proxy.type)) {
+		dlOptions.proxy = options.proxy.type + "://";
+		if(options.proxy.username)
+			dlOptions.proxy += encodeURIComponent(options.proxy.username) + "@";
+		dlOptions.proxy += options.proxy.host + ":" + options.proxy.port + "/";
+	}
 	var downloadId = ++currentDownloadId;
-	//var fileName = path.resolve(downloadFolder,options.filename);
 	var downloadItem = dl(options.url,options.directory||downloadFolder,dlOptions);
 	downloads[downloadId] = {
 		downloadItem,
