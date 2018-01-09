@@ -178,6 +178,19 @@ rpc.listen({
 			});			
 		});
 	},
+	/*
+	"fs.read": (fd,length) => {
+		return new Promise((resolve, reject) => {
+			fs.read(fd,Buffer.alloc(length),0,length,null,(err,bytesRead,buffer)=>{
+				if(err)
+					return reject(err);
+				if(bytesRead<buffer.length)
+					buffer = buffer.slice(0,bytesRead);
+				resolve(buffer);
+			});
+		});
+	},
+	*/
 	"fs.close": (...args) => {
 		return new Promise((resolve, reject) => {
 			fs.close(...args,(err)=>{
@@ -230,6 +243,15 @@ rpc.listen({
 					return reject(err);
 				resolve();			
 			})
+		})
+	},
+	"fs.readFile": (...args) => {
+		return new Promise((resolve, reject) => {
+			fs.readFile(...args,(err,data) => {
+				if(err)
+					return reject(err);
+				resolve(data);
+			})	
 		})
 	},
 	"fs.mkdirp": (path) => {
