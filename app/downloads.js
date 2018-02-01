@@ -89,22 +89,24 @@ function download(options) {
 			delete downloads[downloadId];
 		},60000);
 	}
-	downloadItem.on('end', ()=>{
-		var downloadEntry = downloads[downloadId];
-		if(downloadEntry) {
-			downloadEntry.state = "complete";
-			RemoveEntry();
-		}
-	});
-	downloadItem.on('error', (err)=>{
-		var downloadEntry = downloads[downloadId];
-		if(downloadEntry) {
-			downloadEntry.state = "interrupted";
-			downloadEntry.error = err.message || ""+err;
-			RemoveEntry();
-		}
-	});
-	return downloadId;
+	downloadItem
+		.then(()=>{
+			var downloadEntry = downloads[downloadId];
+			if(downloadEntry) {
+				downloadEntry.state = "complete";
+				RemoveEntry();
+			}
+		})
+		.catch((err)=>{
+			var downloadEntry = downloads[downloadId];
+			if(downloadEntry) {
+				downloadEntry.state = "interrupted";
+				downloadEntry.error = err.message || ""+err;
+				RemoveEntry();
+			}
+		});
+
+		return downloadId;
 }
 
 function search(query) {
