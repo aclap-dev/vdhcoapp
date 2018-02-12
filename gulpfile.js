@@ -217,7 +217,7 @@ function MakeTarGzFiles(platform,arch) {
 	return Promise.all([
 			CopyBinary(platform,arch,arch+"/targz"+appPath+"/bin"),
 			CopyExtra(platform,arch,"/targz"+appPath),
-			CreateLinuxSetupScripts(arch,"/targz"+appPath),
+			//CreateLinuxSetupScripts(arch,"/targz"+appPath),
 			fs.outputFile("dist/linux/"+arch+"/targz"+appPath+"/config.json",
 				MakeConfigJsonStr(),"utf8")
 		]);
