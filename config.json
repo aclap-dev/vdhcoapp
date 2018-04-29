@@ -17,7 +17,8 @@
 		"chrome": [
 			"chrome-extension://ocgbelnknlgoiofcepicgpicjibclfdg/",
 			"chrome-extension://lpheobkpibijgligoklmllibbbdhfghg/",
-			"chrome-extension://amnobfikmbfolbaeeadnkcppghfdjeke/"
+			"chrome-extension://amnobfikmbfolbaeeadnkcppghfdjeke/",
+			"chrome-extension://elhfcodaoaikbcelkndffhcflgijfjdn/"
 		]
 	},
 	"win": {
