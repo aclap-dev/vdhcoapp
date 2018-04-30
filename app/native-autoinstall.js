@@ -254,6 +254,7 @@ function WindowsInstall() {
 	WriteRegistry(regRoot,"\\Software\\Google\\Chrome\\NativeMessagingHosts",config.id,chromeManifestFile);
 	WriteRegistry(regRoot,"\\Software\\Chromium\\NativeMessagingHosts",config.id,chromeManifestFile);
 	WriteRegistry(regRoot,"\\Software\\Mozilla\\NativeMessagingHosts",config.id,firefoxManifestFile);
+	WriteRegistry(regRoot,"\\Software\\ComodoGroup\\NativeMessagingHosts",config.id,firefoxManifestFile);
 	var text = config.name+" is ready to be used";
 	DisplayMessage(text);
 }
