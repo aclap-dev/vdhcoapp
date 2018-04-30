@@ -21,6 +21,7 @@ along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 
 const dl = require('download');
 const path = require('path');
+const fs = require('fs');
 const rpc = require('./weh-rpc');
 const logger = require('./logger');
 
@@ -42,8 +43,8 @@ function download(options) {
 		else
 			options.filename = "file";
 	}
+	var filename = path.join(options.directory||downloadFolder,options.filename);
 	var dlOptions = {
-		filename: options.filename,
 		headers: {}
 	};
 	(options.headers||[]).forEach((header)=>{
@@ -59,13 +60,13 @@ function download(options) {
 		dlOptions.proxy += options.proxy.host + ":" + options.proxy.port + "/";
 	}
 	var downloadId = ++currentDownloadId;
-	var downloadItem = dl(options.url,options.directory||downloadFolder,dlOptions);
+	var downloadItem = dl(options.url,dlOptions);
 	downloads[downloadId] = {
 		downloadItem,
 		totalBytes: 0,
 		bytesReceived: 0,
 		url: options.url,
-		filename: path.resolve(options.directory||downloadFolder,options.filename),
+		filename,
 		state: "in_progress",
 		error: null
 	}
@@ -89,24 +90,24 @@ function download(options) {
 			delete downloads[downloadId];
 		},60000);
 	}
-	downloadItem
-		.then(()=>{
-			var downloadEntry = downloads[downloadId];
-			if(downloadEntry) {
-				downloadEntry.state = "complete";
-				RemoveEntry();
-			}
-		})
-		.catch((err)=>{
-			var downloadEntry = downloads[downloadId];
-			if(downloadEntry) {
-				downloadEntry.state = "interrupted";
-				downloadEntry.error = err.message || ""+err;
-				RemoveEntry();
-			}
-		});
-
-		return downloadId;
+	downloadItem.pipe(fs.createWriteStream(filename))
+	.on('finish', ()=>{
+		var downloadEntry = downloads[downloadId];
+		if(downloadEntry) {
+			downloadEntry.state = "complete";
+			RemoveEntry();
+		}
+	})
+	.on('error', (err)=>{
+		var downloadEntry = downloads[downloadId];
+		if(downloadEntry) {
+			downloadEntry.state = "interrupted";
+			downloadEntry.error = err.message || ""+err;
+			RemoveEntry();
+		}
+	});
+	
+	return downloadId;
 }
 
 function search(query) {
