@@ -191,33 +191,11 @@ function MakeDeb(platform,arch) {
 		.pipe(gulp.dest("builds"));
 }
 
-function CreateLinuxSetupScripts(arch,extraPath="") {
-	return new Promise((resolve, reject) => {
-		gulp.src("assets/setup-linux-{user,system}.sh.ejs")
-			.pipe(ejs({
-				config,
-				manifest,
-				arch,
-				binaryName: PkgNames("linux",arch).binaryName
-			}))
-			.on("error",(err)=>{
-				reject(err);
-			})
-			.pipe(rename((filePath)=>{
-				if(filePath.extname==".ejs") // should be done by gulp-ejs ?
-					filePath.extname="";
-			}))
-			.pipe(gulp.dest("dist/linux/"+arch+extraPath))
-			.on("end",()=>resolve());
-	})
-}
-
 function MakeTarGzFiles(platform,arch) {
 	var appPath = "/"+config.id+"-"+manifest.version;
 	return Promise.all([
 			CopyBinary(platform,arch,arch+"/targz"+appPath+"/bin"),
 			CopyExtra(platform,arch,"/targz"+appPath),
-			//CreateLinuxSetupScripts(arch,"/targz"+appPath),
 			fs.outputFile("dist/linux/"+arch+"/targz"+appPath+"/config.json",
 				MakeConfigJsonStr(),"utf8")
 		]);
