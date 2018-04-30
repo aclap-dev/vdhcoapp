@@ -162,7 +162,7 @@ function LinuxInstall() {
 			file: process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json",
 			manifest: JSON.stringify(chromeManifest,null,4),
 		}];
-	else
+	else {
 		manifests = [{
 			file: "/usr/lib/mozilla/native-messaging-hosts/"+config.id+".json",
 			manifest: JSON.stringify(firefoxManifest,null,4),
@@ -173,6 +173,12 @@ function LinuxInstall() {
 			file: "/etc/chromium/native-messaging-hosts/"+config.id+".json",
 			manifest: JSON.stringify(chromeManifest,null,4),
 		}];
+		if(os.arch()=="x64")
+			manifests.push({
+				file: "/usr/lib64/mozilla/native-messaging-hosts/"+config.id+".json",
+				manifest: JSON.stringify(firefoxManifest,null,4),
+			});
+	}
 	try {
 		manifests.forEach((manif)=>{
 			fs.outputFileSync(manif.file,manif.manifest,"utf8");
