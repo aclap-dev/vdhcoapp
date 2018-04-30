@@ -174,10 +174,13 @@ function LinuxInstall() {
 			manifest: JSON.stringify(chromeManifest,null,4),
 		}];
 		if(os.arch()=="x64")
-			manifests.push({
-				file: "/usr/lib64/mozilla/native-messaging-hosts/"+config.id+".json",
-				manifest: JSON.stringify(firefoxManifest,null,4),
-			});
+			try {
+		 		fs.statSync("/usr/lib64");
+				manifests.push({
+					file: "/usr/lib64/mozilla/native-messaging-hosts/"+config.id+".json",
+					manifest: JSON.stringify(firefoxManifest,null,4),
+				});
+			} catch(err) {}
 	}
 	try {
 		manifests.forEach((manif)=>{
