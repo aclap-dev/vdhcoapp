@@ -11,3 +11,5 @@ manifests
 .DS_Store
 ._.DS_Store
 BUILD.windows.md
+converter-ffmpeg4/
+converter-ffmpeg2.8.14/
