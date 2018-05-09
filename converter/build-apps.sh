@@ -125,6 +125,7 @@ build_vpx() {
 
 	./configure --prefix=$ARCHSRCDIR/deps $OPTS \
         --disable-examples \
+        --disable-tools \
         --disable-docs \
         --disable-install-bins \
         --disable-install-srcs \
@@ -152,7 +153,7 @@ build_x264() {
 		;;
 	*)
 		./configure \
-    		--prefix=$ARCHSRCDIR/deps --host=$HOST --enable-shared --disable-asm || exit -1
+    		--prefix=$ARCHSRCDIR/deps --host=$HOST --enable-shared --disable-asm --disable-cli || exit -1
 		;;
 	esac
 	make || exit -1
@@ -222,6 +223,7 @@ build_voamrwbenc() {
 	)
 }
 
+# sdl used with ffmpeg < 3
 build_sdl() {
 	(
 	echo "Building sdl"
@@ -250,7 +252,7 @@ build_sdl() {
 	)
 }
 
-# unused for now
+# sdl2 used with ffmpeg >= 3
 build_sdl2() {
 	(
 	echo "Building sdl2"
@@ -352,15 +354,18 @@ build_jpeg() {
 	cmake -DCMAKE_SYSTEM_NAME="$SYSTEM_NAME" -DBUILD_THIRDPARTY=1 \
 		-DCMAKE_INSTALL_PREFIX="$ARCHSRCDIR/deps" \
 		-DBUILD_SHARED_LIBS=$JPEG_SHARED_LIBS \
+		-DBUILD_PKGCONFIG_FILES=ON \
 		-DOPENJPEG_INSTALL_INCLUDE_DIR="$ARCHSRCDIR/deps/include" \
 		-DOPENJPEG_INSTALL_LIB_DIR="$ARCHSRCDIR/deps/lib" \
 		-DOPENJPEG_INSTALL_DOC_DIR="$ARCHSRCDIR/deps/doc" \
 		-DOPENJPEG_INSTALL_BIN_DIR="$ARCHSRCDIR/deps/bin" \
 		-DOPENJPEG_INSTALL_DATA_DIR="$ARCHSRCDIR/deps/data" \
 		-DOPENJPEG_INSTALL_SHARE_DIR="$ARCHSRCDIR/deps/share" \
+		-DOPENJPEG_INSTALL_PACKAGE_DIR="$ARCHSRCDIR/deps/lib/pkgconfig" \
 		. || exit -1
-	SYSTEM_NAME=
     make install
+	SYSTEM_NAME=
+	JPEG_SHARED_LIBS=
 	)
 }
 
@@ -470,10 +475,47 @@ build_theora() {
 	)
 }
 
+build_bzip2() {
+	(
+	echo "Building bzip2"
+	cd $ARCHSRCDIR/bzip2
+	case $PLATFORM in
+	linux)
+		make -f Makefile-libbz2_so || exit -1
+		cp libbz2.so.1.0.6 "$ARCHSRCDIR/deps/lib"
+		cp -d libbz2.so.1.0 "$ARCHSRCDIR/deps/lib"
+		;;
+	*)
+		;;
+	esac
+	)
+}
+
+build_numa() {
+	(
+	echo "Building numa"
+	cd $ARCHSRCDIR/numa
+	case $PLATFORM in
+	linux)
+		./autogen.sh
+		OLD_CC="$CC"
+		CC="$CC $CFLAGS"
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST || exit -1
+		make || exit -1
+		make install || exit -1
+		CC="$OLD_CC"
+		;;
+	*)
+		;;
+	esac
+	)
+}
+
 build_ffmpeg() {
 	(
 	echo "Building ffmpeg"
 	cd $ARCHSRCDIR/ffmpeg
+	OLD_LDFLAGS="$LDFLAGS"
 	case $PLATFORM in
 	win)
 		./configure \
@@ -485,11 +527,12 @@ build_ffmpeg() {
 			--prefix=$BUILDARCHDIR \
 			--extra-version="vdhcoapp" \
 			--extra-cflags="-I$ARCHSRCDIR/deps/include" \
-			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib" \
+			--extra-ldflags="-static-libgcc -L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib" \
 			--pkg-config=$PKG_CONFIG \
 			--enable-shared \
 			--enable-gpl \
 			--enable-pthreads \
+			--disable-w32threads \
 			--enable-libmp3lame \
 			--enable-libopenjpeg \
 			--enable-libopus \
@@ -501,15 +544,24 @@ build_ffmpeg() {
 			--enable-libxvid \
 			--enable-libx264 \
 			--enable-avresample \
+			--disable-doc \
 			|| exit -1
 		;;
 	linux)
+		case $ARCH in 
+		x86_64)
+			DEVLIB="-L/usr/lib/x86_64-linux-gnu"
+			;;
+		i686)
+			DEVLIB="-L/usr/lib/i386-linux-gnu"
+			;;
+		esac
 		./configure \
 			--arch=$ARCH \
 			--prefix=$BUILDARCHDIR \
 			--extra-version="vdhcoapp" \
 			--extra-cflags="-I$ARCHSRCDIR/deps/include" \
-			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib -static-libgcc" \
+			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib $DEVLIB" \
 			--pkg-config=$PKG_CONFIG \
 			--pkgconfigdir=$PKG_CONFIG_PATH \
 			--extra-libs="-ldl" \
@@ -527,7 +579,9 @@ build_ffmpeg() {
 			--enable-libx264 \
 			--enable-avresample \
 			--disable-indev=sndio --disable-outdev=sndio \
+			--disable-doc \
 			|| exit -1
+		DEVLIB=
 		;;
 	mac)
 		./configure \
@@ -557,11 +611,13 @@ build_ffmpeg() {
 			--enable-libopenjpeg \
 			--enable-libx265 \
 			--enable-libtheora \
+			--disable-doc \
 			|| exit -1
 		;;
 	esac
 	make || exit -1
 	make install || exit -1
+	LDFLAGS="$OLD_LDFLAGS"
 	)
 }
 
@@ -594,24 +650,25 @@ build_arch() {
 	export LD="${CROSS_COMPILE}ld"
 	export PKG_CONFIG="${CROSS_COMPILE}pkg-config"
 	export PKG_CONFIG_PATH=$ARCHSRCDIR/deps/lib/pkgconfig
-	export PKG_CONFIG_LIBDIR=$ARCHSRCDIR/deps/lib/pkgconfig
+	export PKG_CONFIG_LIB_DIR=$ARCHSRCDIR/deps/lib/pkgconfig
 	export GCC_LIBDIR=$(ls -d /usr/lib/gcc/$ARCH-w64-mingw32/*-posix)
 
-	echo "ARCH=\"$1\""
-	echo "FINALARCHDIR=\"$2\""
-	echo "ARCHSRCDIR=\"$3\""
-	echo 'BUILDARCHDIR="$ARCHSRCDIR/converter-build"'
-	echo 'HOST="$ARCH-w64-mingw32"'
-	echo 'CROSS_COMPILE="/usr/bin/${ARCH}-w64-mingw32-"'
-	echo 'export CC="${CROSS_COMPILE}gcc"'
-	echo 'export CXX="${CROSS_COMPILE}g++"'
-	echo 'export NM="${CROSS_COMPILE}nm"'
-	echo 'export STRIP="${CROSS_COMPILE}strip"'
-	echo 'export RANLIB="${CROSS_COMPILE}ranlib"'
-	echo 'export AR="${CROSS_COMPILE}ar"'
-	echo 'export LD="${CROSS_COMPILE}ld"'
-	echo 'export PKG_CONFIG="${CROSS_COMPILE}pkg-config"'
-	echo 'export PKG_CONFIG_PATH=$ARCHSRCDIR/deps/lib/pkgconfig'
+	echo "PLATFORM=\"$1\""
+	echo "ARCH=\"$2\""
+	echo "FINALARCHDIR=\"$3\""
+	echo "ARCHSRCDIR=\"$4\""
+	echo "BUILDARCHDIR=$ARCHSRCDIR/converter-build"
+	echo "HOST=\"$ARCH-w64-mingw32\""
+	echo "CROSS_COMPILE=\"/usr/bin/${ARCH}-w64-mingw32-\""
+	echo "export CC=\"${CROSS_COMPILE}gcc\""
+	echo "export CXX=\"${CROSS_COMPILE}g++\""
+	echo "export NM=\"${CROSS_COMPILE}nm\""
+	echo "export STRIP=\"${CROSS_COMPILE}strip\""
+	echo "export RANLIB=\"${CROSS_COMPILE}ranlib\""
+	echo "export AR=\"${CROSS_COMPILE}ar\""
+	echo "export LD=\"${CROSS_COMPILE}ld\""
+	echo "export PKG_CONFIG=\"${CROSS_COMPILE}pkg-config\""
+	echo "export PKG_CONFIG_PATH=\"$ARCHSRCDIR/deps/lib/pkgconfig\""
 	echo "export GCC_LIBDIR=\"$GCC_LIBDIR\""
 
 	build_lame || exit -1
@@ -623,13 +680,20 @@ build_arch() {
 	build_xvid || exit -1
 	build_ocamr || exit -1
 	build_voamrwbenc || exit -1
-	build_sdl || exit -1
 	build_webp || exit -1
 	build_zlib || exit -1
     build_jpeg || exit -1
     build_x265 || exit -1
     build_orc || exit -1
     build_theora || exit -1
+	build_numa || exit -1
+	build_bzip2 || exit -1
+	case $PLATFORM in
+	win|mac)
+		build_sdl2 || exit -1
+		#build_sdl || exit -1
+		;;
+	esac
 	build_ffmpeg || exit -1
 
 	export CROSS_COMPILE=
@@ -672,6 +736,7 @@ build_arch() {
 		cp $BUILDARCHDIR/bin/ffmpeg $BUILDARCHDIR/bin/ffprobe $BUILDARCHDIR/bin/ffplay \
 			$(find $ARCHSRCDIR/deps/lib -regex ".*\\.so\\.[0-9]+") \
 			$(find $BUILDARCHDIR/lib -regex ".*\\.so\\.[0-9]+") \
+			$ARCHSRCDIR/deps/lib/libbz2.so.1.0 \
 			$FINALARCHDIR
 	;;
 

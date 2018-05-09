@@ -7,7 +7,7 @@ SRCDIR="$BASEDIR/src"
 
 FFMPEG_VER="n2.9.13"
 LAME_VER="RELEASE__3_99_5"
-OGG_VER="v1.3.2"
+OGG_VER="v1.3.3"
 VORBIS_VER="8ef0f8058854b2ef55d2d42bbe84487a9aadae12" 
 OPUS_VER="v1.2.1"
 VPX_VER="v1.6.1"
@@ -18,12 +18,14 @@ VOAMRWBENC_VER="v0.1.3"
 SDL_VER="release-1.2.15"
 WEBP_VER="v0.6.0"
 ZLIB_VER="v1.2.9"
-JPEG_VER="version.1.5.1"
+JPEG_VER="version.2.1"
 X265_VER="2.5"
 ORC_VER="upstream/0.4.27"
 THEORA_VER="distrotech-libtheora-git"
+BZIP2_VER="master"
+NUMA_VER="v2.0.11"
 
-LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl webp zlib jpeg x265 orc theora"
+LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl webp zlib jpeg x265 orc theora bzip2 numa"
 
 rm -rf $SRCDIR
 mkdir -p $SRCDIR
@@ -45,6 +47,8 @@ mkdir -p $SRCDIR
 (cd $SRCDIR; git clone https://github.com/videolan/x265.git x265; cd x265; git checkout "$X265_VER")
 (cd $SRCDIR; git clone git://anonscm.debian.org/pkg-gstreamer/orc.git orc; cd orc; git checkout "$ORC_VER")
 (cd $SRCDIR; git clone https://github.com/Distrotech/libtheora.git theora; cd theora; git checkout "$THEORA_VER")
+(cd $SRCDIR; git clone https://github.com/enthought/bzip2-1.0.6.git bzip2; cd bzip2; git checkout "$BZIP2_VER")
+(cd $SRCDIR; git clone https://github.com/numactl/numactl.git numa; cd numa; git checkout "$NUMA_VER")
 
 for lib in $LIBS; do
     if [ ! -e "src/$lib" ]; then
