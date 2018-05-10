@@ -5,7 +5,7 @@
 BASEDIR=$(dirname "$0")
 SRCDIR="$BASEDIR/src"
 
-FFMPEG_VER="n2.9.13"
+FFMPEG_VER="n4.0"
 LAME_VER="RELEASE__3_99_5"
 OGG_VER="v1.3.3"
 VORBIS_VER="8ef0f8058854b2ef55d2d42bbe84487a9aadae12" 
@@ -15,7 +15,7 @@ X264_VER="stable"
 XVID_VER="release-1_3_3"
 OCAMR_VER="v0.1.5"
 VOAMRWBENC_VER="v0.1.3"
-SDL_VER="release-1.2.15"
+SDL_VER="release-2.0.8"
 WEBP_VER="v0.6.0"
 ZLIB_VER="v1.2.9"
 JPEG_VER="version.2.1"
@@ -40,7 +40,7 @@ mkdir -p $SRCDIR
 (cd $SRCDIR; git clone https://github.com/Distrotech/xvidcore.git xvid; cd xvid; git checkout "$XVID_VER")
 (cd $SRCDIR; git clone git://git.code.sf.net/p/opencore-amr/code ocamr; cd ocamr; git checkout "$OCAMR_VER")
 (cd $SRCDIR; git clone git://git.code.sf.net/p/opencore-amr/vo-amrwbenc voamrwbenc; cd voamrwbenc; git checkout "$VOAMRWBENC_VER")
-(cd $SRCDIR; git clone https://github.com/spurious/SDL-mirror.git sdl; cd sdl; git checkout "$SDL_VER")
+(cd $SRCDIR; git clone https://github.com/spurious/SDL-mirror.git sdl2; cd sdl; git checkout "$SDL_VER")
 (cd $SRCDIR; git clone https://github.com/webmproject/libwebp.git webp; cd webp; git checkout "$WEBP_VER")
 (cd $SRCDIR; git clone https://github.com/madler/zlib.git; cd zlib; git checkout "$ZLIB_VER")
 (cd $SRCDIR; git clone https://github.com/uclouvain/openjpeg.git jpeg; cd jpeg; git checkout "$JPEG_VER")
