@@ -25,6 +25,7 @@ const path=require('path');
 const { spawn } = require('child_process');
 
 const gulp=require('gulp');
+const vfs=require('vinyl-fs');
 const pkg=require('pkg');
 const deb=require('gulp-deb');
 const runSequence = require('run-sequence');
@@ -101,12 +102,15 @@ function CopyExtra(platform,arch,extraPath="") {
 			}
 
 			return new Promise((resolve, reject) => {
-				gulp.src(source)
+				vfs.src(source, { 
+						resolveSymlinks: false,
+						relativeSymlinks:true 
+					})
 					.pipe(gulpif(!!destName,rename((filePath)=>{
 						filePath.extname = "";
 						filePath.basename = destName;
 					})))
-					.pipe(gulp.dest("dist/"+platform+"/"+(arch||"")+extraPath+"/"+dest))
+					.pipe(vfs.dest("dist/"+platform+"/"+(arch||"")+extraPath+"/"+dest))
 					.on("end",resolve);
 			})
 		})
@@ -1033,9 +1037,13 @@ gulp.task('build-source-tarball',() => {
 		"./README.md"
 	];
 	const baseName = config.id+"-"+manifest.version
-	return gulp.src(entries, { base: "."} )
+	return vfs.src(entries, { 
+			base: ".", 
+			resolveSymlinks: false, 
+			relativeSymlinks: true 
+		})
 		.pipe(tar(baseName+"-src.tar", { prefix: baseName } ))
 		.pipe(gzip())
-		.pipe(gulp.dest("builds"));
+		.pipe(vfs.dest("builds"));
 
 });

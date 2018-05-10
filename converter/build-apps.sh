@@ -725,7 +725,7 @@ build_arch() {
 	;;
 
 	mac)
-		cp $BUILDARCHDIR/bin/ffmpeg $BUILDARCHDIR/bin/ffprobe $BUILDARCHDIR/bin/ffplay \
+		cp -a $BUILDARCHDIR/bin/ffmpeg $BUILDARCHDIR/bin/ffprobe $BUILDARCHDIR/bin/ffplay \
 			$(find $ARCHSRCDIR/deps/lib -regex ".*\\.[0-9]*\\.dylib") \
 			$(find $BUILDARCHDIR -regex ".*\\.[0-9]*\\.dylib") \
 			$ARCHSRCDIR/zlib/libz.1.dylib \
