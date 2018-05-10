@@ -25,7 +25,7 @@ THEORA_VER="distrotech-libtheora-git"
 BZIP2_VER="master"
 NUMA_VER="v2.0.11"
 
-LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl webp zlib jpeg x265 orc theora bzip2 numa"
+LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl2 webp zlib jpeg x265 orc theora bzip2 numa"
 
 rm -rf $SRCDIR
 mkdir -p $SRCDIR
@@ -40,7 +40,7 @@ mkdir -p $SRCDIR
 (cd $SRCDIR; git clone https://github.com/Distrotech/xvidcore.git xvid; cd xvid; git checkout "$XVID_VER")
 (cd $SRCDIR; git clone git://git.code.sf.net/p/opencore-amr/code ocamr; cd ocamr; git checkout "$OCAMR_VER")
 (cd $SRCDIR; git clone git://git.code.sf.net/p/opencore-amr/vo-amrwbenc voamrwbenc; cd voamrwbenc; git checkout "$VOAMRWBENC_VER")
-(cd $SRCDIR; git clone https://github.com/spurious/SDL-mirror.git sdl2; cd sdl; git checkout "$SDL_VER")
+(cd $SRCDIR; git clone https://github.com/spurious/SDL-mirror.git sdl2; cd sdl2; git checkout "$SDL_VER")
 (cd $SRCDIR; git clone https://github.com/webmproject/libwebp.git webp; cd webp; git checkout "$WEBP_VER")
 (cd $SRCDIR; git clone https://github.com/madler/zlib.git; cd zlib; git checkout "$ZLIB_VER")
 (cd $SRCDIR; git clone https://github.com/uclouvain/openjpeg.git jpeg; cd jpeg; git checkout "$JPEG_VER")
