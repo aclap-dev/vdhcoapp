@@ -27,7 +27,18 @@ sudo apt-get -y install \
 	lib32stdc++-5-dev \
 	g++-mingw-w64-x86-64 \
 	mingw-w64-tools \
-	g++-mingw-w64-i686
+	g++-mingw-w64-i686 \
+	libmirclient-dev \
+	libxkbcommon-dev \
+	libegl1-mesa-dev \
+	libgles2-mesa-dev \
+	libsdl2-dev \
+	libmirclient-dev:i386 \
+	libxkbcommon-dev:i386 \
+	libegl1-mesa-dev:i386 \
+	libgles2-mesa-dev:i386 \
+	libsdl2-dev:i386
+
 ```
 
 You can now clone the `https://github.com/mi-g/vdhcoapp.git` repository, move to `vdhcoapp/converter`, run `./get-sources.sh` to get all the `ffmpeg` and libraries source code, run `./build-apps.sh` to compile them.
