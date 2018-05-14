@@ -261,7 +261,7 @@ build_sdl2() {
 	./autogen.sh || exit -1
 	case $PLATFORM in
 	win)
-		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps || exit -1
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps --enable-assertions=release || exit -1
 		;;
 	linux)
 		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
