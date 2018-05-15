@@ -556,30 +556,39 @@ build_ffmpeg() {
 			DEVLIB="-L/usr/lib/i386-linux-gnu"
 			;;
 		esac
-		./configure \
-			--arch=$ARCH \
-			--prefix=$BUILDARCHDIR \
-			--extra-version="vdhcoapp" \
-			--extra-cflags="-I$ARCHSRCDIR/deps/include" \
+		read -d '' CONFIGURE_OPTS << EOF
+			--arch=$ARCH 
+			--prefix=$BUILDARCHDIR 
+			--extra-version="vdhcoapp" 
+			--extra-cflags="-I$ARCHSRCDIR/deps/include" 
+			--pkg-config=$PKG_CONFIG 
+			--pkgconfigdir=$PKG_CONFIG_PATH 
+			--extra-libs="-ldl" 
+			--enable-shared 
+			--enable-gpl 
+			--enable-libmp3lame 
+			--enable-libopenjpeg 
+			--enable-libopus 
+			--enable-libtheora 
+			--enable-libvorbis 
+			--enable-libvpx 
+			--enable-libwebp 
+			--enable-libx265 
+			--enable-libxvid 
+			--enable-libx264 
+			--enable-avresample 
+			--disable-indev=sndio --disable-outdev=sndio 
+			--disable-doc 
+EOF
+		./configure $CONFIGURE_OPTS \
+			--disable-ffplay \
+			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib" \
+			|| exit -1
+		make || exit -1
+		make install || exit -1
+		./configure $CONFIGURE_OPTS \
+			--disable-ffmpeg --disable-ffprobe \
 			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib $DEVLIB" \
-			--pkg-config=$PKG_CONFIG \
-			--pkgconfigdir=$PKG_CONFIG_PATH \
-			--extra-libs="-ldl" \
-			--enable-shared \
-			--enable-gpl \
-			--enable-libmp3lame \
-			--enable-libopenjpeg \
-			--enable-libopus \
-			--enable-libtheora \
-			--enable-libvorbis \
-			--enable-libvpx \
-			--enable-libwebp \
-			--enable-libx265 \
-			--enable-libxvid \
-			--enable-libx264 \
-			--enable-avresample \
-			--disable-indev=sndio --disable-outdev=sndio \
-			--disable-doc \
 			|| exit -1
 		DEVLIB=
 		;;
