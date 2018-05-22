@@ -124,6 +124,8 @@ build_vpx() {
 	esac
 
 	./configure --prefix=$ARCHSRCDIR/deps $OPTS \
+		--enable-shared \
+		--disable-static \
         --disable-examples \
         --disable-tools \
         --disable-docs \
