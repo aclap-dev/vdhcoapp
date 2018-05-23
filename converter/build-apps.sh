@@ -110,22 +110,21 @@ build_vpx() {
 		if [ "$ARCH" == "i686" ]; then
 			OPTS="--target=x86-win32-gcc"
 		fi
+		OPTS="$OPTS --as=yasm --disable-shared --enable-static"
 	;;
 	linux)
 		OPTS="--target=x86_64-linux-gcc"
 		if [ "$ARCH" == "i686" ]; then
 			OPTS="--target=x86-linux-gcc"
 		fi
-		OPTS="$OPTS --enable-pic"
+		OPTS="$OPTS --enable-pic --enable-shared --disable-static"
 		;;
 	mac)
-		OPTS="--target=x86_64-darwin14-gcc"
+		OPTS="--target=x86_64-darwin14-gcc --enable-shared --disable-static"
 		;;
 	esac
 
 	./configure --prefix=$ARCHSRCDIR/deps $OPTS \
-		--enable-shared \
-		--disable-static \
         --disable-examples \
         --disable-tools \
         --disable-docs \
@@ -137,7 +136,8 @@ build_vpx() {
         --enable-multi-res-encoding \
         --enable-temporal-denoising \
         --enable-vp9-temporal-denoising \
-        --enable-vp9-postproc || exit -1
+        --enable-vp9-postproc \
+	--enable-vp9-highbitdepth || exit -1
 	OPTS=
 	make || exit -1
 	make install || exit -1
@@ -530,6 +530,7 @@ build_ffmpeg() {
 			--extra-version="vdhcoapp" \
 			--extra-cflags="-I$ARCHSRCDIR/deps/include" \
 			--extra-ldflags="-static-libgcc -L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib" \
+			--extra-libs="-lpthread" \
 			--pkg-config=$PKG_CONFIG \
 			--enable-shared \
 			--enable-gpl \
@@ -610,9 +611,9 @@ EOF
 			--enable-libvo-amrwbenc \
 			--enable-libopus \
 			--enable-libvorbis \
+			--enable-libvpx \
 			--enable-libx264 \
 			--enable-libmp3lame \
-			--enable-libvpx \
 			--enable-libxvid \
 			--enable-libopencore_amrnb \
 			--enable-libopencore_amrwb \
