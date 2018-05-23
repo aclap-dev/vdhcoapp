@@ -120,6 +120,7 @@ build_vpx() {
 		OPTS="$OPTS --enable-pic --enable-shared --disable-static"
 		;;
 	mac)
+		git checkout v1.6.1 # v1.7.0 fails unless newer clang compiler
 		OPTS="--target=x86_64-darwin14-gcc --enable-shared --disable-static"
 		;;
 	esac
