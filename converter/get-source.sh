@@ -5,12 +5,12 @@
 BASEDIR=$(dirname "$0")
 SRCDIR="$BASEDIR/src"
 
-FFMPEG_VER="n4.0"
+FFMPEG_VER="fe84f70819d6f5aab3c4823290e0d32b99d6de78" # includes STSC fix
 LAME_VER="RELEASE__3_99_5"
 OGG_VER="v1.3.3"
 VORBIS_VER="8ef0f8058854b2ef55d2d42bbe84487a9aadae12" 
 OPUS_VER="v1.2.1"
-VPX_VER="v1.6.1"
+VPX_VER="v1.7.0"
 X264_VER="stable"
 XVID_VER="release-1_3_3"
 OCAMR_VER="v0.1.5"
