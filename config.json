@@ -2,7 +2,7 @@
 	"id": "net.downloadhelper.coapp",
 	"name": "VdhCoApp",
 	"description": "Video DownloadHelper companion app",
-	"node_major": 7,
+	"node_major": 9,
 	"extra": [{
 			"source": "converter/build/${platform}/${arch}/"
 		},{
