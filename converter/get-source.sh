@@ -5,7 +5,7 @@
 BASEDIR=$(dirname "$0")
 SRCDIR="$BASEDIR/src"
 
-FFMPEG_VER="fe84f70819d6f5aab3c4823290e0d32b99d6de78" # includes STSC fix
+FFMPEG_VER="n4.0"
 LAME_VER="RELEASE__3_99_5"
 OGG_VER="v1.3.3"
 VORBIS_VER="8ef0f8058854b2ef55d2d42bbe84487a9aadae12" 
@@ -30,7 +30,7 @@ LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl2 webp zlib 
 rm -rf $SRCDIR
 mkdir -p $SRCDIR
 
-(cd $SRCDIR; git clone git://source.ffmpeg.org/ffmpeg.git; cd ffmpeg; git checkout "$FFMPEG_VER")
+(cd $SRCDIR; git clone git://source.ffmpeg.org/ffmpeg.git; cd ffmpeg; git checkout "$FFMPEG_VER"; git cherry-pick fe84f70819d6f5aab3c4823290e0d32b99d6de78)
 (cd $SRCDIR; git clone https://github.com/rbrito/lame.git; cd lame; git checkout "$LAME_VER")
 (cd $SRCDIR; git clone git://git.xiph.org/ogg.git; cd ogg; git checkout "$OGG_VER")
 (cd $SRCDIR; git clone git://git.xiph.org/vorbis.git; cd vorbis; git checkout "$VORBIS_VER")
