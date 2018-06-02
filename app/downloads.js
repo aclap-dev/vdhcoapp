@@ -21,7 +21,7 @@ along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 
 const dl = require('download');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs.extra');
 const rpc = require('./weh-rpc');
 const logger = require('./logger');
 
@@ -70,43 +70,54 @@ function download(options) {
 		state: "in_progress",
 		error: null
 	}
-	downloadItem.on('request', (request) => {
-		var downloadEntry = downloads[downloadId];
-		if(downloadEntry)
-			downloadEntry.request = request;
-	});
-	downloadItem.on('response', (response) => {
-		var downloadEntry = downloads[downloadId];
-		var contentLength = response.headers['content-length'];
-		if(downloadEntry && contentLength) {
-			downloadEntry.totalBytes = parseInt(contentLength);
-			response.on("data", (data) => {
-				downloadEntry.bytesReceived += data.length;				
-			});
-		}
-	});
+
 	function RemoveEntry() {
 		setTimeout(()=>{
 			delete downloads[downloadId];
 		},60000);
 	}
-	downloadItem.pipe(fs.createWriteStream(filename))
-	.on('finish', ()=>{
-		var downloadEntry = downloads[downloadId];
-		if(downloadEntry) {
-			downloadEntry.state = "complete";
-			RemoveEntry();
-		}
-	})
-	.on('error', (err)=>{
+
+	function FailedDownload(err) {
 		var downloadEntry = downloads[downloadId];
 		if(downloadEntry) {
 			downloadEntry.state = "interrupted";
 			downloadEntry.error = err.message || ""+err;
 			RemoveEntry();
 		}
+	}
+
+	fs.mkdirp(path.dirname(filename),(err)=>{
+		if(err) {
+			FailedDownload(err);
+			return;
+		}
+
+		downloadItem.on('request', (request) => {
+			var downloadEntry = downloads[downloadId];
+			if(downloadEntry)
+				downloadEntry.request = request;
+		});
+		downloadItem.on('response', (response) => {
+			var downloadEntry = downloads[downloadId];
+			var contentLength = response.headers['content-length'];
+			if(downloadEntry && contentLength) {
+				downloadEntry.totalBytes = parseInt(contentLength);
+				response.on("data", (data) => {
+					downloadEntry.bytesReceived += data.length;				
+				});
+			}
+		});
+		downloadItem.pipe(fs.createWriteStream(filename))
+		.on('finish', ()=>{
+			var downloadEntry = downloads[downloadId];
+			if(downloadEntry) {
+				downloadEntry.state = "complete";
+				RemoveEntry();
+			}
+		})
+		.on('error', FailedDownload);
 	});
-	
+
 	return downloadId;
 }
 
