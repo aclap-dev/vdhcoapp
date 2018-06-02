@@ -190,7 +190,8 @@ function MakeDeb(platform,arch) {
 			version: manifest.version,
 			architecture: archName,
 			short_description: config.short_description || config.description,
-			long_description: config.description
+			long_description: config.description,
+			depends: [ 'libsdl2-2.0-0 (>= 2.0.0)' ]
 		},config.deb)))
 		.pipe(gulp.dest("builds"));
 }
