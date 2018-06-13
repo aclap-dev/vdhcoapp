@@ -15,10 +15,8 @@
 	"allowed_extensions": {
 		"firefox": ["weh-native-test@downloadhelper.net","{b9db16a4-6edc-47ec-a1f4-b86292ed211d}"],
 		"chrome": [
-			"chrome-extension://ocgbelnknlgoiofcepicgpicjibclfdg/",
-			"chrome-extension://lpheobkpibijgligoklmllibbbdhfghg/",
-			"chrome-extension://amnobfikmbfolbaeeadnkcppghfdjeke/",
-			"chrome-extension://elhfcodaoaikbcelkndffhcflgijfjdn/"
+			"chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/",
+			"chrome-extension://nfpjjpkpalipnaioacmoppfnajcipame/"
 		]
 	},
 	"win": {
