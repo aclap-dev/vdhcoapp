@@ -26,7 +26,6 @@ const { spawn } = require('child_process');
 
 const gulp=require('gulp');
 const vfs=require('vinyl-fs');
-const pkg=require('pkg');
 const deb=require('gulp-deb');
 const runSequence = require('run-sequence');
 const execPkg = require('pkg').exec;
@@ -36,7 +35,6 @@ const rename = require("gulp-rename");
 const tar = require('gulp-tar');
 const gzip = require('gulp-gzip');
 const ejs = require('gulp-ejs');
-const debug = require('gulp-debug');
 const which = require('which');
 
 const config = require('./config');
@@ -126,6 +124,14 @@ function CopyBinary(platform,arch,extraPath="") {
 	})
 }
 
+function CopyXbgOpen(platform,arch,extraPath="") {
+	return new Promise((resolve, reject) => {
+		gulp.src("node_modules/opn/xdg-open")
+		.pipe(gulp.dest("dist/"+platform+"/"+extraPath))
+		.on("end",resolve);
+	});
+}
+
 function CreateLinuxFirefoxNativeManifest(arch,extraPath="") {
 	var manifest = {
 		name: config.id,
@@ -173,6 +179,7 @@ function MakeDebFiles(platform,arch) {
 	var appPath = "/opt/"+config.id;
 	return Promise.all([
 			CopyBinary(platform,arch,arch+"/deb"+appPath+"/bin"),
+			CopyXbgOpen(platform,arch,arch+"/deb"+appPath+"/bin"),
 			CopyExtra(platform,arch,"/deb"+appPath),
 			CreateLinuxFirefoxNativeManifest(arch,"/deb"),
 			CreateLinuxChromeNativeManifest(arch,"/deb"),
@@ -200,6 +207,7 @@ function MakeTarGzFiles(platform,arch) {
 	var appPath = "/"+config.id+"-"+manifest.version;
 	return Promise.all([
 			CopyBinary(platform,arch,arch+"/targz"+appPath+"/bin"),
+			CopyXbgOpen(platform,arch,arch+"/targz"+appPath+"/bin"),
 			CopyExtra(platform,arch,"/targz"+appPath),
 			fs.outputFile("dist/linux/"+arch+"/targz"+appPath+"/config.json",
 				MakeConfigJsonStr(),"utf8")
@@ -216,7 +224,11 @@ function MakeTarGz(platform,arch) {
 }
 
 gulp.task("build-local",()=>{
-	return Pkg(PLATFORMS[os.platform()],ARCH_BITS[os.arch()]);
+	return Pkg(PLATFORMS[os.platform()],ARCH_BITS[os.arch()])
+	.then(()=>{
+		if(os.platform()=="linux")
+			return fs.copy("node_modules/opn/xdg-open","bin/xdg-open");
+	});
 });
 
 [{p:"linux",a:"64"},{p:"linux",a:"32"},
@@ -825,7 +837,10 @@ gulp.task('setup-local-linux',(callback) => {
 			fs.outputFile(
 				process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json",
 				JSON.stringify(chromeManifest,null,4),"utf8")
-		])		
+		])
+		.then(()=>{
+			return fs.copy("node_modules/opn/xdg-open","bin/xdg-open");
+		})
 		.then(()=>{
 			callback();
 		});

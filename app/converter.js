@@ -21,7 +21,7 @@ along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 
 const path = require('path');
 const { spawn } = require('child_process');
-const open = require('open');
+const opn = require('opn');
 
 const logger = require('./logger');
 const rpc = require('./weh-rpc');
@@ -223,7 +223,7 @@ rpc.listen({
 			});
 	},
 	"open": (filePath) => {
-		open(filePath);
+		opn(filePath);
 	},
 
 });
