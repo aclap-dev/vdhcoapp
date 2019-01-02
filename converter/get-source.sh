@@ -45,7 +45,7 @@ mkdir -p $SRCDIR
 (cd $SRCDIR; git clone https://github.com/madler/zlib.git; cd zlib; git checkout "$ZLIB_VER")
 (cd $SRCDIR; git clone https://github.com/uclouvain/openjpeg.git jpeg; cd jpeg; git checkout "$JPEG_VER")
 (cd $SRCDIR; git clone https://github.com/videolan/x265.git x265; cd x265; git checkout "$X265_VER")
-(cd $SRCDIR; git clone git://anonscm.debian.org/pkg-gstreamer/orc.git orc; cd orc; git checkout "$ORC_VER")
+(cd $SRCDIR; git clone https://salsa.debian.org/gstreamer-team/orc.git orc; cd orc; git checkout "$ORC_VER")
 (cd $SRCDIR; git clone https://github.com/Distrotech/libtheora.git theora; cd theora; git checkout "$THEORA_VER")
 (cd $SRCDIR; git clone https://github.com/enthought/bzip2-1.0.6.git bzip2; cd bzip2; git checkout "$BZIP2_VER")
 (cd $SRCDIR; git clone https://github.com/numactl/numactl.git numa; cd numa; git checkout "$NUMA_VER")
