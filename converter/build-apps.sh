@@ -525,25 +525,34 @@ build_aom() {
 		cmake \
 			-DCMAKE_INSTALL_PREFIX="$ARCHSRCDIR/deps" \
 			-DCROSS="$ARCH-w64-mingw32-" \
+			-DENABLE_DOCS=0 \
+			-DENABLE_TESTS=0 \
+			-DENABLE_EXAMPLES=0 \
+			-DENABLE_TOOLS=0 \
+			-DCMAKE_BUILD_TYPE=Release \
 			-DCMAKE_TOOLCHAIN_FILE=../build/cmake/toolchains/x86_64-mingw-gcc.cmake \
 			.. || exit -1
-		make || exit -1
+		make dist || exit -1
 		make install || exit -1
 		;;
 	*)
 		case $PLATFORM in
-			linux) SYSTEM_NAME="Linux"; LIBEXT="so" ;;
-			mac) SYSTEM_NAME="Darwin"; LIBEXT="dylib" ;;
+			linux) SYSTEM_NAME="Linux"  ;;
+			mac) SYSTEM_NAME="Darwin"  ;;
 		esac
 		cmake \
 			-DBUILD_SHARED_LIBS=1 \
 			-DCMAKE_INSTALL_PREFIX="$ARCHSRCDIR/deps" \
 			-DCMAKE_SYSTEM_NAME="$SYSTEM_NAME" \
+			-DENABLE_DOCS=0 \
+			-DENABLE_TESTS=0 \
+			-DENABLE_EXAMPLES=0 \
+			-DENABLE_TOOLS=0 \
+			-DCMAKE_BUILD_TYPE=Release \
 			.. || exit -1
-		make || exit -1
+		make dist || exit -1
 		make install || exit -1
 		SYSTEM_NAME=
-		LIBEXT=
 		;;
 	esac
 	)
