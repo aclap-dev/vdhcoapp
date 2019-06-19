@@ -514,6 +514,41 @@ build_numa() {
 	)
 }
 
+build_aom() {
+	(
+	echo "Building aom"
+	cd $ARCHSRCDIR/aom
+	mkdir -p aom_build
+	cd aom_build
+	case $PLATFORM in
+	win)
+		cmake \
+			-DCMAKE_INSTALL_PREFIX="$ARCHSRCDIR/deps" \
+			-DCROSS="$ARCH-w64-mingw32-" \
+			-DCMAKE_TOOLCHAIN_FILE=../build/cmake/toolchains/x86_64-mingw-gcc.cmake \
+			.. || exit -1
+		make || exit -1
+		make install || exit -1
+		;;
+	*)
+		case $PLATFORM in
+			linux) SYSTEM_NAME="Linux"; LIBEXT="so" ;;
+			mac) SYSTEM_NAME="Darwin"; LIBEXT="dylib" ;;
+		esac
+		cmake \
+			-DBUILD_SHARED_LIBS=1 \
+			-DCMAKE_INSTALL_PREFIX="$ARCHSRCDIR/deps" \
+			-DCMAKE_SYSTEM_NAME="$SYSTEM_NAME" \
+			.. || exit -1
+		make || exit -1
+		make install || exit -1
+		SYSTEM_NAME=
+		LIBEXT=
+		;;
+	esac
+	)
+}
+
 build_ffmpeg() {
 	(
 	echo "Building ffmpeg"
@@ -547,6 +582,7 @@ build_ffmpeg() {
 			--enable-libx265 \
 			--enable-libxvid \
 			--enable-libx264 \
+			--enable-libaom \
 			--enable-avresample \
 			--disable-doc \
 			|| exit -1
@@ -580,6 +616,7 @@ build_ffmpeg() {
 			--enable-libx265 
 			--enable-libxvid 
 			--enable-libx264 
+			--enable-libaom
 			--enable-avresample 
 			--disable-indev=sndio --disable-outdev=sndio 
 			--disable-doc 
@@ -624,6 +661,7 @@ EOF
 			--enable-libopenjpeg \
 			--enable-libx265 \
 			--enable-libtheora \
+			--enable-libaom \
 			--disable-doc \
 			|| exit -1
 		;;
@@ -684,6 +722,7 @@ build_arch() {
 	echo "export PKG_CONFIG_PATH=\"$ARCHSRCDIR/deps/lib/pkgconfig\""
 	echo "export GCC_LIBDIR=\"$GCC_LIBDIR\""
 
+	build_aom || exit -1
 	build_lame || exit -1
 	build_ogg || exit -1
 	build_vorbis || exit -1

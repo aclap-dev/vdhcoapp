@@ -24,8 +24,9 @@ ORC_VER="upstream/0.4.27"
 THEORA_VER="distrotech-libtheora-git"
 BZIP2_VER="master"
 NUMA_VER="v2.0.11"
+AOM_VER="v1.0.0-errata1"
 
-LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl2 webp zlib jpeg x265 orc theora bzip2 numa"
+LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl2 webp zlib jpeg x265 orc theora bzip2 numa aom"
 
 rm -rf $SRCDIR
 mkdir -p $SRCDIR
@@ -49,6 +50,7 @@ mkdir -p $SRCDIR
 (cd $SRCDIR; git clone https://github.com/Distrotech/libtheora.git theora; cd theora; git checkout "$THEORA_VER")
 (cd $SRCDIR; git clone https://github.com/enthought/bzip2-1.0.6.git bzip2; cd bzip2; git checkout "$BZIP2_VER")
 (cd $SRCDIR; git clone https://github.com/numactl/numactl.git numa; cd numa; git checkout "$NUMA_VER")
+(cd $SRCDIR; git clone https://aomedia.googlesource.com/aom aom; cd aom; git checkout "$AOM_VER")
 
 for lib in $LIBS; do
     if [ ! -e "src/$lib" ]; then
