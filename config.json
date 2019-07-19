@@ -17,6 +17,13 @@
 		"chrome": [
 			"chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/",
 			"chrome-extension://nfpjjpkpalipnaioacmoppfnajcipame/"
+		],
+		"edge": ["chrome-extension://pidkepiphocbhpfjkeapnlgailkfmmld/"],
+		"brave": [
+			"chrome-extension://eidgeendkmgbphiehlgbanedocmgljch/",
+			"chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/",
+			"chrome-extension://pjjojihmembdiebndooecjildbpmelde/",
+			"chrome-extension://fmcpmkbmlhglefdichomnkdemmdijldc/"
 		]
 	},
 	"win": {

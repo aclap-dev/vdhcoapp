@@ -45,6 +45,8 @@ Source: firefox.64.<%= config.id %>.json; DestDir: "{app}"; DestName: "firefox.<
 Source: firefox.32.<%= config.id %>.json; DestDir: "{app}"; DestName: "firefox.<%= config.id %>.json"; Check: IsOtherArch;
 Source: chrome.64.<%= config.id %>.json; DestDir: "{app}"; DestName: "chrome.<%= config.id %>.json"; Check: IsX64;
 Source: chrome.32.<%= config.id %>.json; DestDir: "{app}"; DestName: "chrome.<%= config.id %>.json"; Check: IsOtherArch;
+Source: edge.64.<%= config.id %>.json; DestDir: "{app}"; DestName: "edge.<%= config.id %>.json"; Check: IsX64;
+Source: edge.32.<%= config.id %>.json; DestDir: "{app}"; DestName: "edge.<%= config.id %>.json"; Check: IsOtherArch;
 
 <% (config.win.sources || []).forEach((source)=>{ %>
 Source: "<%= source.source %>"; <% 
@@ -61,6 +63,7 @@ Root: HKLM; Subkey: "Software\<%= config.win.appPublisher %>\<%= config.id %>"; 
 Root: HKLM; Subkey: "Software\Mozilla\NativeMessagingHosts\<%= config.id %>"; ValueType: string; ValueName: ""; ValueData: "{app}\firefox.<%= config.id %>.json"; Flags: uninsdeletekey;
 Root: HKLM; Subkey: "Software\Chromium\NativeMessagingHosts\<%= config.id %>"; ValueType: string; ValueName: ""; ValueData: "{app}\chrome.<%= config.id %>.json"; Flags: uninsdeletekey;
 Root: HKLM; Subkey: "Software\Google\Chrome\NativeMessagingHosts\<%= config.id %>"; ValueType: string; ValueName: ""; ValueData: "{app}\chrome.<%= config.id %>.json"; Flags: uninsdeletekey;
+Root: HKLM; Subkey: "Software\Microsoft\Edge\NativeMessagingHosts\<%= config.id %>"; ValueType: string; ValueName: ""; ValueData: "{app}\edge.<%= config.id %>.json"; Flags: uninsdeletekey;
 
 [Code]
 function IsX64: Boolean;

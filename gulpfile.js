@@ -157,7 +157,7 @@ function CreateLinuxChromeNativeManifest(arch,extraPath="") {
 		description: config.description,
 		path: "/opt/"+config.id+"/bin/"+config.id+"-linux-"+arch,
 		type: "stdio",
-		allowed_origins: config.allowed_extensions.chrome
+		allowed_origins: config.allowed_extensions.chrome.concat(config.allowed_extensions.brave)
 	}
 	return Promise.all(
 		["/etc/opt/chrome/native-messaging-hosts",
@@ -286,14 +286,25 @@ gulp.task("targz-local",(callback)=>{
 function CreateIssWinManifests() {
 	var promises = [];
 	["64","32"].forEach((arch)=>{
-		var { firefox: firefoxManifest, chrome: chromeManifest} = GetWinManifests(arch,true);
+		var { 
+			firefox: firefoxManifest, 
+			chrome: chromeManifest, 
+			edge: edgeManifest,
+			brave: braveManifest 
+		} = GetWinManifests(arch,true);
 		promises.push(fs.outputFile(
 			"dist/win/iss/firefox."+arch+"."+config.id+".json",
 			JSON.stringify(firefoxManifest,null,4),"utf8"));
 		promises.push(fs.outputFile(
 			"dist/win/iss/chrome."+arch+"."+config.id+".json",
-			JSON.stringify(chromeManifest,null,4),"utf8"))
-	});
+			JSON.stringify(chromeManifest,null,4),"utf8"));
+		promises.push(fs.outputFile(
+			"dist/win/iss/edge."+arch+"."+config.id+".json",
+			JSON.stringify(edgeManifest,null,4),"utf8"))
+		promises.push(fs.outputFile(
+			"dist/win/iss/brave."+arch+"."+config.id+".json",
+			JSON.stringify(braveManifest,null,4),"utf8"))
+		});
 	return Promise.all(promises);
 }
 
@@ -827,6 +838,13 @@ gulp.task('setup-local-linux',(callback) => {
 		type: "stdio",
 		allowed_origins: config.allowed_extensions.chrome
 	}
+	var braveManifest = {
+		name: config.id,
+		description: config.description,
+		path: __dirname+"/bin/"+config.id+"-linux-"+arch,
+		type: "stdio",
+		allowed_origins: config.allowed_extensions.brave
+	}
 	Promise.all([
 			fs.outputFile(
 				process.env.HOME+"/.mozilla/native-messaging-hosts/"+config.id+".json",
@@ -836,7 +854,10 @@ gulp.task('setup-local-linux',(callback) => {
 				JSON.stringify(chromeManifest,null,4),"utf8"),
 			fs.outputFile(
 				process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json",
-				JSON.stringify(chromeManifest,null,4),"utf8")
+				JSON.stringify(chromeManifest,null,4),"utf8"),
+			fs.outputFile(
+				process.env.HOME+"/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json",
+				JSON.stringify(braveManifest,null,4),"utf8"),
 		])
 		.then(()=>{
 			return fs.copy("node_modules/opn/xdg-open","bin/xdg-open");
@@ -851,7 +872,8 @@ gulp.task('unsetup-local-linux',(callback) => {
 	Promise.all([
 		fs.remove(process.env.HOME+"/.mozilla/native-messaging-hosts/"+config.id+".json"),
 		fs.remove(process.env.HOME+"/.config/google-chrome/NativeMessagingHosts/"+config.id+".json"),
-		fs.remove(process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json")
+		fs.remove(process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json"),
+		fs.remove(process.env.HOME+"/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json")
 	])
 	.then(()=>{
 		callback();
@@ -863,6 +885,7 @@ gulp.task('unsetup-local-mac',(callback) => {
 		fs.remove(process.env.HOME+"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json"),
 		fs.remove(process.env.HOME+"/Library/Application Support/Google/Chrome/NativeMessagingHosts/"+config.id+".json"),
 		fs.remove(process.env.HOME+"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json"),
+		fs.remove(process.env.HOME+"/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json"),
 	])
 	.then(()=>{
 		callback();
@@ -883,7 +906,14 @@ function GetWinManifests(arch,relativePath=false) {
 			description: config.description,
 			path: (relativePath ? "" : __dirname+"/")+"bin/"+config.id+"-win-"+arch+".exe",
 			type: "stdio",
-			allowed_origins: config.allowed_extensions.chrome
+			allowed_origins: config.allowed_extensions.chrome.concat(config.allowed_extensions.brave)
+		},
+		edge: {
+			name: config.id,
+			description: config.description,
+			path: (relativePath ? "" : __dirname+"/")+"bin/"+config.id+"-win-"+arch+".exe",
+			type: "stdio",
+			allowed_origins: config.allowed_extensions.edge 
 		}
 	}
 }
@@ -934,10 +964,15 @@ function OnDemandRequire(packageName) {
 
 gulp.task('setup-local-win',(callback) => {
 	var arch = ARCH_BITS[os.arch()];
-	var { firefox: firefoxManifest, chrome: chromeManifest} = GetWinManifests(arch,false);
+	var { 
+		firefox: firefoxManifest, 
+		chrome: chromeManifest,
+		edge: edgeManifest
+	} = GetWinManifests(arch,false);
 	var manifests = [
 		path.join("dist","win",""+arch,"local","firefox."+config.id+".json"),
-		path.join("dist","win",""+arch,"local","chrome."+config.id+".json")
+		path.join("dist","win",""+arch,"local","chrome."+config.id+".json"),
+		path.join("dist","win",""+arch,"local","edge."+config.id+".json"),
 	];
 	var regedit = null;
 	function WriteRegistryKeys() {
@@ -973,6 +1008,10 @@ gulp.task('setup-local-win',(callback) => {
 			WriteRegistry("HKCU\\Software\\Mozilla\\NativeMessagingHosts",
 				config.id,
 				path.resolve(manifests[0])
+			),
+			WriteRegistry("HKCU\\Software\\Microsoft\\Edge\\NativeMessagingHosts",
+				config.id,
+				path.resolve(manifests[2])
 			)
 		])
 	}
@@ -985,7 +1024,10 @@ gulp.task('setup-local-win',(callback) => {
 					JSON.stringify(firefoxManifest,null,4),"utf8"),
 				fs.outputFile(
 					manifests[1],
-					JSON.stringify(chromeManifest,null,4),"utf8")
+					JSON.stringify(chromeManifest,null,4),"utf8"),
+				fs.outputFile(
+					manifests[2],
+					JSON.stringify(edgeManifest,null,4),"utf8")
 			])		
 		})
 		.then(()=>{
@@ -1017,6 +1059,8 @@ gulp.task('unsetup-local-win',(callback) => {
 				DeleteKey("HKCU\\Software\\Chromium\\NativeMessagingHosts",
 					config.id),
 				DeleteKey("HKCU\\Software\\Mozilla\\NativeMessagingHosts",
+					config.id),
+				DeleteKey("HKCU\\Software\\Microsoft\\Edge\\NativeMessagingHosts",
 					config.id)
 			])
 		})
