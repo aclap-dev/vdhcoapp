@@ -52,7 +52,7 @@ function GetManifests(config) {
 			description: config.description,
 			path: process.execPath,
 			type: "stdio",
-			allowed_origins: config.allowed_extensions.chrome
+			allowed_origins: config.allowed_extensions.chrome.concat(config.allowed_extensions.brave)
 		}
 	}
 }
