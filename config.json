@@ -25,6 +25,10 @@
 			"chrome-extension://pjjojihmembdiebndooecjildbpmelde/",
 			"chrome-extension://fmcpmkbmlhglefdichomnkdemmdijldc/",
 			"chrome-extension://nibacableccledgllmlbdgalojbgkbob/"
+		],
+		"vivaldi": [
+			"chrome-extension://lhhdigbepfhonmiifihghkiccoojdcjd/",
+			"chrome-extension://hhcagcdiecmappalfjdhoanednabbgoh/"
 		]
 	},
 	"win": {

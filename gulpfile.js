@@ -157,7 +157,10 @@ function CreateLinuxChromeNativeManifest(arch,extraPath="") {
 		description: config.description,
 		path: "/opt/"+config.id+"/bin/"+config.id+"-linux-"+arch,
 		type: "stdio",
-		allowed_origins: config.allowed_extensions.chrome.concat(config.allowed_extensions.brave)
+		allowed_origins: config.allowed_extensions.chrome.concat(
+			config.allowed_extensions.brave,
+			config.allowed_extensions.vivaldi
+		)
 	}
 	return Promise.all(
 		["/etc/opt/chrome/native-messaging-hosts",
@@ -289,8 +292,7 @@ function CreateIssWinManifests() {
 		var { 
 			firefox: firefoxManifest, 
 			chrome: chromeManifest, 
-			edge: edgeManifest,
-			brave: braveManifest 
+			edge: edgeManifest
 		} = GetWinManifests(arch,true);
 		promises.push(fs.outputFile(
 			"dist/win/iss/firefox."+arch+"."+config.id+".json",
@@ -300,11 +302,7 @@ function CreateIssWinManifests() {
 			JSON.stringify(chromeManifest,null,4),"utf8"));
 		promises.push(fs.outputFile(
 			"dist/win/iss/edge."+arch+"."+config.id+".json",
-			JSON.stringify(edgeManifest,null,4),"utf8"))
-		promises.push(fs.outputFile(
-			"dist/win/iss/brave."+arch+"."+config.id+".json",
-			JSON.stringify(braveManifest,null,4),"utf8"))
-		});
+			JSON.stringify(edgeManifest,null,4),"utf8"));
 	return Promise.all(promises);
 }
 
@@ -845,6 +843,13 @@ gulp.task('setup-local-linux',(callback) => {
 		type: "stdio",
 		allowed_origins: config.allowed_extensions.brave
 	}
+	var vivaldiManifest = {
+		name: config.id,
+		description: config.description,
+		path: __dirname+"/bin/"+config.id+"-linux-"+arch,
+		type: "stdio",
+		allowed_origins: config.allowed_extensions.vivaldi
+	}
 	Promise.all([
 			fs.outputFile(
 				process.env.HOME+"/.mozilla/native-messaging-hosts/"+config.id+".json",
@@ -858,6 +863,9 @@ gulp.task('setup-local-linux',(callback) => {
 			fs.outputFile(
 				process.env.HOME+"/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json",
 				JSON.stringify(braveManifest,null,4),"utf8"),
+			fs.outputFile(
+				process.env.HOME+"/.config/vivaldi/NativeMessagingHosts/"+config.id+".json",
+				JSON.stringify(vivaldiManifest,null,4),"utf8"),
 		])
 		.then(()=>{
 			return fs.copy("node_modules/opn/xdg-open","bin/xdg-open");
@@ -873,7 +881,8 @@ gulp.task('unsetup-local-linux',(callback) => {
 		fs.remove(process.env.HOME+"/.mozilla/native-messaging-hosts/"+config.id+".json"),
 		fs.remove(process.env.HOME+"/.config/google-chrome/NativeMessagingHosts/"+config.id+".json"),
 		fs.remove(process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json"),
-		fs.remove(process.env.HOME+"/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json")
+		fs.remove(process.env.HOME+"/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json"),
+		fs.remove(process.env.HOME+"/.config/vivaldi/NativeMessagingHosts/"+config.id+".json")
 	])
 	.then(()=>{
 		callback();
@@ -906,7 +915,10 @@ function GetWinManifests(arch,relativePath=false) {
 			description: config.description,
 			path: (relativePath ? "" : __dirname+"/")+"bin/"+config.id+"-win-"+arch+".exe",
 			type: "stdio",
-			allowed_origins: config.allowed_extensions.chrome.concat(config.allowed_extensions.brave)
+			allowed_origins: config.allowed_extensions.chrome.concat(
+				config.allowed_extensions.brave,
+				config.allowed_extensions.vivaldi
+			)
 		},
 		edge: {
 			name: config.id,
