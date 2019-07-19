@@ -303,6 +303,7 @@ function CreateIssWinManifests() {
 		promises.push(fs.outputFile(
 			"dist/win/iss/edge."+arch+"."+config.id+".json",
 			JSON.stringify(edgeManifest,null,4),"utf8"));
+	});
 	return Promise.all(promises);
 }
 
