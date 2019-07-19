@@ -28,7 +28,8 @@
 		],
 		"vivaldi": [
 			"chrome-extension://lhhdigbepfhonmiifihghkiccoojdcjd/",
-			"chrome-extension://hhcagcdiecmappalfjdhoanednabbgoh/"
+			"chrome-extension://hhcagcdiecmappalfjdhoanednabbgoh/",
+			"chrome-extension://imopifncallfplihbjogajlbhmckajnk/"
 		]
 	},
 	"win": {
