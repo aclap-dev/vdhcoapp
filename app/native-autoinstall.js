@@ -56,6 +56,13 @@ function GetManifests(config) {
 				config.allowed_extensions.brave,
 				config.allowed_extensions.vivaldi
 			)
+		},
+		edge: {
+			name: config.id,
+			description: config.description,
+			path: process.execPath,
+			type: "stdio",
+			allowed_origins: config.allowed_extensions.edge
 		}
 	}
 }
@@ -86,7 +93,7 @@ function ParseModeConfig() {
 
 function DarwinInstall() {
 	var { mode, config } = ParseModeConfig();
-	var { chrome: chromeManifest, firefox: firefoxManifest } = GetManifests(config);
+	var { chrome: chromeManifest, firefox: firefoxManifest, edge: edgeManifest } = GetManifests(config);
 	var manifests;
 	if(mode=="user") 
 		manifests = [{
@@ -98,6 +105,9 @@ function DarwinInstall() {
 		},{
 			file: process.env.HOME+"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json",
 			manifest: JSON.stringify(chromeManifest,null,4),
+		},{
+			file: process.env.HOME+"/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"+config.id+".json",
+			manifest: JSON.stringify(edgeManifest,null,4),
 		}];
 	else
 		manifests = [{
@@ -109,6 +119,9 @@ function DarwinInstall() {
 		},{
 			file: "/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json",
 			manifest: JSON.stringify(chromeManifest,null,4),
+		},{
+			file: "/Library/Microsoft/Edge/NativeMessagingHosts/"+config.id+".json",
+			manifest: JSON.stringify(edgeManifest,null,4),
 		}];
 	try {
 		manifests.forEach((manif)=>{
@@ -131,13 +144,15 @@ function DarwinUninstall() {
 		manifests = [
 			process.env.HOME+"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json",			
 			process.env.HOME+"/Library/Application Support/Google/Chrome/NativeMessagingHosts/"+config.id+".json",
-			process.env.HOME+"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json"
+			process.env.HOME+"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json",
+			process.env.HOME+"/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"+config.id+".json"
 		];
 	else
 		manifests = [
 			"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json",
 			"/Library/Google/Chrome/NativeMessagingHosts/"+config.id+".json",
-			"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json"
+			"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json",
+			"/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"+config.id+".json"
 		];
 	try {
 		manifests.forEach((file)=>{
@@ -254,11 +269,13 @@ function WindowsInstall() {
 		DisplayMessage("Error creating directory",manifestsDir,":",e.message);
 		process.exit(-1);
 	}
-	var { firefox: firefoxManifest, chrome: chromeManifest} = GetManifests(config);
+	var { firefox: firefoxManifest, chrome: chromeManifest, edge: edgeManifest} = GetManifests(config);
 	var firefoxManifestFile = path.resolve(path.join(manifestsDir,"firefox."+config.id+".json"));
 	fs.outputFileSync(firefoxManifestFile,JSON.stringify(firefoxManifest,null,4),"utf8");
 	var chromeManifestFile = path.resolve(path.join(manifestsDir,"chrome."+config.id+".json"));
 	fs.outputFileSync(chromeManifestFile,JSON.stringify(chromeManifest,null,4),"utf8");
+	var edgeManifestFile = path.resolve(path.join(manifestsDir,"edge."+config.id+".json"));
+	fs.outputFileSync(edgeManifestFile,JSON.stringify(edgeManifest,null,4),"utf8");
 
 	var regRoot = "HKLM";
 	if(mode=="user")
@@ -267,6 +284,7 @@ function WindowsInstall() {
 	WriteRegistry(regRoot,"\\Software\\Chromium\\NativeMessagingHosts",config.id,chromeManifestFile);
 	WriteRegistry(regRoot,"\\Software\\Mozilla\\NativeMessagingHosts",config.id,firefoxManifestFile);
 	WriteRegistry(regRoot,"\\Software\\ComodoGroup\\NativeMessagingHosts",config.id,firefoxManifestFile);
+	WriteRegistry(regRoot,"\\Software\\Microsoft\\Edge\\NativeMessagingHosts",config.id,edgeManifestFile);
 	var text = config.name+" is ready to be used";
 	DisplayMessage(text);
 }
@@ -294,6 +312,7 @@ function WindowsUninstall() {
 	DeleteRegistry(regRoot,"\\Software\\Google\\Chrome\\NativeMessagingHosts",config.id);
 	DeleteRegistry(regRoot,"\\Software\\Chromium\\NativeMessagingHosts",config.id);
 	DeleteRegistry(regRoot,"\\Software\\Mozilla\\NativeMessagingHosts",config.id);
+	DeleteRegistry(regRoot,"\\Software\\Microsoft\\Edge\\NativeMessagingHosts",config.id);
 	var text = config.name+" manifests have been removed";
 	DisplayMessage(text);
 }

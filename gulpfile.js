@@ -376,18 +376,54 @@ gulp.task("check-wine",(callback)=>{
 var issBinary = null;
 
 gulp.task("check-iss",(callback)=>{
-	issBinary = config.issBinary || (PLATFORMS[os.platform()]=="linux" ?
-		process.env.HOME+"/.wine/drive_c/Program\ Files/Inno\ Setup\ 5/ISCC.exe"
-	:
-		"c:\\Program Files\\Inno Setup 5\\ISCC.exe"
-	)
-	return new Promise((resolve, reject) => {
-		fs.stat(issBinary,(err,stats)=>{
-			if(err)
-				return reject(err);
-			resolve();
+
+	function CheckBinary(path) {
+		return new Promise((resolve,reject)=>{
+			fs.stat(path,(err,stats)=>{
+				if(err)
+					return reject(err);
+				resolve();
+			});
 		});
-	})	
+	}
+
+	if(issBinary)
+		return CheckBinary(issBinary);
+
+	var binaryCandidates;
+	if(PLATFORMS[os.platform()]=="linux")
+		binaryCandidates = [
+			process.env.HOME+"/.wine/drive_c/Program\ Files\ \(x86\)/Inno\ Setup\ 6/ISCC.exe",
+			process.env.HOME+"/.wine/drive_c/Program\ Files/Inno\ Setup\ 6/ISCC.exe",
+			process.env.HOME+"/.wine/drive_c/Program\ Files\ \(x86\)/Inno\ Setup\ 5/ISCC.exe",
+			process.env.HOME+"/.wine/drive_c/Program\ Files/Inno\ Setup\ 5/ISCC.exe"
+		];
+	else
+		binaryCandidates = [
+			"c:\\Program Files\\Inno Setup 6\\ISCC.exe",
+			"c:\\Program Files\\Inno Setup 5\\ISCC.exe"
+		];
+
+	function CheckNextPath() {
+		var path = binaryCandidates.shift();
+		if(!path)
+			return Promise.reject(new Error("Inno Setup not found"));
+		else 
+			return new Promise((resolve,reject)=>{
+				CheckBinary(path)
+					.then(()=>{
+						issBinary = path;
+						resolve();
+					})
+					.catch((err)=>{
+						CheckNextPath()
+							.then(resolve)
+							.catch(reject);
+					});
+			});
+	}
+
+	return CheckNextPath();
 });
 
 gulp.task("iss-files-win",(callback)=>{
@@ -895,6 +931,7 @@ gulp.task('unsetup-local-mac',(callback) => {
 		fs.remove(process.env.HOME+"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json"),
 		fs.remove(process.env.HOME+"/Library/Application Support/Google/Chrome/NativeMessagingHosts/"+config.id+".json"),
 		fs.remove(process.env.HOME+"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json"),
+		fs.remove(process.env.HOME+"/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"+config.id+".json"),
 		fs.remove(process.env.HOME+"/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json"),
 	])
 	.then(()=>{

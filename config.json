@@ -15,21 +15,14 @@
 	"allowed_extensions": {
 		"firefox": ["weh-native-test@downloadhelper.net","{b9db16a4-6edc-47ec-a1f4-b86292ed211d}"],
 		"chrome": [
-			"chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/",
-			"chrome-extension://nfpjjpkpalipnaioacmoppfnajcipame/"
+			"chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/"
 		],
-		"edge": ["chrome-extension://pidkepiphocbhpfjkeapnlgailkfmmld/"],
+		"edge": [
+			"chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/"
+		],
 		"brave": [
-			"chrome-extension://eidgeendkmgbphiehlgbanedocmgljch/",
-			"chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/",
-			"chrome-extension://pjjojihmembdiebndooecjildbpmelde/",
-			"chrome-extension://fmcpmkbmlhglefdichomnkdemmdijldc/",
-			"chrome-extension://nibacableccledgllmlbdgalojbgkbob/"
 		],
 		"vivaldi": [
-			"chrome-extension://lhhdigbepfhonmiifihghkiccoojdcjd/",
-			"chrome-extension://hhcagcdiecmappalfjdhoanednabbgoh/",
-			"chrome-extension://imopifncallfplihbjogajlbhmckajnk/"
 		]
 	},
 	"win": {
