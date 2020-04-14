@@ -124,9 +124,13 @@ rpc.listen({
 			});
 		});
 	},
-	"probe": (filePath) => {
+	"probe": (filePath,json=false) => {
 		return new Promise((resolve, reject) => {
-			var probeProcess = spawn(probeBinaryPath, [filePath], {
+			var args = [];
+			if(json)
+				args = ["-v","quiet","-print_format","json","-show_format","-show_streams"];
+			args.push(filePath);
+			var probeProcess = spawn(probeBinaryPath, args, {
 				env: {
 					[LIBRARY_PATH]: binaryDir
 				}
@@ -143,23 +147,34 @@ rpc.listen({
 			probeProcess.on("exit", (exitCode) => {
 				if(exitCode!==0)
 					return reject(new Error("Exit code: "+exitCode+"\n"+streams.stderr));
-				var info={};
-				var m=/([0-9]{2,})x([0-9]{2,})/g.exec(streams.stderr);
-				if(m) {
-					info.width = parseInt(m[1]);
-					info.height = parseInt(m[2]);
+				if(json)
+					try {
+						resolve(streams.stdout);
+					} catch(e) {
+						reject(new Error("Invalid format: "+e.message));
+					}
+				else {
+					var info={};
+					var m=/([0-9]{2,})x([0-9]{2,})/g.exec(streams.stderr);
+					if(m) {
+						info.width = parseInt(m[1]);
+						info.height = parseInt(m[2]);
+					}
+					m=/Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2})\.([0-9]{2})/g.exec(streams.stderr);
+					if(m)
+						info.duration = parseInt(m[1])*3600+parseInt(m[2])*60+parseInt(m[3]);
+					m=/Video:\s+([^\s\(,]+)/g.exec(streams.stderr);
+					if(m)
+						info.videoCodec = m[1];
+					m=/Audio:\s+([^\s\(,]+)/g.exec(streams.stderr);
+					if(m)
+						info.audioCodec = m[1];
+					m=/([0-9]+(?:\.[0-9]+)?)\s+fps\b/g.exec(streams.stderr);
+					if(m)
+						info.fps = parseFloat(m[1]);
+			
+					resolve(info);
 				}
-				m=/Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2})\.([0-9]{2})/g.exec(streams.stderr);
-				if(m)
-					info.duration = parseInt(m[1])*3600+parseInt(m[2])*60+parseInt(m[3]);
-				m=/Video:\s+([^\s\(,]+)/g.exec(streams.stderr);
-				if(m)
-					info.videoCodec = m[1];
-				m=/([0-9]+(?:\.[0-9]+)?)\s+fps\b/g.exec(streams.stderr);
-				if(m)
-					info.fps = parseFloat(m[1]);
-		
-				resolve(info);
 			});
 		});
 	},
