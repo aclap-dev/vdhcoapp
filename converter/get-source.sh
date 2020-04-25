@@ -19,7 +19,7 @@ SDL_VER="release-2.0.8"
 WEBP_VER="v0.6.0"
 ZLIB_VER="v1.2.9"
 JPEG_VER="version.2.1"
-X265_VER="2.5"
+X265_VER="3.3"
 ORC_VER="upstream/0.4.27"
 THEORA_VER="distrotech-libtheora-git"
 BZIP2_VER="master"
@@ -37,7 +37,7 @@ mkdir -p $SRCDIR
 (cd $SRCDIR; git clone git://git.xiph.org/vorbis.git; cd vorbis; git checkout "$VORBIS_VER")
 (cd $SRCDIR; git clone git://git.xiph.org/opus.git; cd opus; git checkout "$OPUS_VER")
 (cd $SRCDIR; git clone https://chromium.googlesource.com/webm/libvpx vpx; cd vpx; git checkout "$VPX_VER")
-(cd $SRCDIR; git clone http://git.videolan.org/git/x264.git; cd x264; git checkout "$X264_VER")
+(cd $SRCDIR; git clone https://code.videolan.org/videolan/x264.git; cd x264; git checkout "$X264_VER")
 (cd $SRCDIR; git clone https://github.com/Distrotech/xvidcore.git xvid; cd xvid; git checkout "$XVID_VER")
 (cd $SRCDIR; git clone git://git.code.sf.net/p/opencore-amr/code ocamr; cd ocamr; git checkout "$OCAMR_VER")
 (cd $SRCDIR; git clone git://git.code.sf.net/p/opencore-amr/vo-amrwbenc voamrwbenc; cd voamrwbenc; git checkout "$VOAMRWBENC_VER")
