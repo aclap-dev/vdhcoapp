@@ -7,9 +7,9 @@ SRCDIR="$BASEDIR/src"
 
 FFMPEG_VER="n4.0"
 LAME_VER="RELEASE__3_99_5"
-OGG_VER="v1.3.3"
-VORBIS_VER="8ef0f8058854b2ef55d2d42bbe84487a9aadae12" 
-OPUS_VER="v1.2.1"
+OGG_VER="v1.3.4"
+VORBIS_VER="v1.3.6"
+OPUS_VER="v1.3.1"
 VPX_VER="v1.7.0"
 X264_VER="stable"
 XVID_VER="release-1_3_3"
@@ -33,9 +33,9 @@ mkdir -p $SRCDIR
 
 (cd $SRCDIR; git clone git://source.ffmpeg.org/ffmpeg.git; cd ffmpeg; git checkout "$FFMPEG_VER"; git cherry-pick fe84f70819d6f5aab3c4823290e0d32b99d6de78)
 (cd $SRCDIR; git clone https://github.com/rbrito/lame.git; cd lame; git checkout "$LAME_VER")
-(cd $SRCDIR; git clone git://git.xiph.org/ogg.git; cd ogg; git checkout "$OGG_VER")
-(cd $SRCDIR; git clone git://git.xiph.org/vorbis.git; cd vorbis; git checkout "$VORBIS_VER")
-(cd $SRCDIR; git clone git://git.xiph.org/opus.git; cd opus; git checkout "$OPUS_VER")
+(cd $SRCDIR; git clone https://gitlab.xiph.org/xiph/ogg.git; cd ogg; git checkout "$OGG_VER")
+(cd $SRCDIR; git clone https://gitlab.xiph.org/xiph/vorbis.git; cd vorbis; git checkout "$VORBIS_VER")
+(cd $SRCDIR; git clone https://gitlab.xiph.org/xiph/opus.git; cd opus; git checkout "$OPUS_VER")
 (cd $SRCDIR; git clone https://chromium.googlesource.com/webm/libvpx vpx; cd vpx; git checkout "$VPX_VER")
 (cd $SRCDIR; git clone http://git.videolan.org/git/x264.git; cd x264; git checkout "$X264_VER")
 (cd $SRCDIR; git clone https://github.com/Distrotech/xvidcore.git xvid; cd xvid; git checkout "$XVID_VER")
