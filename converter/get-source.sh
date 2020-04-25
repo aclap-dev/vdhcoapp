@@ -6,7 +6,7 @@ BASEDIR=$(dirname "$0")
 SRCDIR="$BASEDIR/src"
 
 FFMPEG_VER="n4.0"
-LAME_VER="RELEASE__3_99_5"
+LAME_VER="lame3_100_with_psymodel_v3_99_5"
 OGG_VER="v1.3.3"
 VORBIS_VER="8ef0f8058854b2ef55d2d42bbe84487a9aadae12" 
 OPUS_VER="v1.2.1"
