@@ -32,7 +32,7 @@ rm -rf $SRCDIR
 mkdir -p $SRCDIR
 
 (cd $SRCDIR; git clone git://source.ffmpeg.org/ffmpeg.git; cd ffmpeg; git checkout "$FFMPEG_VER"; git cherry-pick fe84f70819d6f5aab3c4823290e0d32b99d6de78)
-(cd $SRCDIR; git clone https://github.com/rbrito/deprecated-lame-mirror; cd lame; git checkout "$LAME_VER")
+(cd $SRCDIR; git clone https://github.com/rbrito/deprecated-lame-mirror.git; cd lame; git checkout "$LAME_VER")
 (cd $SRCDIR; git clone git://git.xiph.org/ogg.git; cd ogg; git checkout "$OGG_VER")
 (cd $SRCDIR; git clone git://git.xiph.org/vorbis.git; cd vorbis; git checkout "$VORBIS_VER")
 (cd $SRCDIR; git clone git://git.xiph.org/opus.git; cd opus; git checkout "$OPUS_VER")
