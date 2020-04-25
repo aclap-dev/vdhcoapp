@@ -24,7 +24,7 @@ ORC_VER="upstream/0.4.27"
 THEORA_VER="distrotech-libtheora-git"
 BZIP2_VER="master"
 NUMA_VER="v2.0.11"
-AOM_VER="v1.0.0-errata1"
+AOM_VER="v1.0.0-errata1-avif"
 
 LIBS="ffmpeg lame ogg vorbis opus vpx x264 xvid ocamr voamrwbenc sdl2 webp zlib jpeg x265 orc theora bzip2 numa aom"
 
