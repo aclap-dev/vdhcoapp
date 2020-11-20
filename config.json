@@ -2,7 +2,7 @@
 	"id": "net.downloadhelper.coapp",
 	"name": "VdhCoApp",
 	"description": "Video DownloadHelper companion app",
-	"node_major": 10,
+	"node_major": 14,
 	"extra": [{
 			"source": "converter/build/${platform}/${arch}/"
 		},{
@@ -56,11 +56,11 @@
 		"signApp": true
 	},
 	"deb": {
-		"maintainer": {
-			"name": "Michel Gutierrez",
-			"email": "coapp@downloadhelper.net"
-		},
-		"installedSize": 95000,
-		"homepage": "https://github.com/mi-g/vdhcoapp"
+		"maintainer": "Michel Gutierrez <coapp@downloadhelper.net>",
+		"section": "base",
+		"priority": "optional",
+		"homepage": "https://github.com/mi-g/vdhcoapp",
+		"_clean": true,
+		"_verbose": true
 	}
 }

@@ -26,8 +26,7 @@ const { spawn } = require('child_process');
 
 const gulp=require('gulp');
 const vfs=require('vinyl-fs');
-const deb=require('gulp-deb');
-const runSequence = require('run-sequence');
+const deb=require('gulp-debian');
 const execPkg = require('pkg').exec;
 const clean = require('gulp-clean');
 const gulpif = require('gulp-if');
@@ -59,6 +58,21 @@ const PLATFORMS = {
 	"mac": "mac",
 	"darwin": "mac",
 	"macos": "mac"
+}
+
+function runSequence() {
+	var args = [...arguments];
+	var callback = args.pop();
+	var fn = function(cb) {
+		callback();
+		cb();
+	}
+	try {
+		return gulp.series.apply(gulp,args)();
+	} catch(e) {
+		console.error("runSequence error",e);
+		throw e;
+	}
 }
 
 function PkgNames(platform,arch) {
@@ -194,16 +208,25 @@ function MakeDebFiles(platform,arch) {
 function MakeDeb(platform,arch) {
 	var archName = { 64: "amd64", 32: "i386" }[arch];
 	var debName = config.id+"-"+manifest.version+"-1_"+archName+".deb";
+	var debOptions = Object.assign({
+		package: config.id,
+		version: manifest.version,
+		architecture: archName,
+		//description: "XXX"+(config.short_description || config.id) + "\r\nXXX" + config.description,
+		description: config.short_description || config.id,
+		depends: [ 'libsdl2-2.0-0 (>= 2.0.0)' ],
+		changelog: [],
+		_target: debName,
+		_out: "builds"
+	},config.deb);
 	return gulp.src("dist/"+platform+"/"+arch+"/deb/**/*")
-		.pipe(deb(debName,Object.assign({
-			name: config.id,
-			version: manifest.version,
-			architecture: archName,
-			short_description: config.short_description || config.description,
-			long_description: config.description,
-			depends: [ 'libsdl2-2.0-0 (>= 2.0.0)' ]
-		},config.deb)))
-		.pipe(gulp.dest("builds"));
+	.pipe(deb(debOptions))
+	/*
+	.on("end",()=>{
+		console.info("end",platform,arch);				
+	})
+	*/
+	;
 }
 
 function MakeTarGzFiles(platform,arch) {
@@ -245,8 +268,8 @@ gulp.task("build-local",()=>{
 gulp.task("deb-local",(callback)=>{
 	runSequence("deb-linux-"+ARCH_BITS[os.arch()],callback);
 });
-	
-[64,32].forEach((arch)=>{
+
+[64].forEach((arch)=>{
 	gulp.task("deb-files-linux-"+arch,(callback)=>{
 		MakeDebFiles(
 			"linux",
@@ -256,12 +279,11 @@ gulp.task("deb-local",(callback)=>{
 	gulp.task("deb-make-linux-"+arch,(callback)=>{
 		return MakeDeb("linux",arch)
 	});
-	gulp.task("deb-linux-"+arch,(callback)=>{
-		runSequence("build-linux-"+arch,
-			"deb-files-linux-"+arch,
-			"deb-make-linux-"+arch,
-			callback);
-	});
+	gulp.task("deb-linux-"+arch,
+		gulp.series("build-linux-"+arch,
+		"deb-files-linux-"+arch,
+		"deb-make-linux-"+arch)
+	);
 });
 
 gulp.task("targz-local",(callback)=>{
@@ -278,12 +300,10 @@ gulp.task("targz-local",(callback)=>{
 	gulp.task("targz-make-linux-"+arch,(callback)=>{
 		return MakeTarGz("linux",arch)
 	});
-	gulp.task("targz-linux-"+arch,(callback)=>{
-		runSequence("build-linux-"+arch,
+	gulp.task("targz-linux-"+arch,gulp.series(
+			"build-linux-"+arch,
 			"targz-files-linux-"+arch,
-			"targz-make-linux-"+arch,
-			callback);
-	});
+			"targz-make-linux-"+arch));
 });
 
 function CreateIssWinManifests() {
