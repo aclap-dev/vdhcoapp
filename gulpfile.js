@@ -38,6 +38,7 @@ const which = require('which');
 
 const config = require('./config');
 const manifest = require('./package.json');
+const { series } = require('gulp');
 
 const ARCH_BITS = {
 	"64": 64,
@@ -58,21 +59,6 @@ const PLATFORMS = {
 	"mac": "mac",
 	"darwin": "mac",
 	"macos": "mac"
-}
-
-function runSequence() {
-	var args = [...arguments];
-	var callback = args.pop();
-	var fn = function(cb) {
-		callback();
-		cb();
-	}
-	try {
-		return gulp.series.apply(gulp,args)();
-	} catch(e) {
-		console.error("runSequence error",e);
-		throw e;
-	}
 }
 
 function PkgNames(platform,arch) {
@@ -265,9 +251,7 @@ gulp.task("build-local",()=>{
 		});				
 	});
 
-gulp.task("deb-local",(callback)=>{
-	runSequence("deb-linux-"+ARCH_BITS[os.arch()],callback);
-});
+gulp.task("deb-local",gulp.series("deb-linux-"+ARCH_BITS[os.arch()]));
 
 [64].forEach((arch)=>{
 	gulp.task("deb-files-linux-"+arch,(callback)=>{
@@ -286,9 +270,7 @@ gulp.task("deb-local",(callback)=>{
 	);
 });
 
-gulp.task("targz-local",(callback)=>{
-	runSequence("targz-linux-"+ARCH_BITS[os.arch()],callback);
-});
+gulp.task("targz-local",run.series("targz-linux-"+ARCH_BITS[os.arch()],callback));
 	
 [64,32].forEach((arch)=>{
 	gulp.task("targz-files-linux-"+arch,(callback)=>{
@@ -574,17 +556,14 @@ gulp.task("sign-iss-installer",(callback)=>{
 });
 
 
-gulp.task("iss-win",(callback)=>{
-	runSequence(
-		["check-wine","check-iss"],
+gulp.task("iss-win",gulp.series(
+		gulp.parallel("check-wine","check-iss"),
 		"build-win-64",
 		"build-win-32",
 		"iss-files-win",
 		"sign-iss-files",
 		"iss-make-win",
-		"sign-iss-installer",
-	callback);
-});
+		"sign-iss-installer"));
 
 function CreateMacInfoPlist(extraPath="") {
 	return new Promise((resolve, reject) => {
@@ -792,14 +771,11 @@ gulp.task("dmg-checksign-mac",(callback)=>{
 		});
 });
 
-gulp.task("dmg-mac",(callback)=>{
-	runSequence(
+gulp.task("dmg-mac",gulp.series(
 		"build-mac-64",
 		"dmg-files-mac",
 		"dmg-make-mac",
-		"dmg-sign-mac",
-	callback);
-});
+		"dmg-sign-mac"));
 
 function MakePkgFiles() {
 	return MakeMacFiles("pkg");
@@ -860,17 +836,12 @@ gulp.task("pkg-checksign-mac",(callback)=>{
 		});
 });
 
-gulp.task("pkg-mac",(callback)=>{
-	runSequence(
+gulp.task("pkg-mac",gulp.series(
 		"build-mac-64",
 		"pkg-files-mac",
-		"pkg-make-mac",
-	callback);
-});
+		"pkg-make-mac"));
 
-gulp.task("default", (callback)=>{
-	runSequence("build-local",callback);
-});
+gulp.task("default", gulp.series("build-local"));
 
 gulp.task('clean', () => {
 	return gulp.src(["dist/*","builds/*","bin/*"],{read: false})
@@ -1142,16 +1113,12 @@ gulp.task('unsetup-local-win',(callback) => {
 		})
 });	
 
-gulp.task('setup-local',(callback) => {
-	return runSequence(
+gulp.task('setup-local',gulp.series(
 		"build-"+PLATFORMS[os.platform()]+"-"+ARCH_BITS[os.arch()],
-		"setup-local-"+PLATFORMS[os.platform()]);
-});
+		"setup-local-"+PLATFORMS[os.platform()]));
 
-gulp.task('unsetup-local',(callback) => {
-	return runSequence(
-		"unsetup-local-"+PLATFORMS[os.platform()]);
-});
+gulp.task('unsetup-local',gulp.series(
+		"unsetup-local-"+PLATFORMS[os.platform()]));
 
 gulp.task('build-source-tarball',() => {
 	const entries = [
