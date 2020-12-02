@@ -64,7 +64,7 @@ const PLATFORMS = {
 function PkgNames(platform,arch) {
 	const PLATFORM_NAMES={ "mac": "macos", "win": "win", "linux": "linux" };
 	var platformName = PLATFORM_NAMES[platform];
-	const ARCHS={ "64": "x64", "32": "ia32"}
+	const ARCHS={ "64": "x64", "32": "x86"}
 	var archName = ARCHS[arch];
 	var EXTENSIONS = { "win": ".exe" }
 	var target = "node" + (config.node_major || 7) + "-" +
@@ -251,8 +251,6 @@ gulp.task("build-local",()=>{
 		});				
 	});
 
-gulp.task("deb-local",gulp.series("deb-linux-"+ARCH_BITS[os.arch()]));
-
 [64].forEach((arch)=>{
 	gulp.task("deb-files-linux-"+arch,(callback)=>{
 		MakeDebFiles(
@@ -270,7 +268,7 @@ gulp.task("deb-local",gulp.series("deb-linux-"+ARCH_BITS[os.arch()]));
 	);
 });
 
-gulp.task("targz-local",run.series("targz-linux-"+ARCH_BITS[os.arch()],callback));
+gulp.task("deb-local",gulp.series("deb-linux-"+ARCH_BITS[os.arch()]));
 	
 [64,32].forEach((arch)=>{
 	gulp.task("targz-files-linux-"+arch,(callback)=>{
@@ -287,6 +285,8 @@ gulp.task("targz-local",run.series("targz-linux-"+ARCH_BITS[os.arch()],callback)
 			"targz-files-linux-"+arch,
 			"targz-make-linux-"+arch));
 });
+
+gulp.task("targz-local",gulp.series("targz-linux-"+ARCH_BITS[os.arch()]));
 
 function CreateIssWinManifests() {
 	var promises = [];
@@ -557,7 +557,8 @@ gulp.task("sign-iss-installer",(callback)=>{
 
 
 gulp.task("iss-win",gulp.series(
-		gulp.parallel("check-wine","check-iss"),
+		"check-wine",
+		"check-iss",
 		"build-win-64",
 		"build-win-32",
 		"iss-files-win",
