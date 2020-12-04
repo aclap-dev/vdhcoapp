@@ -117,7 +117,7 @@ build_vpx() {
 		if [ "$ARCH" == "i686" ]; then
 			OPTS="--target=x86-linux-gcc"
 		fi
-		OPTS="$OPTS --enable-pic --enable-shared --disable-static"
+		OPTS="$OPTS --enable-pic --enable-shared --disable-static --disable-multithread"
 		;;
 	mac)
 		git checkout v1.6.1 # v1.7.0 fails unless newer clang compiler
