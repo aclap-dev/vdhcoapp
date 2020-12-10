@@ -251,7 +251,7 @@ gulp.task("build-local",()=>{
 		});				
 	});
 
-[64].forEach((arch)=>{
+[64,32].forEach((arch)=>{
 	gulp.task("deb-files-linux-"+arch,(callback)=>{
 		MakeDebFiles(
 			"linux",
