@@ -3,6 +3,7 @@
 	"name": "VdhCoApp",
 	"description": "Video DownloadHelper companion app",
 	"node_major": 12,
+	"node_version": "12.16.1",
 	"extra": [{
 			"source": "converter/build/${platform}/${arch}/"
 		},{
