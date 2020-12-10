@@ -1,10 +1,10 @@
 # Compiling for Windows and Linux
 
-The converter part of the Video DownloadHelper Companion App is designed to generate Windows and Linux executables from a *Linux Ubuntu 16.04 64 bits* system. 
+The converter part of the Video DownloadHelper Companion App is designed to generate Windows and Linux executables from a *Linux Ubuntu 18.04 64 bits* system. 
 
-*Note: you can use a more recent Linux version like Ubuntu 18.04 to build the applications and it will probably work, but the generated binaries for Linux may not work on older systems like Ubuntu 16.04 or Fedora 27 due to an incompatibility with the GLIBC version*
+*Note: you can use a more recent Linux version like Ubuntu 20.04 to build the applications and it will probably work, but the generated binaries for Linux may not work on older systems like Ubuntu 18.04 or Fedora 27 due to an incompatibility with the GLIBC version*
 
-To recompile the converter, you can create a virtual machine running *Ubuntu 16.04 amd64* server version and apply the following commands:
+To recompile the converter, you can create a virtual machine running *Ubuntu 18.04 amd64* server version and apply the following commands:
 
 ```
 sudo apt-get update
@@ -34,7 +34,11 @@ sudo apt-get -y install \
 	libxkbcommon-dev \
 	libegl1-mesa-dev \
 	libgles2-mesa-dev \
-	libsdl2-dev
+	libsdl2-dev \
+	g++-multilib \
+	cmake \
+	g++ \
+	libtool
 ```
 
 **Important Warning regarding Linux target:** 
