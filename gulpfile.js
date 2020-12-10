@@ -67,7 +67,7 @@ function PkgNames(platform,arch) {
 	const ARCHS={ "64": "x64", "32": "x86"}
 	var archName = ARCHS[arch];
 	var EXTENSIONS = { "win": ".exe" }
-	var target = "node" + (config.node_major || 7) + "-" +
+	var target = "node" + (config.node_version || config.node_major || 7) + "-" +
 		platformName + "-" + archName;
 	var binaryName = config.id + "-" + platform + 
 		"-" + ARCH_BITS[arch] + (EXTENSIONS[platform] || "");
