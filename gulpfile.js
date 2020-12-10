@@ -38,7 +38,6 @@ const which = require('which');
 
 const config = require('./config');
 const manifest = require('./package.json');
-const { series } = require('gulp');
 
 const ARCH_BITS = {
 	"64": 64,
@@ -198,7 +197,6 @@ function MakeDeb(platform,arch) {
 		package: config.id,
 		version: manifest.version,
 		architecture: archName,
-		//description: "XXX"+(config.short_description || config.id) + "\r\nXXX" + config.description,
 		description: config.short_description || config.id,
 		depends: [ 'libsdl2-2.0-0 (>= 2.0.0)' ],
 		changelog: [],
@@ -207,11 +205,6 @@ function MakeDeb(platform,arch) {
 	},config.deb);
 	return gulp.src("dist/"+platform+"/"+arch+"/deb/**/*")
 	.pipe(deb(debOptions))
-	/*
-	.on("end",()=>{
-		console.info("end",platform,arch);				
-	})
-	*/
 	;
 }
 
@@ -231,6 +224,9 @@ function MakeTarGz(platform,arch) {
 	var tarName = config.id+"-"+manifest.version+"-1_"+archName+".tar";
 	return gulp.src("dist/"+platform+"/"+arch+"/targz/**/*")
 		.pipe(tar(tarName))
+		.pipe(gulpif(typeof process.env.NAME_EXT=="string",rename({
+			suffix: process.env.NAME_EXT
+		})))
 		.pipe(gzip())
 		.pipe(gulp.dest("builds"));
 }
