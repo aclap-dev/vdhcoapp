@@ -848,7 +848,7 @@ gulp.task('clean', () => {
 gulp.task('setup-local-mac',(callback) => {
 	// not implemented but must be defined otherwise gulp 4 complains
 	callback();
-}
+});
 
 gulp.task('setup-local-linux',(callback) => {
 	var arch = ARCH_BITS[os.arch()];
