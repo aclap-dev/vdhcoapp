@@ -46,6 +46,7 @@ build_ogg() {
 	(
 	echo "Building ogg"
 	cd $ARCHSRCDIR/ogg
+	libtoolize
 	./autogen.sh
 	case $PLATFORM in
 	win)
@@ -469,7 +470,9 @@ build_theora() {
 		;;
 	*)
 		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
-			--disable-examples --without-vorbis --disable-oggtest \
+				--disable-examples --without-vorbis --disable-oggtest \
+				--with-ogg-libraries=$ARCHSRCDIR/deps/lib \
+				--with-ogg-includes=$ARCHSRCDIR/deps/include \
 		|| exit -1
 		;;
 	esac
