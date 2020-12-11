@@ -61,7 +61,6 @@
 		"section": "base",
 		"priority": "optional",
 		"homepage": "https://github.com/mi-g/vdhcoapp",
-		"_clean": true,
-		"_verbose": true
+		"installedSize": 100000
 	}
 }

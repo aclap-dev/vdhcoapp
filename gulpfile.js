@@ -26,7 +26,6 @@ const { spawn } = require('child_process');
 
 const gulp=require('gulp');
 const vfs=require('vinyl-fs');
-const deb=require('gulp-debian');
 const execPkg = require('pkg').exec;
 const clean = require('gulp-clean');
 const gulpif = require('gulp-if');
@@ -178,34 +177,56 @@ function CreateLinuxChromeNativeManifest(arch,extraPath="") {
 }
 
 function MakeDebFiles(platform,arch) {
-	var appPath = "/opt/"+config.id;
-	return Promise.all([
-			CopyBinary(platform,arch,arch+"/deb"+appPath+"/bin"),
-			CopyXbgOpen(platform,arch,arch+"/deb"+appPath+"/bin"),
-			CopyExtra(platform,arch,"/deb"+appPath),
-			CreateLinuxFirefoxNativeManifest(arch,"/deb"),
-			CreateLinuxChromeNativeManifest(arch,"/deb"),
-			fs.outputFile("dist/linux/"+arch+"/deb"+appPath+"/config.json",
-				MakeConfigJsonStr(),"utf8")
-	]);
-}
-
-function MakeDeb(platform,arch) {
 	var archName = { 64: "amd64", 32: "i386" }[arch];
-	var debName = config.id+"-"+manifest.version+"-1_"+archName+".deb";
-	var debOptions = Object.assign({
+	var appPath = "/opt/"+config.id;
+	var control = Object.assign({},config.deb,{
 		package: config.id,
 		version: manifest.version,
 		architecture: archName,
-		description: config.short_description || config.id,
-		depends: [ 'libsdl2-2.0-0 (>= 2.0.0)' ],
-		changelog: [],
-		_target: debName,
-		_out: "builds"
-	},config.deb);
-	return gulp.src("dist/"+platform+"/"+arch+"/deb/**/*")
-	.pipe(deb(debOptions))
-	;
+		description: config.short_description || config.description,
+		depends: "libsdl2-2.0-0 (>= 2.0.0)"
+	});
+	var controlLines = [];
+	Object.keys(control).forEach((key)=>{
+		controlLines.push(key+": "+control[key]);
+	});
+	controlLines.push("");
+	var copyright = `Files: *
+Copyright: 2018-2020 Michel Gutierrez
+License: GPL-2.0	
+`;
+	return Promise.all([
+		CopyBinary(platform,arch,arch+"/deb"+appPath+"/bin"),
+		CopyXbgOpen(platform,arch,arch+"/deb"+appPath+"/bin"),
+		CopyExtra(platform,arch,"/deb"+appPath),
+		CreateLinuxFirefoxNativeManifest(arch,"/deb"),
+		CreateLinuxChromeNativeManifest(arch,"/deb"),
+		fs.outputFile("dist/linux/"+arch+"/deb"+appPath+"/config.json",
+			MakeConfigJsonStr(),"utf8"),
+		fs.outputFile("dist/linux/"+arch+"/deb/DEBIAN/control",
+			controlLines.join("\n"),"utf8"),
+		fs.outputFile("dist/linux/"+arch+"/deb/usr/share/doc/"+config.id+"/copyright",
+			copyright,"utf8")
+	]);
+}
+
+function MakeDeb(platform,arch,callback) {
+	var archName = { 64: "amd64", 32: "i386" }[arch];
+	var debName = config.id+"-"+manifest.version+"-1_"+archName+".deb";
+
+	return Exec("/usr/bin/dpkg-deb",[
+		"--build","dist/"+platform+"/"+arch+"/deb/"
+	])
+	.then((ret)=>{
+		return fs.move("dist/linux/"+arch+"/deb.deb","builds/"+debName,{overwrite:true});
+	})
+	.then(()=>{
+		callback();
+	})
+	.catch((e)=>{
+		console.error("Error generaring deb file",e.message);
+		throw e;
+	});
 }
 
 function MakeTarGzFiles(platform,arch) {
@@ -255,7 +276,7 @@ gulp.task("build-local",()=>{
 		.then(()=>callback())		
 	});
 	gulp.task("deb-make-linux-"+arch,(callback)=>{
-		return MakeDeb("linux",arch)
+		return MakeDeb("linux",arch,callback);
 	});
 	gulp.task("deb-linux-"+arch,
 		gulp.series("build-linux-"+arch,
