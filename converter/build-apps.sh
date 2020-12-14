@@ -353,7 +353,10 @@ build_jpeg() {
 		JPEG_SHARED_LIBS=OFF
 		;;
 	linux) SYSTEM_NAME=Linux ;;
-	mac) SYSTEM_NAME=Darwin ;;
+	mac)
+		# warning: dirty hack to compile lib openjp2 on Mac
+		sed '1 a #include <unistd.h>' 
+		SYSTEM_NAME=Darwin ;;
 	esac	
 	cmake -DCMAKE_SYSTEM_NAME="$SYSTEM_NAME" -DBUILD_THIRDPARTY=1 \
 		-DCMAKE_INSTALL_PREFIX="$ARCHSRCDIR/deps" \
