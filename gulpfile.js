@@ -1145,6 +1145,7 @@ gulp.task('unsetup-local',gulp.series(
 
 gulp.task('build-source-tarball',() => {
 	const entries = [
+		"index.js",
 		"./app/**/*",
 		"./assets/**/*",
 		"./BUILD.md",
