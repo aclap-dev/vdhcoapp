@@ -968,6 +968,7 @@ function GetWinManifests(arch,relativePath=false) {
 			path: (relativePath ? "" : __dirname+"/")+"bin/"+config.id+"-win-"+arch+".exe",
 			type: "stdio",
 			allowed_origins: config.allowed_extensions.chrome.concat(
+				config.allowed_extensions.edge,
 				config.allowed_extensions.brave,
 				config.allowed_extensions.vivaldi
 			)
