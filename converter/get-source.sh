@@ -22,7 +22,7 @@ JPEG_VER="v2.3.1"
 X265_VER="3.3"
 ORC_VER="upstream/0.4.29"
 THEORA_VER="distrotech-libtheora-git"
-BZIP2_VER="master"
+BZIP2_VER="bzip2-1.0.6"
 NUMA_VER="v2.0.13"
 AOM_VER="v1.0.0-errata1-avif"
 
@@ -48,7 +48,7 @@ mkdir -p ${SRCDIR}
 (cd ${SRCDIR} && git clone https://github.com/videolan/x265.git x265 && cd x265 && git checkout "${X265_VER}")
 (cd ${SRCDIR} && git clone https://salsa.debian.org/gstreamer-team/orc.git orc && cd orc && git checkout "${ORC_VER}")
 (cd ${SRCDIR} && git clone https://github.com/Distrotech/libtheora.git theora && cd theora && git checkout "${THEORA_VER}")
-(cd ${SRCDIR} && git clone https://github.com/enthought/bzip2-1.0.6.git bzip2 && cd bzip2 && git checkout "${BZIP2_VER}")
+(cd ${SRCDIR} && git clone https://github.com/opencor/bzip2.git bzip2 && cd bzip2 && git checkout "${BZIP2_VER}")
 (cd ${SRCDIR} && git clone https://github.com/numactl/numactl.git numa && d numa && git checkout "${NUMA_VER}")
 (cd ${SRCDIR} && git clone https://aomedia.googlesource.com/aom aom && cd aom && git checkout "${AOM_VER}")
 
