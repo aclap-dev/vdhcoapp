@@ -128,12 +128,17 @@ function GotProxy(proxy) {
 
 rpc.listen({
 	"request": (url,options) => {
+		var method = got.get;
+		if(options.method) {
+			method = got[options.method.toLowerCase()];
+			delete options.method;
+		}
 		options = options || {};
 		options.headers = GotHeaders(options.headers);	
 		options.proxy = GotProxy(options.proxy);
 		return new Promise((resolve, reject) => {
 			var id = ++currentIndex;
-			got.get(url,options)
+			method.call(got,url,options)
 				.on('error',reject)
 				.then((response)=>{
 					requestStore[id] = {
