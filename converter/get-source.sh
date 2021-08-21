@@ -49,7 +49,7 @@ mkdir -p ${SRCDIR}
 (cd ${SRCDIR} && git clone https://salsa.debian.org/gstreamer-team/orc.git orc && cd orc && git checkout "${ORC_VER}")
 (cd ${SRCDIR} && git clone https://github.com/Distrotech/libtheora.git theora && cd theora && git checkout "${THEORA_VER}")
 (cd ${SRCDIR} && git clone https://github.com/opencor/bzip2.git bzip2 && cd bzip2 && git checkout "${BZIP2_VER}")
-(cd ${SRCDIR} && git clone https://github.com/numactl/numactl.git numa && d numa && git checkout "${NUMA_VER}")
+(cd ${SRCDIR} && git clone https://github.com/numactl/numactl.git numa && cd numa && git checkout "${NUMA_VER}")
 (cd ${SRCDIR} && git clone https://aomedia.googlesource.com/aom aom && cd aom && git checkout "${AOM_VER}")
 
 for lib in ${LIBS}; do
