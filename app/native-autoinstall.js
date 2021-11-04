@@ -152,7 +152,7 @@ function DarwinUninstall() {
 			"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json",
 			"/Library/Google/Chrome/NativeMessagingHosts/"+config.id+".json",
 			"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json",
-			"/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"+config.id+".json"
+			"/Library/Microsoft/Edge/NativeMessagingHosts/"+config.id+".json"
 		];
 	try {
 		manifests.forEach((file)=>{
