@@ -917,6 +917,9 @@ gulp.task('setup-local-linux',(callback) => {
 			fs.outputFile(
 				process.env.HOME+"/.config/vivaldi/NativeMessagingHosts/"+config.id+".json",
 				JSON.stringify(vivaldiManifest,null,4),"utf8"),
+			fs.outputFile(
+				process.env.HOME+"/.config/microsoft-edge/NativeMessagingHosts/"+config.id+".json",
+				JSON.stringify(vivaldiManifest,null,4),"utf8"),
 		])
 		.then(()=>{
 			return fs.copy("node_modules/opn/xdg-open","bin/xdg-open");
@@ -933,7 +936,8 @@ gulp.task('unsetup-local-linux',(callback) => {
 		fs.remove(process.env.HOME+"/.config/google-chrome/NativeMessagingHosts/"+config.id+".json"),
 		fs.remove(process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json"),
 		fs.remove(process.env.HOME+"/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json"),
-		fs.remove(process.env.HOME+"/.config/vivaldi/NativeMessagingHosts/"+config.id+".json")
+		fs.remove(process.env.HOME+"/.config/vivaldi/NativeMessagingHosts/"+config.id+".json"),
+		fs.remove(process.env.HOME+"/.config/microsoft-edge/NativeMessagingHosts/"+config.id+".json")
 	])
 	.then(()=>{
 		callback();

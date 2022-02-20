@@ -168,7 +168,7 @@ function DarwinUninstall() {
 
 function LinuxInstall() {
 	var { mode, config } = ParseModeConfig();
-	var { chrome: chromeManifest, firefox: firefoxManifest } = GetManifests(config);
+	var { chrome: chromeManifest, firefox: firefoxManifest, edge: edgeManifest} = GetManifests(config);
 	var manifests;
 	if(mode=="user") 
 		manifests = [{
@@ -179,6 +179,9 @@ function LinuxInstall() {
 		},{
 			file: process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json",
 			manifest: JSON.stringify(chromeManifest,null,4),
+		},{
+			file: process.env.HOME+"/.config/microsoft-edge/NativeMessagingHosts/"+config.id+".json",
+			manifest: JSON.stringify(edgeManifest,null,4),
 		}];
 	else {
 		manifests = [{
@@ -190,6 +193,9 @@ function LinuxInstall() {
 		},{
 			file: "/etc/chromium/native-messaging-hosts/"+config.id+".json",
 			manifest: JSON.stringify(chromeManifest,null,4),
+		},{
+			file: "/etc/opt/edge/native-messaging-hosts/"+config.id+".json",
+			manifest: JSON.stringify(edgeManifest,null,4),
 		}];
 		if(os.arch()=="x64")
 			try {
@@ -221,13 +227,15 @@ function LinuxUninstall() {
 		manifests = [
 			process.env.HOME+"/.mozilla/native-messaging-hosts/"+config.id+".json",
 			process.env.HOME+"/.config/google-chrome/NativeMessagingHosts/"+config.id+".json",
-			process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json"
+			process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json",
+			process.env.HOME+"/.config/microsoft-edge/NativeMessagingHosts/"+config.id+".json"
 		];
 	else
 		manifests = [
 			"/usr/lib/mozilla/native-messaging-hosts/"+config.id+".json",
 			"/etc/opt/chrome/native-messaging-hosts/"+config.id+".json",
-			"/etc/chromium/native-messaging-hosts/"+config.id+".json"
+			"/etc/chromium/native-messaging-hosts/"+config.id+".json",
+			"/etc/opt/edge/native-messaging-hosts/"+config.id+".json"
 		];
 	try {
 		manifests.forEach((file)=>{
