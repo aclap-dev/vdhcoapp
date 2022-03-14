@@ -10,3 +10,5 @@
 ***vdhcoapp*** complies with the [native messaging protocol](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging) and is not intended to be used directly from the command line.
 
 Installer executables for the various platforms are available from the [releases page](https://github.com/mi-g/vdhcoapp/releases).
+
+Note for Linux users: Firefox installations via snap or flathub is not yet supported.  Please install Firefox via the apt package.
