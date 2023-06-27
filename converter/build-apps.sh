@@ -2,6 +2,8 @@
 # Copyright (C) 2016 Michel Gutierrez
 # This file is license under GPL 2.0
 
+set -euo pipefail
+
 HOST_PLATFORM=$(uname)
 BASEDIR=$(cd "$(dirname "$0")"; pwd)
 BUILDDIR="$BASEDIR/build"
@@ -23,22 +25,22 @@ build_lame() {
 		if [ "$ARCH" == "i686" ]; then
 		    export CFLAGS="$OLD_CFLAGS -msse"
 		fi
-		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST --target=mingw32 || exit -1
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST --target=mingw32
 	;;
 	linux)
 		case $ARCH in
 		i686) sed -i -e '/xmmintrin\.h/d' configure ;;
 		esac
-		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST || exit -1
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST
 	;;
 	mac)
-		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST || exit -1	
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST
 	;;
 	esac
 	
 	CFLAGS="$OLD_CFLAGS"
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -50,14 +52,14 @@ build_ogg() {
 	./autogen.sh
 	case $PLATFORM in
 	win)
-		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST --target=mingw32 || exit -1
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST --target=mingw32
 		;;
 	*)
-		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST || exit -1
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST
 		;;
 	esac
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -66,20 +68,20 @@ build_vorbis() {
 	echo "Building vorbis"
 	echo "HOST=$HOST"
 	cd $ARCHSRCDIR/vorbis
-	./autogen.sh || exit -1
+	./autogen.sh
 	export OLD_CFLAGS="$CFLAGS"
 	export CFLAGS="$OLD_CFLAGS -I$ARCHSRCDIR/deps/include"
 	case $PLATFORM in
 	win)
-		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST --target=mingw32 || exit -1
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST --target=mingw32
 		;;
 	*)
-		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST || exit -1
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST
 		;;
 	esac
 	export CFLAGS="$OLD_CFLAGS"
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -87,17 +89,17 @@ build_opus() {
 	(
 	echo "Building opus"
 	cd $ARCHSRCDIR/opus
-	./autogen.sh || exit -1
+	./autogen.sh
 	case $PLATFORM in
 	win)
-		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST --target=mingw32 || exit -1
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST --target=mingw32
 		;;
 	*)
-		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST || exit -1
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST
 		;;
 	esac
-	make || exit -1
-	make install-am || exit -1
+	make
+	make install-am
 	)
 }
 
@@ -139,10 +141,10 @@ build_vpx() {
         --enable-temporal-denoising \
         --enable-vp9-temporal-denoising \
         --enable-vp9-postproc \
-	--enable-vp9-highbitdepth || exit -1
+	--enable-vp9-highbitdepth
 	OPTS=
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -153,15 +155,15 @@ build_x264() {
 	case $PLATFORM in
 	win)
 		./configure --host=$ARCH-w64-mingw32 --cross-prefix=$ARCH-w64-mingw32- \
-    		--prefix=$ARCHSRCDIR/deps --enable-shared --sysroot=/usr/$ARCH-w64-mingw32/ --disable-asm || exit -1
+    		--prefix=$ARCHSRCDIR/deps --enable-shared --sysroot=/usr/$ARCH-w64-mingw32/ --disable-asm
 		;;
 	*)
 		./configure \
-    		--prefix=$ARCHSRCDIR/deps --host=$HOST --enable-shared --disable-asm --disable-cli || exit -1
+    		--prefix=$ARCHSRCDIR/deps --host=$HOST --enable-shared --disable-asm --disable-cli
 		;;
 	esac
-	make || exit -1
-	make install install-lib-dev install-lib-shared install-lib-static || exit -1
+	make
+	make install install-lib-dev install-lib-shared install-lib-static
 	)
 }
 
@@ -172,14 +174,14 @@ build_xvid() {
 	./bootstrap.sh
 	case $PLATFORM in
 	win)
-		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps --disable-assembly || exit -1
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps --disable-assembly
 		;;
 	*)
-		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps --disable-assembly || exit -1
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps --disable-assembly
 		;;
 	esac	
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -194,14 +196,14 @@ build_ocamr() {
 	autoconf
 	case $PLATFORM in
 	win)
-		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps || exit -1
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps
 		;;
 	*)
-		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps || exit -1
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps
 		;;
 	esac
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -216,14 +218,14 @@ build_voamrwbenc() {
 	autoconf
 	case $PLATFORM in
 	win)
-		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps || exit -1
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps
 		;;
 	*)
-		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps || exit -1
+		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps
 		;;
 	esac
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -233,26 +235,24 @@ build_sdl() {
 	echo "Building sdl"
 	cd $ARCHSRCDIR/sdl
 	rm -r autom4te.cache configure config.h config.h.i config.status config.mak Makefile libtool ltmain.sh
-	./autogen.sh || exit -1
+	./autogen.sh
 	case $PLATFORM in
 	win)
-		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps || exit -1
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps
 		;;
 	linux)
 		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
 			--enable-video-x11=no \
-			--enable-x11-shared=yes \
-			|| exit -1
+			--enable-x11-shared=yes
 		;;
 	mac)
 		sed -i -e '/CGDirectPaletteRef/d' src/video/quartz/SDL_QuartzVideo.h
 		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
-			--enable-video-x11=no \
-			|| exit -1
+			--enable-video-x11=no
 		;;
 	esac		
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -262,10 +262,10 @@ build_sdl2() {
 	echo "Building sdl2"
 	cd $ARCHSRCDIR/sdl2
 	rm -r autom4te.cache configure config.h config.h.i config.status config.mak Makefile libtool ltmain.sh
-	./autogen.sh || exit -1
+	./autogen.sh
 	case $PLATFORM in
 	win)
-		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps --enable-assertions=release || exit -1
+		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps --enable-assertions=release
 		;;
 	linux)
 		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
@@ -276,18 +276,16 @@ build_sdl2() {
 			--disable-video-directfb \
 			--enable-video-opengles \
 			--enable-video-wayland --disable-wayland-shared \
-			--enable-video-x11=no \
-			|| exit -1
+			--enable-video-x11=no
 		;;
 	mac)
 		sed -i -e '/CGDirectPaletteRef/d' src/video/quartz/SDL_QuartzVideo.h
 		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
-			--enable-video-x11=no \
-			|| exit -1
+			--enable-video-x11=no
 		;;
 	esac		
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -303,15 +301,15 @@ build_webp() {
 	case $PLATFORM in
 	win)
 		./configure --host=$ARCH-w64-mingw32 --target=mingw32 --prefix=$ARCHSRCDIR/deps \
-		    --enable-libwebpmux --enable-libwebpdemux  --enable-libwebpdecoder|| exit -1
+		    --enable-libwebpmux --enable-libwebpdemux  --enable-libwebpdecoder
 		;;
 	*)
 		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
-		    --enable-libwebpmux --enable-libwebpdemux  --enable-libwebpdecoder|| exit -1
+		    --enable-libwebpmux --enable-libwebpdemux  --enable-libwebpdecoder
 		;;
 	esac
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -327,16 +325,16 @@ build_zlib() {
 			LIBRARY_PATH="/lib" \
 			BINARY_PATH="/bin" \
 			DESTDIR="$ARCHSRCDIR/deps" install \
-			-f win32/Makefile.gcc SHARED_MODE=1 || exit -1
+			-f win32/Makefile.gcc SHARED_MODE=1
 		;;
 	*)
-		./configure --prefix=$ARCHSRCDIR/deps || exit -1
+		./configure --prefix=$ARCHSRCDIR/deps
     	make \
 			INCLUDE_PATH="/include" \
 			LIBRARY_PATH="/lib" \
 			BINARY_PATH="/bin" \
 			install \
-				SHARED_MODE=1 || exit -1
+				SHARED_MODE=1
 		;;
 	esac
 	)
@@ -369,7 +367,7 @@ build_jpeg() {
 		-DOPENJPEG_INSTALL_DATA_DIR="$ARCHSRCDIR/deps/data" \
 		-DOPENJPEG_INSTALL_SHARE_DIR="$ARCHSRCDIR/deps/share" \
 		-DOPENJPEG_INSTALL_PACKAGE_DIR="$ARCHSRCDIR/deps/lib/pkgconfig" \
-		. || exit -1
+		.
     make install
 	SYSTEM_NAME=
 	JPEG_SHARED_LIBS=
@@ -438,16 +436,14 @@ build_orc() {
 			export CFLAGS="$OLD_CFLAGS -I$ARCHSRCDIR/deps/include/orc-0.4"
 		fi
 		./configure --host=$ARCH-w64-mingw32 --prefix=$ARCHSRCDIR/deps \
-		--enable-shared --enable-static \
-		|| exit -1
+		--enable-shared --enable-static
 		;;
 	*)
 		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
-		--enable-shared --enable-static \
-		|| exit -1
+		--enable-shared --enable-static
 		;;
 	esac
-	make || exit -1
+	make
 	make install
     export LDFLAGS=
 	CFLAGS="$OLD_CFLAGS"
@@ -466,8 +462,7 @@ build_theora() {
 	case $PLATFORM in
 	win)
 		./configure --host=$ARCH-w64-mingw32 --prefix=$ARCHSRCDIR/deps \
-			--disable-examples --without-vorbis --disable-oggtest \
-		|| exit -1
+			--disable-examples --without-vorbis --disable-oggtest
 		sed -i -e 's#\r##g' win32/xmingw32/libtheoradec-all.def
 		sed -i -e 's#\r##g' win32/xmingw32/libtheoraenc-all.def
 		;;
@@ -475,12 +470,11 @@ build_theora() {
 		./configure --host=$HOST --prefix=$ARCHSRCDIR/deps \
 				--disable-examples --without-vorbis --disable-oggtest \
 				--with-ogg-libraries=$ARCHSRCDIR/deps/lib \
-				--with-ogg-includes=$ARCHSRCDIR/deps/include \
-		|| exit -1
+				--with-ogg-includes=$ARCHSRCDIR/deps/include
 		;;
 	esac
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	)
 }
 
@@ -490,7 +484,7 @@ build_bzip2() {
 	cd $ARCHSRCDIR/bzip2
 	case $PLATFORM in
 	linux)
-		make -f Makefile-libbz2_so || exit -1
+		make -f Makefile-libbz2_so
 		cp libbz2.so.1.0.6 "$ARCHSRCDIR/deps/lib"
 		cp -d libbz2.so.1.0 "$ARCHSRCDIR/deps/lib"
 		;;
@@ -509,9 +503,9 @@ build_numa() {
 		./autogen.sh
 		OLD_CC="$CC"
 		CC="$CC $CFLAGS"
-		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST || exit -1
-		make || exit -1
-		make install || exit -1
+		./configure --prefix=$ARCHSRCDIR/deps --host=$HOST
+		make
+		make install
 		CC="$OLD_CC"
 		;;
 	*)
@@ -537,9 +531,9 @@ build_aom() {
 			-DENABLE_TOOLS=0 \
 			-DCMAKE_BUILD_TYPE=Release \
 			-DCMAKE_TOOLCHAIN_FILE=../build/cmake/toolchains/x86_64-mingw-gcc.cmake \
-			.. || exit -1
-		make dist || exit -1
-		make install || exit -1
+			..
+		make dist
+		make install
 		;;
 	*)
 		case $PLATFORM in
@@ -555,9 +549,9 @@ build_aom() {
 			-DENABLE_EXAMPLES=0 \
 			-DENABLE_TOOLS=0 \
 			-DCMAKE_BUILD_TYPE=Release \
-			.. || exit -1
-		make dist || exit -1
-		make install || exit -1
+			..
+		make dist
+		make install
 		SYSTEM_NAME=
 		;;
 	esac
@@ -599,8 +593,7 @@ build_ffmpeg() {
 			--enable-libx264 \
 			--enable-libaom \
 			--enable-avresample \
-			--disable-doc \
-			|| exit -1
+			--disable-doc
 		;;
 	linux)
 		case $ARCH in 
@@ -638,14 +631,12 @@ build_ffmpeg() {
 EOF
 		./configure $CONFIGURE_OPTS \
 			--disable-ffplay \
-			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib" \
-			|| exit -1
-		make || exit -1
-		make install || exit -1
+			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib"
+		make
+		make install
 		./configure $CONFIGURE_OPTS \
 			--disable-ffmpeg --disable-ffprobe \
-			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib $DEVLIB" \
-			|| exit -1
+			--extra-ldflags="-L$ARCHSRCDIR/deps/lib -L$ARCHSRCDIR/zlib $DEVLIB"
 		DEVLIB=
 		;;
 	mac)
@@ -677,12 +668,11 @@ EOF
 			--enable-libx265 \
 			--enable-libtheora \
 			--enable-libaom \
-			--disable-doc \
-			|| exit -1
+			--disable-doc
 		;;
 	esac
-	make || exit -1
-	make install || exit -1
+	make
+	make install
 	LDFLAGS="$OLD_LDFLAGS"
 	)
 }
@@ -737,31 +727,31 @@ build_arch() {
 	echo "export PKG_CONFIG_PATH=\"$ARCHSRCDIR/deps/lib/pkgconfig\""
 	echo "export GCC_LIBDIR=\"$GCC_LIBDIR\""
 
-	build_aom || exit -1
-	build_lame || exit -1
-	build_ogg || exit -1
-	build_vorbis || exit -1
-	build_opus || exit -1
-	build_vpx || exit -1
-	build_x264 || exit -1
-	build_xvid || exit -1
-	build_ocamr || exit -1
-	build_voamrwbenc || exit -1
-	build_webp || exit -1
-	build_zlib || exit -1
-    build_jpeg || exit -1
-    build_x265 || exit -1
-    build_orc || exit -1
-    build_theora || exit -1
-	build_numa || exit -1
-	build_bzip2 || exit -1
+	build_aom
+	build_lame
+	build_ogg
+	build_vorbis
+	build_opus
+	build_vpx
+	build_x264
+	build_xvid
+	build_ocamr
+	build_voamrwbenc
+	build_webp
+	build_zlib
+    build_jpeg
+    build_x265
+    build_orc
+    build_theora
+	build_numa
+	build_bzip2
 	case $PLATFORM in
 	win|mac)
-		build_sdl2 || exit -1
-		#build_sdl || exit -1
+		build_sdl2
+		#build_sdl
 		;;
 	esac
-	build_ffmpeg || exit -1
+	build_ffmpeg
 
 	export CROSS_COMPILE=
 	export CC=
@@ -824,8 +814,8 @@ build_win() {
 
 	mkdir -p "$BUILDDIR/win/32" "$BUILDDIR/win/64"
 
-	build_arch win x86_64 $BUILDDIR/win/64 $SRCDIR/win/64 || exit -1
-	build_arch win i686 $BUILDDIR/win/32 $SRCDIR/win/32 || exit -1
+	build_arch win x86_64 $BUILDDIR/win/64 $SRCDIR/win/64
+	build_arch win i686 $BUILDDIR/win/32 $SRCDIR/win/32
 }
 
 build_linux() {
@@ -836,11 +826,11 @@ build_linux() {
 	mkdir -p "$SRCDIR/linux/32/deps"
 	mkdir -p "$SRCDIR/linux/32/converter-build"
 	mkdir -p "$BUILDDIR/linux/32" "$BUILDDIR/linux/64"
-	build_arch linux x86_64 $BUILDDIR/linux/64 $SRCDIR/linux/64 || exit -1
+	build_arch linux x86_64 $BUILDDIR/linux/64 $SRCDIR/linux/64
 	export CFLAGS="-m32"
 	export CXXFLAGS="-m32"
 	export LDFLAGS="-m32"
-	build_arch linux i686 $BUILDDIR/linux/32 $SRCDIR/linux/32 || exit -1
+	build_arch linux i686 $BUILDDIR/linux/32 $SRCDIR/linux/32
 	export CFLAGS=
 	export CXXFLAGS=
 	export LDFLAGS=
@@ -852,17 +842,17 @@ build_mac() {
 	cp -r $SRCCLEANDIR/* "$SRCDIR/mac/64"
 	mkdir -p "$SRCDIR/mac/64/deps"
 	mkdir -p "$BUILDDIR/mac/64"
-	build_arch mac x86_64 $BUILDDIR/mac/64 $SRCDIR/mac/64 || exit -1
+	build_arch mac x86_64 $BUILDDIR/mac/64 $SRCDIR/mac/64
 }
 
 rm -rf $BUILDDIR
 rm -rf $SRCDIR
 
 if [[ "$HOST_PLATFORM" = "Darwin" ]]; then
-	build_mac || exit -1
+	build_mac
 else
-	build_linux || exit -1
-	build_win || exit -1
+	build_linux
+	build_win
 fi
 
 echo "*** Look's like a success !!! ***"		

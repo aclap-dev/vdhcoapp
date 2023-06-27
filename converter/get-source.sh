@@ -2,6 +2,8 @@
 # Copyright (C) 2016 Michel Gutierrez
 # This file is license under GPL 2.0
 
+set -euo pipefail
+
 BASEDIR=$(dirname "$0")
 SRCDIR="${BASEDIR}/src"
 
