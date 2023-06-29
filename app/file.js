@@ -26,6 +26,7 @@ const logger = require('./logger');
 const rpc = require('./weh-rpc');
 const { spawn } = require('child_process');
 const os = require('os');
+const base64 = require("base64-js");
 
 const uniqueFileNames = {};
 const MAX_FILE_ENTRIES = 1000;
@@ -167,6 +168,19 @@ rpc.listen({
 				});
 			});							
 		});
+	},
+	"fs.write2": (...args) => {
+		return new Promise((resolve, reject) => {
+      const byte_array = base64.toByteArray(args[1]);
+      args[1] = byte_array;
+      fs.write(...args, (err, written) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(written);
+        }
+      });
+    });
 	},
 	"fs.write": (...args) => {
 		return new Promise((resolve, reject) => {
