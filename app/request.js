@@ -12,11 +12,11 @@ const EXPIRE_DATA_TIMEOUT = 30000;
 function GetData(id) {
   let reqInfo = requestStore[id];
   if (!reqInfo) {
-throw new Error("No such request id");
-}
+    throw new Error("No such request id");
+  }
   if (reqInfo.timer) {
-clearTimeout(reqInfo.timer);
-}
+    clearTimeout(reqInfo.timer);
+  }
   if (reqInfo.error) {
     delete requestStore[id];
     throw reqInfo.error;
@@ -62,13 +62,13 @@ clearTimeout(reqInfo.timer);
         length += buf.length;
       });
     } else if (!more) {
-data = new Buffer(0);
-} else {
-return new Promise((resolve, reject) => {
+      data = new Buffer(0);
+    } else {
+      return new Promise((resolve, reject) => {
         reqInfo.resolve = resolve;
         reqInfo.reject = reject;
       });
-}
+    }
   } else {
     data = reqInfo.data.substr(reqInfo.position, Math.min(MAX_SIZE, reqInfo.data.length - reqInfo.position));
     reqInfo.position += data.length;
@@ -90,10 +90,10 @@ function GotHeaders(headers = []) {
   let gotHeaders = {};
   headers.forEach((header) => {
     if (typeof header.value !== "undefined") {
-gotHeaders[header.name] = header.value;
-} else {
-gotHeaders[header.name] = Buffer.from(header.binaryValue);
-}
+      gotHeaders[header.name] = header.value;
+    } else {
+      gotHeaders[header.name] = Buffer.from(header.binaryValue);
+    }
   });
   return gotHeaders;
 }
@@ -103,8 +103,8 @@ function GotProxy(proxy) {
   if (proxy && /^http/.test(proxy.type)) {
     optionsProxy = proxy.type + "://";
     if (proxy.username) {
-optionsProxy += encodeURIComponent(proxy.username) + "@";
-}
+      optionsProxy += encodeURIComponent(proxy.username) + "@";
+    }
     optionsProxy += proxy.host + ":" + proxy.port + "/";
   }
   return optionsProxy;
@@ -143,26 +143,26 @@ rpc.listen({
     let id = ++currentIndex;
     let reqInfo = requestStore[id];
     if (!reqInfo) {
-reqInfo = requestStore[id] = {
+      reqInfo = requestStore[id] = {
         id,
         type: "buffer",
         data: [],
         running: true
       };
-}
+    }
     options.headers = GotHeaders(options.headers);
     options.proxy = GotProxy(options.proxy);
     got.stream(url, options)
       .on('error', (err) => {
         if (reqInfo.timer) {
-clearTimeout(reqInfo.timer);
-}
+          clearTimeout(reqInfo.timer);
+        }
         if (reqInfo.reject) {
           delete requestStore[id];
           reqInfo.reject(err);
         } else {
-reqInfo.error = err;
-}
+          reqInfo.error = err;
+        }
       })
       .on('data', (data) => {
         reqInfo.data.push(data);
@@ -180,6 +180,6 @@ reqInfo.error = err;
           delete reqInfo.reject;
         }
       });
-      return GetData(id);
+    return GetData(id);
   }
 });

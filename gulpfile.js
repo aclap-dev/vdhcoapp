@@ -1176,8 +1176,7 @@ gulp.task('build-source-tarball', () => {
     base: ".",
     resolveSymlinks: false,
     relativeSymlinks: true
-  })
-    .pipe(tar(baseName + "-src.tar", { prefix: baseName } ))
+  }).pipe(tar(baseName + "-src.tar", { prefix: baseName } ))
     .pipe(gzip())
     .pipe(vfs.dest("builds"));
 

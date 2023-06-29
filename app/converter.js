@@ -111,21 +111,20 @@ rpc.listen({
           if (m) {
             info.duration = parseInt(m[1]) * 3600 + parseInt(m[2]) * 60 + parseInt(m[3]);
           }
-          m = /Video:\s+([^\s\(,]+)/g.exec(streams.stderr);
-            if (m) {
-              info.videoCodec = m[1];
-            }
-            m = /Audio:\s+([^\s\(,]+)/g.exec(streams.stderr);
-              if (m) {
-                info.audioCodec = m[1];
-              }
-              m = /([0-9]+(?:\.[0-9]+)?)\s+fps\b/g.exec(streams.stderr);
-              if (m) {
-                info.fps = parseFloat(m[1]);
-              }
-
-              resolve(info);
-            }
+          m = /Video:\s+([^\s\(,]+)/g.exec(stderr);
+          if (m) {
+            info.videoCodec = m[1];
+          }
+          m = /Audio:\s+([^\s\(,]+)/g.exec(stderr);
+          if (m) {
+            info.audioCodec = m[1];
+          }
+          m = /([0-9]+(?:\.[0-9]+)?)\s+fps\b/g.exec(stderr);
+          if (m) {
+            info.fps = parseFloat(m[1]);
+          }
+          resolve(info);
+        }
       });
     });
   },

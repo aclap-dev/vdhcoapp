@@ -1,8 +1,8 @@
 if (process.argv[2] == "install") {
-require("./native-autoinstall").install();
+  require("./native-autoinstall").install();
 }
 if (process.argv[2] == "uninstall") {
-require("./native-autoinstall").uninstall();
+  require("./native-autoinstall").uninstall();
 }
 
 require('./native-messaging');
@@ -42,18 +42,16 @@ rpc.listen({
       description: config.description,
       home: process.env.HOME || process.env.HOMEDIR || ""
     };
-    return converter.info()
-      .then((convInfo) => {
-        return Object.assign(result, {
-          converterBinary: convInfo.converterBinary,
-          converterBase: convInfo.program,
-          converterBaseVersion: convInfo.version
-        });
-      })
-      .catch((error) => {
-        return Object.assign(result, {
-          converterError: error.message
-        });
+    return converter.info().then((convInfo) => {
+      return Object.assign(result, {
+        converterBinary: convInfo.converterBinary,
+        converterBase: convInfo.program,
+        converterBaseVersion: convInfo.version
       });
+    }).catch((error) => {
+      return Object.assign(result, {
+        converterError: error.message
+      });
+    });
   }
 });
