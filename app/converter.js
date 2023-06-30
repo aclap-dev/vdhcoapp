@@ -22,34 +22,10 @@ along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 const path = require('path');
 const { spawn } = require('child_process');
 const opn = require('opn');
+const { ffmpeg, ffprobe, ffplay } = require('./binaries');
 
 const logger = require('./logger');
 const rpc = require('./weh-rpc');
-
-var platform;
-if(process.platform=="linux")
-	platform = "linux";
-else if(process.platform=="darwin")
-	platform = "mac";
-else if(/^win/.test(process.platform))
-	platform = "win";
-else
-	throw new Error("Unsupported platform",process.platform);
-
-var arch;
-if(process.arch=="x64")
-	arch = "64";
-else if(process.arch=="ia32")
-	arch = "32";
-else
-	throw new Error("Unsupported architecture",process.arch);
-
-const binaryDir = path.join(path.dirname(process.execPath),"..","converter","build",platform,arch);
-const binaryPath = path.join(binaryDir,"ffmpeg");
-const probeBinaryPath = path.join(binaryDir,"ffprobe");
-const playBinaryPath = path.join(binaryDir,"ffplay");
-
-const LIBRARY_PATH = platform == "mac" ? "DYLD_LIBRARY_PATH" : "LD_LIBRARY_PATH"
 
 logger.info("process.cwd",process.cwd);
 logger.info("__dirname",__dirname);
@@ -60,11 +36,7 @@ logger.info("process.execPath",process.execPath);
 function ExecConverter(args) {
 	var outBuffers = [];
 	return new Promise((resolve, reject) => {
-		var convProcess = spawn(binaryPath, args, {
-			env: {
-				[LIBRARY_PATH]: binaryDir
-			}
-		});
+		var convProcess = spawn(ffmpeg, args);
 		convProcess.stdout.on("data", (data) => {
 			outBuffers.push(data);
 		});	
@@ -85,11 +57,7 @@ const PARSETIME_RE = new RegExp("time=([0-9]+):([0-9]+):([0-9]+)");
 rpc.listen({
 	"convert": (args=["-h"],options={}) => {
 		return new Promise((resolve, reject) => {
-			var convProcess = spawn(binaryPath, args, {
-				env: {
-					[LIBRARY_PATH]: binaryDir
-				}
-			});
+			var convProcess = spawn(ffmpeg, args);
 			var stdErrParts = [];
 			var stdErrSize = 0;
 
@@ -130,11 +98,7 @@ rpc.listen({
 			if(json)
 				args = ["-v","quiet","-print_format","json","-show_format","-show_streams"];
 			args.push(filePath);
-			var probeProcess = spawn(probeBinaryPath, args, {
-				env: {
-					[LIBRARY_PATH]: binaryDir
-				}
-			});
+			var probeProcess = spawn(ffprobe, args);
 			var streams = {
 				stdout: "",
 				stderr: ""
@@ -180,11 +144,7 @@ rpc.listen({
 	},
 	"play": (filePath) => {
 		return new Promise((resolve, reject) => {
-			var playProcess = spawn(playBinaryPath, [filePath], {
-				env: Object.assign({},process.env,{
-					[LIBRARY_PATH]: binaryDir
-				})
-			});
+			var playProcess = spawn(ffplay, [filePath]);
 			var stderr = [];
 			playProcess.stderr.on("data", (data) => {
 				stderr.push(data.toString("utf8"));
@@ -245,11 +205,7 @@ rpc.listen({
 
 exports.info = () => {
 	return new Promise((resolve, reject) => {
-		var convProcess = spawn(binaryPath, ["-h"], {
-			env: {
-				[LIBRARY_PATH]: binaryDir
-			}
-		});
+		var convProcess = spawn(ffmpeg, ["-h"]);
 		var done = false;
 		function Parse(data) {
 			if(done) return;
@@ -261,7 +217,7 @@ exports.info = () => {
 				resolve({
 					program: m[1],
 					version: m[2],
-					converterBinary: binaryPath
+					converterBinary: ffmpeg, 
 				});
 			}
 		}
