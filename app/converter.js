@@ -13,12 +13,10 @@ logger.info("path.resolve('.')", path.resolve('.'));
 logger.info("process.execPath", process.execPath);
 
 function ExecConverter(args) {
-  let outBuffers = [];
   return new Promise((resolve, reject) => {
     let convProcess = spawn(ffmpeg, args);
-    convProcess.stdout.on("data", (data) => {
-      outBuffers.push(data);
-    });
+    let stdout = "";
+    convProcess.stdout.on("data", (data) => stdout += data);
     convProcess.stderr.on("data", (_data) => {
       // need to consume data or process stalls
     });
@@ -26,88 +24,74 @@ function ExecConverter(args) {
       if (exitCode !== 0) {
         return reject(new Error("Converter returned exit code " + exitCode));
       }
-      let out = Buffer.concat(outBuffers).toString("utf8");
-      resolve(out);
+      resolve(stdout);
     });
   });
 }
 
-const PARSETIME_RE = new RegExp("time=([0-9]+):([0-9]+):([0-9]+)");
-
 rpc.listen({
-  "convert": (args = ["-h"], options = {}) => {
-    return new Promise((resolve, _reject) => {
-      let convProcess = spawn(ffmpeg, args);
-      let stdErrParts = [];
-      let stdErrSize = 0;
 
-      convProcess.stderr.on("data", (_data) => {
-        // just consume data
-      });
+  "convert": (args = ["-h"], options = {}) => new Promise((resolve, _reject) => {
 
-      convProcess.stderr.on("data", (data) => {
-        let str = data.toString("utf8");
-        let m = PARSETIME_RE.exec(str);
-        if (m) {
-          if (options.progressTime) {
-            let frameTime = parseFloat(m[1]) * 3600 + parseFloat(m[2]) * 60 + parseFloat(m[3]);
-            rpc.call("convertOutput", options.progressTime, frameTime)
-              .catch((_err) => {
-                convProcess.kill();
-              });
-          }
-        } else {
-          const maxSize = 20000;
-          if (stdErrSize + str.length >= maxSize) {
-            str = str.substr(0, maxSize - stdErrSize);
-          }
-          if (str.length > 0) {
-            stdErrParts.push(str);
-            stdErrSize += str.length;
-          }
+    // `-progress pipe:1` send program-friendly progress information to stdin every 500ms.
+    // `-hide_banner -loglevel error`: make the output less noisy.
+    const ffmpeg_base_args = "-progress pipe:1 -hide_banner -loglevel error";
+    args = [...ffmpeg_base_args.split(" "), ...args];
+
+    const child = spawn(ffmpeg, args);
+
+    let stderr = "";
+
+    child.on("exit", (code) => resolve({exitCode: code, stderr}));
+    child.stderr.on("data", (data) => stderr += data);
+
+    const on_line = async (line) => {
+      if (line.startsWith("out_time_ms=")) {
+        // out_time_ms is in ns, not ms.
+        const seconds = parseInt(line.split("=")[1]) / 1_000_000;
+        try {
+          await rpc.call("convertOutput", options.progressTime, seconds);
+        } catch (_) {
+          // Extension stopped caring
+          child.kill();
         }
-      });
+      }
+    };
 
-      convProcess.on("exit", (exitCode) => {
-        resolve({exitCode, stderr: stdErrParts.join("")});
+    if (options.progressTime) {
+      child.stdout.on("data", (lines) => {
+        lines.toString("utf-8").split("\n").forEach(on_line);
       });
-    });
-  },
-  "probe": (filePath, json = false) => {
+    }
+
+  }),
+  "probe": (input, json = false) => {
     return new Promise((resolve, reject) => {
       let args = [];
       if (json) {
         args = ["-v", "quiet", "-print_format", "json", "-show_format", "-show_streams"];
       }
-      args.push(filePath);
+      args.push(input);
       let probeProcess = spawn(ffprobe, args);
-      let streams = {
-        stdout: "",
-        stderr: ""
-      };
-      Object.keys(streams).forEach((stream) => {
-        probeProcess[stream].on("data", (data) => {
-          streams[stream] += data.toString("utf8");
-        });
-      });
+      let stdout = "";
+      let stderr = "";
+      probeProcess.stdout.on("data", (data) => stdout += data);
+      probeProcess.stderr.on("data", (data) => stderr += data);
       probeProcess.on("exit", (exitCode) => {
         if (exitCode !== 0) {
-          return reject(new Error("Exit code: " + exitCode + "\n" + streams.stderr));
+          return reject(new Error("Exit code: " + exitCode + "\n" + stderr));
         }
         if (json) {
-          try {
-            resolve(streams.stdout);
-          } catch (e) {
-            reject(new Error("Invalid format: " + e.message));
-          }
+          // FIXME: not parsed?
+          resolve(stdout);
         } else {
           let info = {};
-          let m = /([0-9]{2,})x([0-9]{2,})/g.exec(streams.stderr);
+          let m = /([0-9]{2,})x([0-9]{2,})/g.exec(stderr);
           if (m) {
             info.width = parseInt(m[1]);
             info.height = parseInt(m[2]);
           }
-          m = /Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2})\.([0-9]{2})/g.exec(streams.stderr);
+          m = /Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2})\.([0-9]{2})/g.exec(stderr);
           if (m) {
             info.duration = parseInt(m[1]) * 3600 + parseInt(m[2]) * 60 + parseInt(m[3]);
           }
