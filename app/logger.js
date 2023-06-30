@@ -20,12 +20,11 @@ along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 */
 
 const log4js = require('log4js');
-const nullAppender = require('./null-appender.js');
 
 let logAppender = {
-    type: 'file',
-    filename: '/tmp/coapp.logs'
-  };
+  type: 'file',
+  filename: '/tmp/coapp.logs'
+};
 
 log4js.configure({
   appenders: {

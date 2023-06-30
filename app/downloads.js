@@ -23,7 +23,6 @@ const dl = require('download');
 const path = require('path');
 const fs = require('fs.extra');
 const rpc = require('./weh-rpc');
-const logger = require('./logger');
 
 let downloadFolder = path.join(process.env.HOME || process.env.HOMEDIR, "dwhelper");
 
@@ -34,15 +33,15 @@ const NAME_PATTERN = new RegExp("/([^/]+?)(?:\\.([a-z0-9]{1,5}))?(?:\\?|#|$)", "
 
 function download(options) {
   if (!options.url) {
-throw new Error("url not specified");
-}
+    throw new Error("url not specified");
+  }
   if (!options.filename) {
     let m = NAME_PATTERN.exec(options.url);
     if (m) {
-options.filename = m[1] + m[2];
-} else {
-options.filename = "file";
-}
+      options.filename = m[1] + m[2];
+    } else {
+      options.filename = "file";
+    }
   }
   let filename = path.join(options.directory || downloadFolder, options.filename);
   let dlOptions = {
@@ -50,16 +49,16 @@ options.filename = "file";
   };
   (options.headers || []).forEach((header) => {
     if (typeof header.value !== "undefined") {
-dlOptions.headers[header.name] = header.value;
-} else {
-dlOptions.headers[header.name] = Buffer.from(header.binaryValue);
-}
+      dlOptions.headers[header.name] = header.value;
+    } else {
+      dlOptions.headers[header.name] = Buffer.from(header.binaryValue);
+    }
   });
   if (options.proxy && /^http/.test(options.proxy.type)) {
     dlOptions.proxy = options.proxy.type + "://";
     if (options.proxy.username) {
-dlOptions.proxy += encodeURIComponent(options.proxy.username) + "@";
-}
+      dlOptions.proxy += encodeURIComponent(options.proxy.username) + "@";
+    }
     dlOptions.proxy += options.proxy.host + ":" + options.proxy.port + "/";
   }
   let downloadId = ++currentDownloadId;
@@ -98,8 +97,8 @@ dlOptions.proxy += encodeURIComponent(options.proxy.username) + "@";
     downloadItem.on('request', (request) => {
       let downloadEntry = downloads[downloadId];
       if (downloadEntry) {
-downloadEntry.request = request;
-}
+        downloadEntry.request = request;
+      }
     });
     downloadItem.on('response', (response) => {
       let downloadEntry = downloads[downloadId];
@@ -112,14 +111,14 @@ downloadEntry.request = request;
       }
     });
     downloadItem.pipe(fs.createWriteStream(filename))
-    .on('finish', () => {
-      let downloadEntry = downloads[downloadId];
-      if (downloadEntry) {
-        downloadEntry.state = "complete";
-        RemoveEntry();
-      }
-    })
-    .on('error', FailedDownload);
+      .on('finish', () => {
+        let downloadEntry = downloads[downloadId];
+        if (downloadEntry) {
+          downloadEntry.state = "complete";
+          RemoveEntry();
+        }
+      })
+      .on('error', FailedDownload);
   });
 
   return downloadId;
@@ -128,7 +127,7 @@ downloadEntry.request = request;
 function search(query) {
   let downloadEntry = downloads[query.id];
   if (downloadEntry) {
-return [{
+    return [{
       totalBytes: downloadEntry.totalBytes,
       bytesReceived: downloadEntry.bytesReceived,
       url: downloadEntry.url,
@@ -136,9 +135,9 @@ return [{
       state: downloadEntry.state,
       error: downloadEntry.error
     }];
-} else {
-return [];
-}
+  } else {
+    return [];
+  }
 }
 
 function cancel(downloadId) {

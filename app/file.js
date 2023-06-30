@@ -22,7 +22,6 @@ along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 const fs = require('fs.extra');
 const path = require('path');
 const tmp = require('tmp');
-const logger = require('./logger');
 const rpc = require('./weh-rpc');
 const { spawn } = require('child_process');
 const os = require('os');
@@ -37,39 +36,38 @@ rpc.listen({
       directory = path.resolve(process.env.HOME || process.env.HOMEDIR, directory);
       fs.readdir(directory, (err, files) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         Promise.all(files.map((file) => {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve, _reject) => {
             let fullPath = path.resolve(directory, file);
             fs.stat(fullPath, (err, stats) => {
               if (err) {
-return resolve(null);
-}
+                return resolve(null);
+              }
               resolve([file, Object.assign(stats, {
                 dir: stats.isDirectory(),
                 path: fullPath
               })]);
             });
           });
-        }))
-        .then((files) => {
+        })).then((files) => {
           if (files.length > MAX_FILE_ENTRIES) {
             files.sort((a, b) => {
               if (a[1].dir && !b[1].dir) {
-return -1;
-}
+                return -1;
+              }
               if (!a[1].dir && b[1].dir) {
-return 1;
-}
+                return 1;
+              }
               return 0;
             });
             resolve(files.slice(0, MAX_FILE_ENTRIES));
           } else {
-resolve(files);
-}
+            resolve(files);
+          }
         })
-        .catch(reject);
+          .catch(reject);
       });
     });
   },
@@ -77,56 +75,56 @@ resolve(files);
     return path.resolve(process.env.HOME || process.env.HOMEDIR, path.join(...args));
   },
   "getParents": (directory) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       directory = path.resolve(process.env.HOME || process.env.HOMEDIR, directory);
       let parents = [];
       while (true) {
         let parent = path.resolve(directory, "..");
         if (!parent || parent == directory) {
-return resolve(parents);
-}
+          return resolve(parents);
+        }
         parents.push(parent);
         directory = parent;
       }
     })
-    .then((parents) => {
-      if (os.platform() == "win32") {
-        return new Promise((resolve, reject) => {
-          let outBuffers = [];
-          let process = spawn("cmd");
-          process.stdout.on("data", (data) => {
-            outBuffers.push(data);
-          });
-          process.stderr.on("data", (data) => {
-            // need to consume data or process stalls
-          });
-          process.on("exit", (exitCode) => {
-            let out = Buffer.concat(outBuffers).toString("utf8");
-            let lines = out.split("\n");
-            let lastParent = parents[parents.length - 1];
-            lines.forEach((line) => {
-              let m = /^([0-9]*)\s+([A-Z]):\s*$/.exec(line);
-              if (m) {
-                if (m[1]) {
-                  let drive = m[2] + ":\\";
-                  if (lastParent !== drive) {
-parents.push(drive);
-}
-                }
-              }
+      .then((parents) => {
+        if (os.platform() == "win32") {
+          return new Promise((resolve, _reject) => {
+            let outBuffers = [];
+            let process = spawn("cmd");
+            process.stdout.on("data", (data) => {
+              outBuffers.push(data);
             });
-            resolve(parents);
+            process.stderr.on("data", (_data) => {
+              // need to consume data or process stalls
+            });
+            process.on("exit", (_exitCode) => {
+              let out = Buffer.concat(outBuffers).toString("utf8");
+              let lines = out.split("\n");
+              let lastParent = parents[parents.length - 1];
+              lines.forEach((line) => {
+                let m = /^([0-9]*)\s+([A-Z]):\s*$/.exec(line);
+                if (m) {
+                  if (m[1]) {
+                    let drive = m[2] + ":\\";
+                    if (lastParent !== drive) {
+                      parents.push(drive);
+                    }
+                  }
+                }
+              });
+              resolve(parents);
+            });
+            process.stdin.write('wmic logicaldisk get name,freespace\n');
+            process.stdin.end();
           });
-          process.stdin.write('wmic logicaldisk get name,freespace\n');
-          process.stdin.end();
-        });
-      } else {
-return parents;
-}
-    });
+        } else {
+          return parents;
+        }
+      });
   },
   "makeUniqueFileName": (...args) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
       let filePath = path.resolve(process.env.HOME || process.env.HOMEDIR, path.join(...args));
       let index = uniqueFileNames[filePath] || 0;
       let dirName = path.dirname(filePath);
@@ -134,8 +132,8 @@ return parents;
       let baseName = path.basename(filePath, extName);
       let fileParts = /^(.*?)(?:\-(\d+))?$/.exec(baseName);
       if (fileParts[2]) {
-index = parseInt(fileParts[2]);
-}
+        index = parseInt(fileParts[2]);
+      }
 
       function Check() {
         uniqueFileNames[filePath] = index + 1;
@@ -143,12 +141,12 @@ index = parseInt(fileParts[2]);
         let fullName = path.join(dirName, fileName);
         fs.stat(fullName, (err) => {
           if (err) {
-resolve({
+            resolve({
               filePath: fullName,
               fileName: fileName,
               directory: dirName
             });
-} else {
+          } else {
             index = parseInt(index) + 1;
             Check();
           }
@@ -162,8 +160,8 @@ resolve({
     return new Promise((resolve, reject) => {
       tmp.file(args, (err, path, fd) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve({ path, fd });
       });
     });
@@ -172,8 +170,8 @@ return reject(err);
     return new Promise((resolve, reject) => {
       tmp.tmpName(args, (err, filePath) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve({
           filePath: filePath,
           fileName: path.basename(filePath),
@@ -200,8 +198,8 @@ return reject(err);
       args[1] = Uint8Array.from(JSON.parse("[" + args[1] + "]"));
       fs.write(...args, (err, written) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve(written);
       });
     });
@@ -223,8 +221,8 @@ return reject(err);
     return new Promise((resolve, reject) => {
       fs.close(...args, (err) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve();
       });
     });
@@ -233,8 +231,8 @@ return reject(err);
     return new Promise((resolve, reject) => {
       fs.open(...args, (err, fd) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve(fd);
       });
     });
@@ -243,8 +241,8 @@ return reject(err);
     return new Promise((resolve, reject) => {
       fs.stat(...args, (err, stat) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve(stat);
       });
     });
@@ -253,8 +251,8 @@ return reject(err);
     return new Promise((resolve, reject) => {
       fs.rename(...args, (err) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve();
       });
     });
@@ -263,8 +261,8 @@ return reject(err);
     return new Promise((resolve, reject) => {
       fs.unlink(...args, (err) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve();
       });
     });
@@ -273,8 +271,8 @@ return reject(err);
     return new Promise((resolve, reject) => {
       fs.copyFile(source, dest, (err) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve();
       });
     });
@@ -283,8 +281,8 @@ return reject(err);
     return new Promise((resolve, reject) => {
       fs.readFile(...args, (err, data) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve(data);
       });
     });
@@ -293,8 +291,8 @@ return reject(err);
     return new Promise((resolve, reject) => {
       fs.mkdirp(path, (err) => {
         if (err) {
-return reject(err);
-}
+          return reject(err);
+        }
         resolve();
       });
     });

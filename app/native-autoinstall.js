@@ -70,19 +70,19 @@ function GetManifests(config) {
 function ParseModeConfig() {
   let homeVar = "HOME";
   if (os.platform() == "win32") {
-homeVar = "USERPROFILE";
-}
+    homeVar = "USERPROFILE";
+  }
   let mode;
   if (process.execPath.startsWith(process.env[homeVar])) {
-mode = "user";
-} else {
-mode = "system";
-}
+    mode = "user";
+  } else {
+    mode = "system";
+  }
   if (process.argv.indexOf("--user") >= 0) {
-mode = "user";
-} else if (process.argv.indexOf("--system") >= 0) {
-mode = "system";
-}
+    mode = "user";
+  } else if (process.argv.indexOf("--system") >= 0) {
+    mode = "system";
+  }
   let config;
   try {
     config = JSON.parse(fs.readFileSync(path.resolve(path.dirname(process.execPath), "../config.json"), "utf8"));
@@ -99,7 +99,7 @@ function DarwinInstall() {
   let { chrome: chromeManifest, firefox: firefoxManifest, edge: edgeManifest } = GetManifests(config);
   let manifests;
   if (mode == "user") {
-manifests = [{
+    manifests = [{
       file: process.env.HOME + "/Library/Application Support/Mozilla/NativeMessagingHosts/" + config.id + ".json",
       manifest: JSON.stringify(firefoxManifest, null, 4),
     }, {
@@ -112,8 +112,8 @@ manifests = [{
       file: process.env.HOME + "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/" + config.id + ".json",
       manifest: JSON.stringify(edgeManifest, null, 4),
     }];
-} else {
-manifests = [{
+  } else {
+    manifests = [{
       file: "/Library/Application Support/Mozilla/NativeMessagingHosts/" + config.id + ".json",
       manifest: JSON.stringify(firefoxManifest, null, 4),
     }, {
@@ -126,7 +126,7 @@ manifests = [{
       file: "/Library/Microsoft/Edge/NativeMessagingHosts/" + config.id + ".json",
       manifest: JSON.stringify(edgeManifest, null, 4),
     }];
-}
+  }
   try {
     manifests.forEach((manif) => {
       fs.outputFileSync(manif.file, manif.manifest, "utf8");
@@ -145,20 +145,20 @@ function DarwinUninstall() {
 
   let manifests;
   if (mode == "user") {
-manifests = [
+    manifests = [
       process.env.HOME + "/Library/Application Support/Mozilla/NativeMessagingHosts/" + config.id + ".json",
       process.env.HOME + "/Library/Application Support/Google/Chrome/NativeMessagingHosts/" + config.id + ".json",
       process.env.HOME + "/Library/Application Support/Chromium/NativeMessagingHosts/" + config.id + ".json",
       process.env.HOME + "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/" + config.id + ".json"
     ];
-} else {
-manifests = [
+  } else {
+    manifests = [
       "/Library/Application Support/Mozilla/NativeMessagingHosts/" + config.id + ".json",
       "/Library/Google/Chrome/NativeMessagingHosts/" + config.id + ".json",
       "/Library/Application Support/Chromium/NativeMessagingHosts/" + config.id + ".json",
       "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/" + config.id + ".json"
     ];
-}
+  }
   try {
     manifests.forEach((file) => {
       fs.removeSync(file);
@@ -176,8 +176,8 @@ function LinuxInstall() {
   let { chrome: chromeManifest, firefox: firefoxManifest } = GetManifests(config);
   let manifests;
   if (mode == "user") {
-manifests = [{
-      file: process.env.HOME + "/.mozilla/native-messaging-hosts/" + config.id + ".json",     manifest: JSON.stringify(firefoxManifest, null, 4),
+    manifests = [{
+      file: process.env.HOME + "/.mozilla/native-messaging-hosts/" + config.id + ".json", manifest: JSON.stringify(firefoxManifest, null, 4),
     }, {
       file: process.env.HOME + "/.config/google-chrome/NativeMessagingHosts/" + config.id + ".json",
       manifest: JSON.stringify(chromeManifest, null, 4),
@@ -191,7 +191,7 @@ manifests = [{
       file: process.env.HOME + "/.config/vivaldi/NativeMessagingHosts/" + config.id + ".json",
       manifest: JSON.stringify(chromeManifest, null, 4),
     }];
-} else {
+  } else {
     manifests = [{
       file: "/usr/lib/mozilla/native-messaging-hosts/" + config.id + ".json",
       manifest: JSON.stringify(firefoxManifest, null, 4),
@@ -209,8 +209,10 @@ manifests = [{
           file: "/usr/lib64/mozilla/native-messaging-hosts/" + config.id + ".json",
           manifest: JSON.stringify(firefoxManifest, null, 4),
         });
-      } catch (err) {}
-}
+      } catch (_err) {
+        /* */
+      }
+    }
   }
   try {
     manifests.forEach((manif) => {
@@ -230,20 +232,20 @@ function LinuxUninstall() {
 
   let manifests;
   if (mode == "user") {
-manifests = [
+    manifests = [
       process.env.HOME + "/.mozilla/native-messaging-hosts/" + config.id + ".json",
       process.env.HOME + "/.config/google-chrome/NativeMessagingHosts/" + config.id + ".json",
       process.env.HOME + "/.config/chromium/NativeMessagingHosts/" + config.id + ".json"
       process.env.HOME + "/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json",
       process.env.HOME + "/.config/vivaldi/NativeMessagingHosts/" + config.id + ".json"
     ];
-} else {
-manifests = [
+  } else {
+    manifests = [
       "/usr/lib/mozilla/native-messaging-hosts/" + config.id + ".json",
       "/etc/opt/chrome/native-messaging-hosts/" + config.id + ".json",
       "/etc/chromium/native-messaging-hosts/" + config.id + ".json"
     ];
-}
+  }
   try {
     manifests.forEach((file) => {
       fs.removeSync(file);
@@ -294,8 +296,8 @@ function WindowsInstall() {
 
   let regRoot = "HKLM";
   if (mode == "user") {
-regRoot = "HKCU";
-}
+    regRoot = "HKCU";
+  }
   WriteRegistry(regRoot, "\\Software\\Google\\Chrome\\NativeMessagingHosts", config.id, chromeManifestFile);
   WriteRegistry(regRoot, "\\Software\\Chromium\\NativeMessagingHosts", config.id, chromeManifestFile);
   WriteRegistry(regRoot, "\\Software\\Mozilla\\NativeMessagingHosts", config.id, firefoxManifestFile);
@@ -324,8 +326,8 @@ function WindowsUninstall() {
   }
   let regRoot = "HKLM";
   if (mode == "user") {
-regRoot = "HKCU";
-}
+    regRoot = "HKCU";
+  }
   DeleteRegistry(regRoot, "\\Software\\Google\\Chrome\\NativeMessagingHosts", config.id);
   DeleteRegistry(regRoot, "\\Software\\Chromium\\NativeMessagingHosts", config.id);
   DeleteRegistry(regRoot, "\\Software\\Mozilla\\NativeMessagingHosts", config.id);
@@ -339,7 +341,7 @@ exports.install = () => {
     case "darwin":
       DarwinInstall();
       break;
-      case "linux":
+    case "linux":
       LinuxInstall();
       break;
     case "win32":

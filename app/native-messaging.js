@@ -25,36 +25,35 @@ const logger = require('./logger');
 logger.info("started");
 
 function exitHandler(reason, err) {
-    logger.info('ended');
+  logger.info('ended');
   if (err) {
-logger.warn(err.stack);
-}
+    logger.warn(err.stack);
+  }
   if (reason == "exit") {
-logger.shutdown(() => {
+    logger.shutdown(() => {
       process.exit(err ? -1 : 0);
     });
-}
+  }
 }
 
 process.on('exit', exitHandler.bind(null, 'exit'));
 process.on('uncaughtException', exitHandler.bind(null, 'uncaughtException'));
 
 let msgBacklog = Buffer.alloc(0);
-let msgExpectedLength = 0; let msgCurrentLength = 0;
 
 function AppendInputString(chunk) {
   msgBacklog = Buffer.concat([msgBacklog, chunk]);
   while (true) {
-        if (msgBacklog.length < 4) {
-return;
-}
+    if (msgBacklog.length < 4) {
+      return;
+    }
     let msgLength = msgBacklog.readUInt32LE(0);
     if (msgBacklog.length < msgLength + 4) {
-return;
-}
+      return;
+    }
     if (msgLength == 0) {
-return;
-}
+      return;
+    }
     try {
       let msgString = msgBacklog.toString("utf8", 4, msgLength + 4);
       logger.info("msgString", msgString);
@@ -78,5 +77,5 @@ function Send(message) {
 rpc.setPost(Send);
 
 process.stdin.on('data', (chunk) => {
-    AppendInputString(chunk);
+  AppendInputString(chunk);
 });
