@@ -39,6 +39,15 @@ const PLATFORMS = {
   "macos": "mac"
 };
 
+const FFMPEG_TARGETS = new Map([
+  ["linux-32", "linux-i686"],
+  ["linux-64", "linux-x86_64"],
+  ["win-32", "windows-i686"],
+  ["win-64", "windows-x86_64"],
+  ["mac-64", "mac-x86_64"],
+  ["mac-arm64", "mac-arm64"],
+]);
+
 function PkgNames(platform, arch) {
   const PLATFORM_NAMES = { "mac": "macos", "win": "win", "linux": "linux" };
   let platformName = PLATFORM_NAMES[platform];
@@ -66,8 +75,9 @@ function ResolveString(str, dictionnary) {
 function CopyExtra(platform, arch, extraPath = "") {
   return Promise.all(
     (config.extra || []).map((extra) => {
-      let dest = ResolveString(extra.dest || extra.source, {platform, arch});
-      let source = ResolveString(extra.source, {platform, arch});
+      const target = FFMPEG_TARGETS.get(`${platform}-${arch}`);
+      let dest = ResolveString(extra.dest || extra.source, {platform, arch, target});
+      let source = ResolveString(extra.source, {platform, arch, target});
       let sourceIsDir = source[source.length - 1] == "/";
       let destName = null;
       if (sourceIsDir) {
@@ -616,8 +626,9 @@ function MakeMacFiles(type) {
   let contentPath = appPath + "/Contents/";
 
   let promises = [
-    CopyBinary("mac", "64", contentPath + "MacOS/bin"),
-    CopyExtra("mac", null, "/" + contentPath + "MacOS"),
+    // FIXME: for now, only arm64 supported
+    CopyBinary("mac", "arm64", contentPath + "MacOS/bin"),
+    CopyExtra("mac", "arm64", "/" + contentPath + "MacOS"),
     CreateMacInfoPlist(contentPath),
     fs.copy("assets/" + config.mac.iconIcns, "dist/mac/" + contentPath + "Resources/" + config.mac.iconIcns),
     fs.outputFile("dist/mac/" + contentPath + "PkgInfo", "APPL????", "utf8"),

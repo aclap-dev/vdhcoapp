@@ -4,16 +4,13 @@ Vdhcoapp is to be built in two parts:
 Part 1: the converter (ffmpeg)
 ---
 
-Running the commands below on Linux (tested on Ubuntu 16.04) generates Windows and Linux executable files.
-When run on Mac (tested on Mac OS X 10.11.6), it creates Mac executable files.
+First the ffmpeg binaries need to be downloaded:
 
 ```
-cd converter
-./get-source.sh
-./build-apps.sh
+./converter/get-apps.sh
 ```
 
-Once built, the executables and libraries are available in `./converter/build/<platform>/<architecture>/`
+Once downloaded, the executables and libraries are available in `./converter/build/ffmpeg-<os>-<arch>/`
 
 Part 2: the application
 ---
