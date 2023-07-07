@@ -614,6 +614,7 @@ function CreateMacInfoPlist(extraPath = "") {
 }
 
 function MakeMacFiles(type) {
+  const arch = "arm64";
   let appPath;
   switch (type) {
     case "dmg":
@@ -624,15 +625,16 @@ function MakeMacFiles(type) {
       break;
   }
   let contentPath = appPath + "/Contents/";
+  let archContentPath = arch + "/" + contentPath;
 
   let promises = [
     // FIXME: for now, only arm64 supported
-    CopyBinary("mac", "arm64", contentPath + "MacOS/bin"),
-    CopyExtra("mac", "arm64", "/" + contentPath + "MacOS"),
-    CreateMacInfoPlist(contentPath),
-    fs.copy("assets/" + config.mac.iconIcns, "dist/mac/" + contentPath + "Resources/" + config.mac.iconIcns),
-    fs.outputFile("dist/mac/" + contentPath + "PkgInfo", "APPL????", "utf8"),
-    fs.outputFile("dist/mac/" + contentPath + "MacOS/config.json",
+    CopyBinary("mac", arch, archContentPath + "MacOS/bin"),
+    CopyExtra("mac", arch, "/" + contentPath + "MacOS"),
+    CreateMacInfoPlist(archContentPath),
+    fs.copy("assets/" + config.mac.iconIcns, "dist/mac/" + archContentPath + "Resources/" + config.mac.iconIcns),
+    fs.outputFile("dist/mac/" + archContentPath + "PkgInfo", "APPL????", "utf8"),
+    fs.outputFile("dist/mac/" + archContentPath + "MacOS/config.json",
       MakeConfigJsonStr(), "utf8")
   ];
   switch (type) {
@@ -670,7 +672,7 @@ function MakeMacFiles(type) {
             filePath.extname = "";
             filePath.basename = "postinstall";
           }))
-          .pipe(gulp.dest("dist/mac/pkg/scripts"))
+          .pipe(gulp.dest(`dist/mac/${arch}/pkg/scripts`))
           .on("end", () => {
             resolve();
           });
@@ -824,6 +826,9 @@ gulp.task("pkg-files-mac", (callback) => {
 });
 
 gulp.task("pkg-make-mac", (callback) => {
+  // FIXME
+  const arch = "arm64";
+  const pkg_path = `dist/mac/${arch}/pkg`;
   let version = Math.floor(Date.now() / 1000);
   new Promise((resolve, _reject) => {
     gulp.src("assets/{pkg-distribution.xml,pkg-component.plist}.ejs")
@@ -833,22 +838,22 @@ gulp.task("pkg-make-mac", (callback) => {
             filePath.extname = "";
         }
       }))
-      .pipe(gulp.dest("dist/mac/pkg"))
+      .pipe(gulp.dest(pkg_path))
       .on("end", () => resolve());
   }).then(() => {
     return Exec("pkgbuild", [
-      "--root", "dist/mac/pkg/content",
+      "--root", pkg_path + "/content",
       "--install-location", "/Applications",
-      "--scripts", "dist/mac/pkg/scripts/",
+      "--scripts", pkg_path + "/scripts/",
       "--identifier", config.id,
-      "--component-plist", "dist/mac/pkg/pkg-component.plist",
+      "--component-plist", pkg_path + "/pkg-component.plist",
       "--version", version,
-      "dist/mac/pkg/app.pkg"
+      pkg_path + "/app.pkg"
     ]);
   }).then(() => {
     let args = [
-      "--distribution", "dist/mac/pkg/pkg-distribution.xml",
-      "--package-path", "dist/mac/pkg",
+      "--distribution", pkg_path + "/pkg-distribution.xml",
+      "--package-path", pkg_path,
       "builds/" + config.id + "-" + manifest.version + ".pkg"
     ];
     if (config.mac.sign) {
