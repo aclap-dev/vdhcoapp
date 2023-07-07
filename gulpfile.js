@@ -25,7 +25,8 @@ const ARCH_BITS = {
   "32": 32,
   "ia32": 32,
   "i386": 32,
-  "i686": 32
+  "i686": 32,
+  "arm64": "arm64"
 };
 
 const PLATFORMS = {
@@ -41,7 +42,7 @@ const PLATFORMS = {
 function PkgNames(platform, arch) {
   const PLATFORM_NAMES = { "mac": "macos", "win": "win", "linux": "linux" };
   let platformName = PLATFORM_NAMES[platform];
-  const ARCHS = { "64": "x64", "32": "x86"};
+  const ARCHS = { "64": "x64", "32": "x86", "arm64": "arm64"};
   let archName = ARCHS[arch];
   let EXTENSIONS = { "win": ".exe" };
   let target = "node" + (config.node_version || config.node_major || 7) + "-" +
@@ -244,7 +245,7 @@ gulp.task("build-local", () => {
 
 [{p: "linux", a: "64"}, {p: "linux", a: "32"},
   {p: "win", a: "64"}, {p: "win", a: "32"},
-  {p: "mac", a: "64"}].forEach(({p: platform, a: arch}) => {
+  {p: "mac", a: "64"}, {p: "mac", a: "arm64"}].forEach(({p: platform, a: arch}) => {
     gulp.task("build-" + platform + "-" + arch, () => {
       return Pkg(platform, arch);
     });
@@ -267,25 +268,28 @@ gulp.task("build-local", () => {
   );
 });
 
-gulp.task("deb-local", gulp.series("deb-linux-" + ARCH_BITS[os.arch()]));
+// Only for linux local builds
+if (os.platform() == "linux") {
+  gulp.task("deb-local", gulp.series("deb-linux-" + ARCH_BITS[os.arch()]));
 
-[64, 32].forEach((arch) => {
-  gulp.task("targz-files-linux-" + arch, (callback) => {
-    MakeTarGzFiles(
-      "linux",
-      arch)
-      .then(() => callback());
+  [64, 32].forEach((arch) => {
+    gulp.task("targz-files-linux-" + arch, (callback) => {
+      MakeTarGzFiles(
+        "linux",
+        arch)
+        .then(() => callback());
+    });
+    gulp.task("targz-make-linux-" + arch, (_callback) => {
+      return MakeTarGz("linux", arch);
+    });
+    gulp.task("targz-linux-" + arch, gulp.series(
+      "build-linux-" + arch,
+      "targz-files-linux-" + arch,
+      "targz-make-linux-" + arch));
   });
-  gulp.task("targz-make-linux-" + arch, (_callback) => {
-    return MakeTarGz("linux", arch);
-  });
-  gulp.task("targz-linux-" + arch, gulp.series(
-    "build-linux-" + arch,
-    "targz-files-linux-" + arch,
-    "targz-make-linux-" + arch));
-});
 
-gulp.task("targz-local", gulp.series("targz-linux-" + ARCH_BITS[os.arch()]));
+  gulp.task("targz-local", gulp.series("targz-linux-" + ARCH_BITS[os.arch()]));
+}
 
 function CreateIssWinManifests() {
   let promises = [];
@@ -793,6 +797,7 @@ gulp.task("dmg-checksign-mac", (callback) => {
 });
 
 gulp.task("dmg-mac", gulp.series(
+  "build-mac-arm64",
   "build-mac-64",
   "dmg-files-mac",
   "dmg-make-mac",
@@ -860,6 +865,7 @@ gulp.task("pkg-checksign-mac", (callback) => {
 });
 
 gulp.task("pkg-mac", gulp.series(
+  "build-mac-arm64",
   "build-mac-64",
   "pkg-files-mac",
   "pkg-make-mac"));
