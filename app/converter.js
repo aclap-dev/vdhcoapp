@@ -1,7 +1,7 @@
 const path = require('path');
 const { spawn } = require('child_process');
 const opn = require('opn');
-const { ffmpeg, ffprobe, ffplay } = require('./binaries');
+const { ffmpeg, ffprobe } = require('./binaries');
 
 const logger = require('./logger');
 const rpc = require('./weh-rpc');
@@ -113,19 +113,10 @@ rpc.listen({
     });
   },
   "play": (filePath) => {
-    return new Promise((resolve, reject) => {
-      let playProcess = spawn(ffplay, [filePath]);
-      let stderr = [];
-      playProcess.stderr.on("data", (data) => {
-        stderr.push(data.toString("utf8"));
-      });
-      playProcess.on("exit", (exitCode) => {
-        if (exitCode !== 0) {
-          reject(new Error(stderr.slice(1).join("")));
-        } else {
-          resolve();
-        }
-      });
+    return new Promise((resolve, _reject) => {
+      // FIXME: use https://github.com/sindresorhus/open
+      opn(filePath);
+      resolve();
     });
   },
   "codecs": () => {

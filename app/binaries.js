@@ -1,4 +1,4 @@
-// Exports the absolute path of the ffmpeg/ffprobe/ffplay.
+// Exports the absolute path of the ffmpeg/ffprobe.
 
 const path = require('path');
 
@@ -7,4 +7,3 @@ const binary_dir = path.join(dirname, "..", "converter");
 
 exports.ffmpeg = path.join(binary_dir, "ffmpeg");
 exports.ffprobe = path.join(binary_dir, "ffprobe");
-exports.ffplay = path.join(binary_dir, "ffplay");
