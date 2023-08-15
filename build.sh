@@ -14,13 +14,11 @@ fi
 source $nvm_sh
 echo "ok."
 
-echo -n "Ensuring Node 18 is available and running…"
+echo "Ensuring Node 18 is available and running…"
 nvm install 18
 nvm use 18
-echo "ok."
 
 if [ ! -d "node_modules" ]; then
-  echo "Installing 
   npm install
 fi
 
@@ -37,11 +35,12 @@ fi
 # -----------------------------
 
 binary_name="net.downloadhelper.coapp"
-url="https://github.com/aclap-dev/ffmpeg-static-builder/releases/download/ffmpeg-285c7f6f6b-2023-06-26-001/ffmpeg-mac-arm64.tar.bz2"
+ffmpeg_url_base="https://github.com/aclap-dev/ffmpeg-static-builder/releases/download/"
+ffmpeg_url=$ffmpeg_url_base/ffmpeg-285c7f6f6b-2023-06-26-001/ffmpeg-mac-arm64.tar.bz2
 app_id=$(jq -r '.id' ./config.json)
 pkg_version=`date +%s`
-
 dist=$PWD/dist2/
+
 rm -rf $dist
 
 pkg_dir=$dist/mac/arm64/pkg
@@ -61,13 +60,13 @@ mkdir -p $res_dir
 
 echo "Fetching ffmpeg…"
 cd $ffmpeg_dir
-tmpfile=/tmp/ffmpeg_pkg #$(mktemp /tmp/coapp-build.XXXXXX)
-# curl -L $url > $tmpfile
+tmpfile=$(mktemp /tmp/coapp-build.XXXXXX)
+curl -L $ffmpeg_url > $tmpfile
 echo "Extracting ffmpeg"
 tar -xf $tmpfile
 mv ffmpeg-mac-arm64/ffmpeg ffmpeg-mac-arm64/ffprobe ffmpeg-mac-arm64/presets .
 rmdir ffmpeg-mac-arm64
-# rm $tmpfile
+rm $tmpfile
 cd -
 
 echo "Building single executable"
@@ -89,14 +88,11 @@ ejs -f $tmpfile ./assets/Info.plist.ejs > $contents_dir/Info.plist
 ejs -f $tmpfile ./assets/setup-mac-pkg.sh.ejs > $scripts_dir/postinstall
 chmod +x $scripts_dir/postinstall
 
-echo "assets"
 cp assets/README.txt $macos_dir/README.txt
 cp assets/gpl-2.0.txt $macos_dir/LICENSE.txt
 cp assets/icon.icns $res_dir
 
-echo "config.json"
 jq "{id, name, description, allowed_extensions}" ./config.json > $macos_dir/config.json
-
 
 pkgbuild \
   --root $content_dir \
