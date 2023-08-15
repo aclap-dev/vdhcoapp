@@ -10,15 +10,15 @@
     "native messaging",
     "video converter"
   ],
-  "homepage": "https://github.com/mi-g/vdhcoapp",
+  "homepage": "https://github.com/aclap-dev/vdhcoapp",
   "author": {
     "name": "Michel Gutierrez",
     "email": "mig@downloadhelper.net",
-    "url": "https://github.com/mi-g"
+    "url": "https://github.com/aclap-dev"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mi-g/vdhcoapp"
+    "url": "https://github.com/aclap-dev/vdhcoapp"
   },
   "license": "GPL-2.0",
   "devDependencies": {
