@@ -163,10 +163,10 @@ function LinuxInstall() {
     }, {
       file: process.env.HOME + "/.config/chromium/NativeMessagingHosts/" + config.id + ".json",
       manifest: JSON.stringify(chromeManifest, null, 4),
-    },{
+    }, {
       file: process.env.HOME + "/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/" + config.id + ".json",
       manifest: JSON.stringify(chromeManifest, null, 4),
-    },{
+    }, {
       file: process.env.HOME + "/.config/vivaldi/NativeMessagingHosts/" + config.id + ".json",
       manifest: JSON.stringify(chromeManifest, null, 4),
     }];

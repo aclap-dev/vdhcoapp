@@ -1,4 +1,3 @@
-
 vdhcoapp is an application providing the Video DownloadHelper add-on browser with:
 
 - file access features that are not available from the browser
