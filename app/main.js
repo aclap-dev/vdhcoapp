@@ -42,39 +42,39 @@ const manifest = require('../package');
 const config = require('../config');
 
 rpc.listen({
-	quit: () => {
-		logger.shutdown(() => {
-			process.exit(0);
-		});
-	},
-	env: () => {
-		return process.env;
-	},
-	ping: (arg) => {
-		return arg;
-	},
-	info: () => {
-		let result = {
-			id: config.id,
-			name: manifest.name,
-			version: manifest.version,
-			binary: process.execPath,
-			displayName: config.name,
-			description: config.description,
-			home: process.env.HOME || process.env.HOMEDIR || ""
-		};
-		return converter.info()
-			.then((convInfo) => {
-				return Object.assign(result, {
-					converterBinary: convInfo.converterBinary,
-					converterBase: convInfo.program,
-					converterBaseVersion: convInfo.version
-				});
-			})
-			.catch((error) => {
-				return Object.assign(result, {
-					converterError: error.message
-				});
-			});
-	}
+  quit: () => {
+    logger.shutdown(() => {
+      process.exit(0);
+    });
+  },
+  env: () => {
+    return process.env;
+  },
+  ping: (arg) => {
+    return arg;
+  },
+  info: () => {
+    let result = {
+      id: config.id,
+      name: manifest.name,
+      version: manifest.version,
+      binary: process.execPath,
+      displayName: config.name,
+      description: config.description,
+      home: process.env.HOME || process.env.HOMEDIR || ""
+    };
+    return converter.info()
+      .then((convInfo) => {
+        return Object.assign(result, {
+          converterBinary: convInfo.converterBinary,
+          converterBase: convInfo.program,
+          converterBaseVersion: convInfo.version
+        });
+      })
+      .catch((error) => {
+        return Object.assign(result, {
+          converterError: error.message
+        });
+      });
+  }
 });
