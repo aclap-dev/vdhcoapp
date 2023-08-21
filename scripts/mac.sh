@@ -19,15 +19,11 @@ mkdir -p $res_dir
 scripts_dir=$dist/scripts
 mkdir -p $scripts_dir
 
-echo "Fetching ffmpeg…"
 cd $ffmpeg_dir
-tmpfile=$(mktemp /tmp/coapp-build.XXXXXX)
-curl -L $ffmpeg_url > $tmpfile
 echo "Extracting ffmpeg"
-tar -xf $tmpfile
+tar -xf $ffmpeg_tarball
 mv ffmpeg-mac-$target_arch/ffmpeg ffmpeg-mac-$target_arch/ffprobe ffmpeg-mac-$target_arch/presets .
 rmdir ffmpeg-mac-$target_arch
-rm $tmpfile
 cd -
 
 echo "Building single executable"
@@ -66,10 +62,15 @@ pkgbuild \
   --identifier $app_id \
   --component-plist $dist/pkg-component.plist \
   --version $pkg_version \
-  --sign "Developer ID Installer: ACLAP" \
   $dist/$pkg_filename.pkg
 
-sudo productbuild --package /path_to_saved_package/packagename.pkg       --content /path_to_app/         --sign "Developer ID Installer: *******"       /path_to_signed_pkg/signed.pkg
+# pkgbuild option:
+# --sign "Developer ID Installer: ACLAP" \
+# sudo productbuild \
+# --package /path_to_saved_package/packagename.pkg \
+# --content /path_to_app/
+# --sign "Developer ID Installer: *******"
+# /path_to_signed_pkg/signed.pkg
 
 echo "Building $pkg_filename.dmg"
 

@@ -31,9 +31,6 @@ const exec = async (...args) => send(child.stdin, ...args);
 
 const info = await exec("info");
 
-// FIXME: test info
-
-const r1 = await exec("ping", "foo");
 
 assert("ping", r1, "foo");
 
