@@ -21,4 +21,4 @@ along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 
 exports.configure = () => {
 	return () => {};
-}
+};

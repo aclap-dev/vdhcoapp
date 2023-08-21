@@ -24,17 +24,17 @@ const fs = require("fs-extra");
 const path = require("path");
 const { spawn, spawnSync } = require('child_process');
 
-function DisplayMessage(body,title) {
-	switch(os.platform()) {
+function DisplayMessage(body, title) {
+	switch (os.platform()) {
 		case "darwin":
-			spawn("/usr/bin/osascript",["-e","display notification \""+
-				body+"\" with title \""+(title||"")+"\""]);
+			spawn("/usr/bin/osascript", ["-e", "display notification \"" +
+				body + "\" with title \"" + (title || "") + "\""]);
 			break;
 		case "win32":
-			spawnSync("msg",["*","/TIME:5",(title && title+": " || "") + body]);
+			spawnSync("msg", ["*", "/TIME:5", (title && title + ": " || "") + body]);
 			break;
 		default:
-			console.info((title && title+": " || "") + body);
+			console.info((title && title + ": " || "") + body);
 	}
 }
 
@@ -64,269 +64,278 @@ function GetManifests(config) {
 			type: "stdio",
 			allowed_origins: config.allowed_extensions.edge
 		}
-	}
+	};
 }
 
 function ParseModeConfig() {
-	var homeVar = "HOME";
-	if(os.platform()=="win32")
-		homeVar = "USERPROFILE";
-	var mode;
-	if(process.execPath.startsWith(process.env[homeVar]))
-		mode = "user";
-	else
-		mode = "system";
-	if(process.argv.indexOf("--user")>=0)
-		mode = "user";
-	else if(process.argv.indexOf("--system")>=0)
-		mode = "system";
-	var config;
+	let homeVar = "HOME";
+	if (os.platform() == "win32") {
+homeVar = "USERPROFILE";
+}
+	let mode;
+	if (process.execPath.startsWith(process.env[homeVar])) {
+mode = "user";
+} else {
+mode = "system";
+}
+	if (process.argv.indexOf("--user") >= 0) {
+mode = "user";
+} else if (process.argv.indexOf("--system") >= 0) {
+mode = "system";
+}
+	let config;
 	try {
-		config = JSON.parse(fs.readFileSync(path.resolve(path.dirname(process.execPath),"../config.json"),"utf8"));
-	} catch(err) {
-		DisplayMessage("Cannot read config file: "+err.message,"Error");
+		config = JSON.parse(fs.readFileSync(path.resolve(path.dirname(process.execPath), "../config.json"), "utf8"));
+	} catch (err) {
+		DisplayMessage("Cannot read config file: " + err.message, "Error");
 		process.exit(-1);
 		return;
 	}
-	return { mode, config }
+	return { mode, config };
 }
 
 function DarwinInstall() {
-	var { mode, config } = ParseModeConfig();
-	var { chrome: chromeManifest, firefox: firefoxManifest, edge: edgeManifest } = GetManifests(config);
-	var manifests;
-	if(mode=="user") 
-		manifests = [{
-			file: process.env.HOME+"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json",			
-			manifest: JSON.stringify(firefoxManifest,null,4),
-		},{
-			file: process.env.HOME+"/Library/Application Support/Google/Chrome/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(chromeManifest,null,4),
-		},{
-			file: process.env.HOME+"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(chromeManifest,null,4),
-		},{
-			file: process.env.HOME+"/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(edgeManifest,null,4),
+	let { mode, config } = ParseModeConfig();
+	let { chrome: chromeManifest, firefox: firefoxManifest, edge: edgeManifest } = GetManifests(config);
+	let manifests;
+	if (mode == "user") {
+manifests = [{
+			file: process.env.HOME + "/Library/Application Support/Mozilla/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(firefoxManifest, null, 4),
+		}, {
+			file: process.env.HOME + "/Library/Application Support/Google/Chrome/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(chromeManifest, null, 4),
+		}, {
+			file: process.env.HOME + "/Library/Application Support/Chromium/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(chromeManifest, null, 4),
+		}, {
+			file: process.env.HOME + "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(edgeManifest, null, 4),
 		}];
-	else
-		manifests = [{
-			file: "/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(firefoxManifest,null,4),
-		},{
-			file: "/Library/Google/Chrome/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(chromeManifest,null,4),
-		},{
-			file: "/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(chromeManifest,null,4),
-		},{
-			file: "/Library/Microsoft/Edge/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(edgeManifest,null,4),
+} else {
+manifests = [{
+			file: "/Library/Application Support/Mozilla/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(firefoxManifest, null, 4),
+		}, {
+			file: "/Library/Google/Chrome/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(chromeManifest, null, 4),
+		}, {
+			file: "/Library/Application Support/Chromium/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(chromeManifest, null, 4),
+		}, {
+			file: "/Library/Microsoft/Edge/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(edgeManifest, null, 4),
 		}];
+}
 	try {
-		manifests.forEach((manif)=>{
-			fs.outputFileSync(manif.file,manif.manifest,"utf8");
+		manifests.forEach((manif) => {
+			fs.outputFileSync(manif.file, manif.manifest, "utf8");
 		});
-	} catch(err) {
-		DisplayMessage("Cannot write manifest file: "+err.message,config.name);
+	} catch (err) {
+		DisplayMessage("Cannot write manifest file: " + err.message, config.name);
 		process.exit(-1);
 		return;
 	}
-	var text = config.name+" is ready to be used";
-	DisplayMessage(text,config.name);
+	let text = config.name + " is ready to be used";
+	DisplayMessage(text, config.name);
 }
 
 function DarwinUninstall() {
-	var { mode, config } = ParseModeConfig();
-	
-	var manifests;
-	if(mode=="user") 
-		manifests = [
-			process.env.HOME+"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json",			
-			process.env.HOME+"/Library/Application Support/Google/Chrome/NativeMessagingHosts/"+config.id+".json",
-			process.env.HOME+"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json",
-			process.env.HOME+"/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"+config.id+".json"
+	let { mode, config } = ParseModeConfig();
+
+	let manifests;
+	if (mode == "user") {
+manifests = [
+			process.env.HOME + "/Library/Application Support/Mozilla/NativeMessagingHosts/" + config.id + ".json",
+			process.env.HOME + "/Library/Application Support/Google/Chrome/NativeMessagingHosts/" + config.id + ".json",
+			process.env.HOME + "/Library/Application Support/Chromium/NativeMessagingHosts/" + config.id + ".json",
+			process.env.HOME + "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/" + config.id + ".json"
 		];
-	else
-		manifests = [
-			"/Library/Application Support/Mozilla/NativeMessagingHosts/"+config.id+".json",
-			"/Library/Google/Chrome/NativeMessagingHosts/"+config.id+".json",
-			"/Library/Application Support/Chromium/NativeMessagingHosts/"+config.id+".json",
-			"/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"+config.id+".json"
+} else {
+manifests = [
+			"/Library/Application Support/Mozilla/NativeMessagingHosts/" + config.id + ".json",
+			"/Library/Google/Chrome/NativeMessagingHosts/" + config.id + ".json",
+			"/Library/Application Support/Chromium/NativeMessagingHosts/" + config.id + ".json",
+			"/Library/Application Support/Microsoft Edge/NativeMessagingHosts/" + config.id + ".json"
 		];
+}
 	try {
-		manifests.forEach((file)=>{
+		manifests.forEach((file) => {
 			fs.removeSync(file);
 		});
-	} catch(err) {
-		DisplayMessage("Cannot remove manifest file: "+err.message,config.name);
+	} catch (err) {
+		DisplayMessage("Cannot remove manifest file: " + err.message, config.name);
 		process.exit(-1);
 	}
-	var text = config.name+" manifests have been removed";
-	DisplayMessage(text,config.name);
+	let text = config.name + " manifests have been removed";
+	DisplayMessage(text, config.name);
 }
 
 function LinuxInstall() {
-	var { mode, config } = ParseModeConfig();
-	var { chrome: chromeManifest, firefox: firefoxManifest } = GetManifests(config);
-	var manifests;
-	if(mode=="user") 
-		manifests = [{
-			file: process.env.HOME+"/.mozilla/native-messaging-hosts/"+config.id+".json",			manifest: JSON.stringify(firefoxManifest,null,4),
+	let { mode, config } = ParseModeConfig();
+	let { chrome: chromeManifest, firefox: firefoxManifest } = GetManifests(config);
+	let manifests;
+	if (mode == "user") {
+manifests = [{
+			file: process.env.HOME + "/.mozilla/native-messaging-hosts/" + config.id + ".json",			manifest: JSON.stringify(firefoxManifest, null, 4),
+		}, {
+			file: process.env.HOME + "/.config/google-chrome/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(chromeManifest, null, 4),
+		}, {
+			file: process.env.HOME + "/.config/chromium/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(chromeManifest, null, 4),
 		},{
-			file: process.env.HOME+"/.config/google-chrome/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(chromeManifest,null,4),
+			file: process.env.HOME + "/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(chromeManifest, null, 4),
 		},{
-			file: process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(chromeManifest,null,4),
-		},{
-			file: process.env.HOME+"/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(chromeManifest,null,4),
-		},{
-			file: process.env.HOME+"/.config/vivaldi/NativeMessagingHosts/"+config.id+".json",
-			manifest: JSON.stringify(chromeManifest,null,4),
+			file: process.env.HOME + "/.config/vivaldi/NativeMessagingHosts/" + config.id + ".json",
+			manifest: JSON.stringify(chromeManifest, null, 4),
 		}];
-	else {
+} else {
 		manifests = [{
-			file: "/usr/lib/mozilla/native-messaging-hosts/"+config.id+".json",
-			manifest: JSON.stringify(firefoxManifest,null,4),
-		},{
-			file: "/etc/opt/chrome/native-messaging-hosts/"+config.id+".json",
-			manifest: JSON.stringify(chromeManifest,null,4),
-		},{
-			file: "/etc/chromium/native-messaging-hosts/"+config.id+".json",
-			manifest: JSON.stringify(chromeManifest,null,4),
+			file: "/usr/lib/mozilla/native-messaging-hosts/" + config.id + ".json",
+			manifest: JSON.stringify(firefoxManifest, null, 4),
+		}, {
+			file: "/etc/opt/chrome/native-messaging-hosts/" + config.id + ".json",
+			manifest: JSON.stringify(chromeManifest, null, 4),
+		}, {
+			file: "/etc/chromium/native-messaging-hosts/" + config.id + ".json",
+			manifest: JSON.stringify(chromeManifest, null, 4),
 		}];
-		if(os.arch()=="x64")
-			try {
+		if (os.arch() == "x64") {
+      try {
 		 		fs.statSync("/usr/lib64");
 				manifests.push({
-					file: "/usr/lib64/mozilla/native-messaging-hosts/"+config.id+".json",
-					manifest: JSON.stringify(firefoxManifest,null,4),
+					file: "/usr/lib64/mozilla/native-messaging-hosts/" + config.id + ".json",
+					manifest: JSON.stringify(firefoxManifest, null, 4),
 				});
-			} catch(err) {}
+			} catch (err) {}
+}
 	}
 	try {
-		manifests.forEach((manif)=>{
-			fs.outputFileSync(manif.file,manif.manifest,"utf8");
+		manifests.forEach((manif) => {
+			fs.outputFileSync(manif.file, manif.manifest, "utf8");
 		});
-	} catch(err) {
-		DisplayMessage("Cannot write manifest file: "+err.message,config.name);
+	} catch (err) {
+		DisplayMessage("Cannot write manifest file: " + err.message, config.name);
 		process.exit(-1);
 		return;
 	}
-	var text = config.name+" is ready to be used";
-	DisplayMessage(text,config.name);
+	let text = config.name + " is ready to be used";
+	DisplayMessage(text, config.name);
 }
 
 function LinuxUninstall() {
-	var { mode, config } = ParseModeConfig();
-	
-	var manifests;
-	if(mode=="user") 
-		manifests = [
-			process.env.HOME+"/.mozilla/native-messaging-hosts/"+config.id+".json",
-			process.env.HOME+"/.config/google-chrome/NativeMessagingHosts/"+config.id+".json",
-			process.env.HOME+"/.config/chromium/NativeMessagingHosts/"+config.id+".json",
-			process.env.HOME+"/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json",
-			process.env.HOME+"/.config/vivaldi/NativeMessagingHosts/"+config.id+".json"
+	let { mode, config } = ParseModeConfig();
+
+	let manifests;
+	if (mode == "user") {
+manifests = [
+			process.env.HOME + "/.mozilla/native-messaging-hosts/" + config.id + ".json",
+			process.env.HOME + "/.config/google-chrome/NativeMessagingHosts/" + config.id + ".json",
+			process.env.HOME + "/.config/chromium/NativeMessagingHosts/" + config.id + ".json"
+			process.env.HOME + "/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json",
+			process.env.HOME + "/.config/vivaldi/NativeMessagingHosts/" + config.id + ".json"
 		];
-	else
-		manifests = [
-			"/usr/lib/mozilla/native-messaging-hosts/"+config.id+".json",
-			"/etc/opt/chrome/native-messaging-hosts/"+config.id+".json",
-			"/etc/chromium/native-messaging-hosts/"+config.id+".json"
+} else {
+manifests = [
+			"/usr/lib/mozilla/native-messaging-hosts/" + config.id + ".json",
+			"/etc/opt/chrome/native-messaging-hosts/" + config.id + ".json",
+			"/etc/chromium/native-messaging-hosts/" + config.id + ".json"
 		];
+}
 	try {
-		manifests.forEach((file)=>{
+		manifests.forEach((file) => {
 			fs.removeSync(file);
 		});
-	} catch(err) {
-		DisplayMessage("Cannot remove manifest file: "+err.message,config.name);
+	} catch (err) {
+		DisplayMessage("Cannot remove manifest file: " + err.message, config.name);
 		process.exit(-1);
 	}
-	var text = config.name+" manifests have been removed";
-	DisplayMessage(text,config.name);
+	let text = config.name + " manifests have been removed";
+	DisplayMessage(text, config.name);
 }
 
-function WriteRegistry(regRoot,path,key,value) {
-	var fullKey = regRoot+path+"\\"+key;
-	var args = ["ADD",fullKey,"/f","/t","REG_SZ","/d",value];
-	var ret = spawnSync("reg",args);
-	if(ret.status!==0) {
-		DisplayMessage("Failed writing registry key "+fullKey);
+function WriteRegistry(regRoot, path, key, value) {
+	let fullKey = regRoot + path + "\\" + key;
+	let args = ["ADD", fullKey, "/f", "/t", "REG_SZ", "/d", value];
+	let ret = spawnSync("reg", args);
+	if (ret.status !== 0) {
+		DisplayMessage("Failed writing registry key " + fullKey);
 		process.exit(-1);
 	}
 }
 
 function WindowsInstall() {
-	var { mode, config } = ParseModeConfig();
-	if(mode=="system") {
+	let { mode, config } = ParseModeConfig();
+	if (mode == "system") {
 		// check if elevated
-		var processRet = spawnSync("net",["session"]);
-		if(processRet.exitCode!=0) {
-			DisplayMessage("To setup "+config.name+" system-wide, you must execute the program as Administrator",
+		let processRet = spawnSync("net", ["session"]);
+		if (processRet.exitCode != 0) {
+			DisplayMessage("To setup " + config.name + " system-wide, you must execute the program as Administrator",
 				config.name);
 			return process.exit(-1);
 		}
 	}
-	var manifestsDir = path.resolve(path.dirname(process.execPath),"../manifests");
+	let manifestsDir = path.resolve(path.dirname(process.execPath), "../manifests");
 	try {
 		fs.mkdirpSync(manifestsDir);
-	} catch(e) {
-		DisplayMessage("Error creating directory",manifestsDir,":",e.message);
+	} catch (e) {
+		DisplayMessage("Error creating directory", manifestsDir, ":", e.message);
 		process.exit(-1);
 	}
-	var { firefox: firefoxManifest, chrome: chromeManifest, edge: edgeManifest} = GetManifests(config);
-	var firefoxManifestFile = path.resolve(path.join(manifestsDir,"firefox."+config.id+".json"));
-	fs.outputFileSync(firefoxManifestFile,JSON.stringify(firefoxManifest,null,4),"utf8");
-	var chromeManifestFile = path.resolve(path.join(manifestsDir,"chrome."+config.id+".json"));
-	fs.outputFileSync(chromeManifestFile,JSON.stringify(chromeManifest,null,4),"utf8");
-	var edgeManifestFile = path.resolve(path.join(manifestsDir,"edge."+config.id+".json"));
-	fs.outputFileSync(edgeManifestFile,JSON.stringify(edgeManifest,null,4),"utf8");
+	let { firefox: firefoxManifest, chrome: chromeManifest, edge: edgeManifest} = GetManifests(config);
+	let firefoxManifestFile = path.resolve(path.join(manifestsDir, "firefox." + config.id + ".json"));
+	fs.outputFileSync(firefoxManifestFile, JSON.stringify(firefoxManifest, null, 4), "utf8");
+	let chromeManifestFile = path.resolve(path.join(manifestsDir, "chrome." + config.id + ".json"));
+	fs.outputFileSync(chromeManifestFile, JSON.stringify(chromeManifest, null, 4), "utf8");
+	let edgeManifestFile = path.resolve(path.join(manifestsDir, "edge." + config.id + ".json"));
+	fs.outputFileSync(edgeManifestFile, JSON.stringify(edgeManifest, null, 4), "utf8");
 
-	var regRoot = "HKLM";
-	if(mode=="user")
-		regRoot = "HKCU";
-	WriteRegistry(regRoot,"\\Software\\Google\\Chrome\\NativeMessagingHosts",config.id,chromeManifestFile);
-	WriteRegistry(regRoot,"\\Software\\Chromium\\NativeMessagingHosts",config.id,chromeManifestFile);
-	WriteRegistry(regRoot,"\\Software\\Mozilla\\NativeMessagingHosts",config.id,firefoxManifestFile);
-	WriteRegistry(regRoot,"\\Software\\ComodoGroup\\NativeMessagingHosts",config.id,firefoxManifestFile);
-	WriteRegistry(regRoot,"\\Software\\Microsoft\\Edge\\NativeMessagingHosts",config.id,edgeManifestFile);
-	var text = config.name+" is ready to be used";
+	let regRoot = "HKLM";
+	if (mode == "user") {
+regRoot = "HKCU";
+}
+	WriteRegistry(regRoot, "\\Software\\Google\\Chrome\\NativeMessagingHosts", config.id, chromeManifestFile);
+	WriteRegistry(regRoot, "\\Software\\Chromium\\NativeMessagingHosts", config.id, chromeManifestFile);
+	WriteRegistry(regRoot, "\\Software\\Mozilla\\NativeMessagingHosts", config.id, firefoxManifestFile);
+	WriteRegistry(regRoot, "\\Software\\ComodoGroup\\NativeMessagingHosts", config.id, firefoxManifestFile);
+	WriteRegistry(regRoot, "\\Software\\Microsoft\\Edge\\NativeMessagingHosts", config.id, edgeManifestFile);
+	let text = config.name + " is ready to be used";
 	DisplayMessage(text);
 }
 
-function DeleteRegistry(regRoot,path,key) {
-	var fullKey = regRoot+path+"\\"+key;
-	var args = ["DELETE",fullKey,"/f"];
-	spawnSync("reg",args);
+function DeleteRegistry(regRoot, path, key) {
+	let fullKey = regRoot + path + "\\" + key;
+	let args = ["DELETE", fullKey, "/f"];
+	spawnSync("reg", args);
 }
 
 function WindowsUninstall() {
-	var { mode, config } = ParseModeConfig();
-	if(mode=="system") {
+	let { mode, config } = ParseModeConfig();
+	if (mode == "system") {
 		// check if elevated
-		var processRet = spawnSync("net",["session"]);
-		if(processRet.exitCode!=0) {
-			DisplayMessage("To setup "+config.name+" system-wide, you must execute the program as Administrator",
+		let processRet = spawnSync("net", ["session"]);
+		if (processRet.exitCode != 0) {
+			DisplayMessage("To setup " + config.name + " system-wide, you must execute the program as Administrator",
 				config.name);
 			return process.exit(-1);
 		}
 	}
-	var regRoot = "HKLM";
-	if(mode=="user")
-		regRoot = "HKCU";
-	DeleteRegistry(regRoot,"\\Software\\Google\\Chrome\\NativeMessagingHosts",config.id);
-	DeleteRegistry(regRoot,"\\Software\\Chromium\\NativeMessagingHosts",config.id);
-	DeleteRegistry(regRoot,"\\Software\\Mozilla\\NativeMessagingHosts",config.id);
-	DeleteRegistry(regRoot,"\\Software\\Microsoft\\Edge\\NativeMessagingHosts",config.id);
-	var text = config.name+" manifests have been removed";
+	let regRoot = "HKLM";
+	if (mode == "user") {
+regRoot = "HKCU";
+}
+	DeleteRegistry(regRoot, "\\Software\\Google\\Chrome\\NativeMessagingHosts", config.id);
+	DeleteRegistry(regRoot, "\\Software\\Chromium\\NativeMessagingHosts", config.id);
+	DeleteRegistry(regRoot, "\\Software\\Mozilla\\NativeMessagingHosts", config.id);
+	DeleteRegistry(regRoot, "\\Software\\Microsoft\\Edge\\NativeMessagingHosts", config.id);
+	let text = config.name + " manifests have been removed";
 	DisplayMessage(text);
 }
 
 exports.install = () => {
-	switch(os.platform()) {
+	switch (os.platform()) {
 		case "darwin":
 			DarwinInstall();
 			break;
@@ -337,13 +346,13 @@ exports.install = () => {
 			WindowsInstall();
 			break;
 		default:
-			DisplayMessage("Auto-install not supported for "+ os.platform() + " platform");
+			DisplayMessage("Auto-install not supported for " + os.platform() + " platform");
 	}
 	process.exit(0);
-}
+};
 
 exports.uninstall = () => {
-	switch(os.platform()) {
+	switch (os.platform()) {
 		case "darwin":
 			DarwinUninstall();
 			break;
@@ -354,7 +363,7 @@ exports.uninstall = () => {
 			WindowsUninstall();
 			break;
 		default:
-			DisplayMessage("Auto-install not supported for "+ os.platform() + " platform");
+			DisplayMessage("Auto-install not supported for " + os.platform() + " platform");
 	}
 	process.exit(0);
-}
+};

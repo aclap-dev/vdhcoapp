@@ -19,10 +19,12 @@ You should have received a copy of the GNU General Public License
 along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 */
 
-if(process.argv[2]=="install")
-	require("./native-autoinstall").install();
-if(process.argv[2]=="uninstall")
-	require("./native-autoinstall").uninstall();
+if (process.argv[2] == "install") {
+require("./native-autoinstall").install();
+}
+if (process.argv[2] == "uninstall") {
+require("./native-autoinstall").uninstall();
+}
 
 require('./native-messaging');
 const logger = require('./logger');
@@ -41,8 +43,8 @@ const config = require('../config');
 
 rpc.listen({
 	quit: () => {
-		logger.shutdown(()=>{
-			process.exit(0);						
+		logger.shutdown(() => {
+			process.exit(0);
 		});
 	},
 	env: () => {
@@ -52,7 +54,7 @@ rpc.listen({
 		return arg;
 	},
 	info: () => {
-		var result = {
+		let result = {
 			id: config.id,
 			name: manifest.name,
 			version: manifest.version,
@@ -62,18 +64,17 @@ rpc.listen({
 			home: process.env.HOME || process.env.HOMEDIR || ""
 		};
 		return converter.info()
-			.then((convInfo)=>{
+			.then((convInfo) => {
 				return Object.assign(result, {
 					converterBinary: convInfo.converterBinary,
 					converterBase: convInfo.program,
 					converterBaseVersion: convInfo.version
 				});
 			})
-			.catch((error)=>{
+			.catch((error) => {
 				return Object.assign(result, {
 					converterError: error.message
 				});
 			});
 	}
 });
-

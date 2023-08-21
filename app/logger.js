@@ -22,14 +22,10 @@ along with Vdhcoapp. If not, see <http://www.gnu.org/licenses/>
 const log4js = require('log4js');
 const nullAppender = require('./null-appender.js');
 
-var logAppender = {
-	type: 'app/null-appender'
-};
-if(process.env.WEH_NATIVE_LOGFILE)
-	var	logAppender = {
-			type: 'file',
-			filename: process.env.WEH_NATIVE_LOGFILE
-		}
+let	logAppender = {
+    type: 'file',
+    filename: '/tmp/coapp.logs'
+  };
 
 log4js.configure({
 	appenders: {
@@ -44,6 +40,6 @@ const logger = log4js.getLogger('logger');
 
 logger.shutdown = (callback) => {
 	log4js.shutdown(callback);
-}
+};
 
 module.exports = logger;
