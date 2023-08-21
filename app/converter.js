@@ -1,6 +1,6 @@
 const path = require('path');
 const { spawn } = require('child_process');
-const opn = require('opn');
+const { open } = require('open');
 const { ffmpeg, ffprobe } = require('./binaries');
 
 const logger = require('./logger');
@@ -115,7 +115,7 @@ rpc.listen({
   "play": (filePath) => {
     return new Promise((resolve, _reject) => {
       // FIXME: use https://github.com/sindresorhus/open
-      opn(filePath);
+      open(filePath);
       resolve();
     });
   },
@@ -162,7 +162,7 @@ rpc.listen({
       });
   },
   "open": (filePath) => {
-    opn(filePath);
+    open(filePath);
   },
 
 });
