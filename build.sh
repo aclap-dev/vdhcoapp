@@ -65,6 +65,11 @@ if [ ! -d "node_modules" ]; then
   npm install
 fi
 
+if ! [ -x "$(command -v esbuild)" ]; then
+  echo "Installing esbuild"
+  npm install -g esbuild
+fi
+
 if ! [ -x "$(command -v pkg)" ]; then
   echo "Installing pkg"
   npm install -g pkg
@@ -86,6 +91,9 @@ wget -c -O $ffmpeg_tarball $ffmpeg_url
 
 dist=$PWD/dist2/$target_os/$target_arch
 rm -rf $dist
+
+echo "Build JS code…"
+esbuild ./app/main.js --bundle --platform=node --outfile=$dist/app.js
 
 case $target_os in
   linux)

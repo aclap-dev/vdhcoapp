@@ -214,8 +214,8 @@ function LinuxUninstall() {
     manifests = [
       process.env.HOME + "/.mozilla/native-messaging-hosts/" + config.id + ".json",
       process.env.HOME + "/.config/google-chrome/NativeMessagingHosts/" + config.id + ".json",
-      process.env.HOME + "/.config/chromium/NativeMessagingHosts/" + config.id + ".json"
-      process.env.HOME + "/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/"+config.id+".json",
+      process.env.HOME + "/.config/chromium/NativeMessagingHosts/" + config.id + ".json",
+      process.env.HOME + "/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts/" + config.id + ".json",
       process.env.HOME + "/.config/vivaldi/NativeMessagingHosts/" + config.id + ".json"
     ];
   } else {

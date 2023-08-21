@@ -27,7 +27,7 @@ rmdir ffmpeg-mac-$target_arch
 cd -
 
 echo "Building single executable"
-pkg ./app/main.js \
+pkg $dist/app.js \
   --target node18-macos-$target_arch \
   --output $macos_dir/bin/$binary_name
 
