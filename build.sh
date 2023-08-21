@@ -93,7 +93,10 @@ dist=$PWD/dist2/$target_os/$target_arch
 rm -rf $dist
 
 echo "Build JS code…"
-esbuild ./app/main.js --bundle --platform=node --outfile=$dist/app.js
+NODE_PATH=app esbuild ./app/main.js \
+  --bundle --platform=node \
+  --alias:electron=electron2 \
+  --outfile=$dist/app.js
 
 case $target_os in
   linux)

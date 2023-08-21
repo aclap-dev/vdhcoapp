@@ -72,6 +72,8 @@ pkgbuild \
 # --sign "Developer ID Installer: *******"
 # /path_to_signed_pkg/signed.pkg
 
+exit
+
 echo "Building $pkg_filename.dmg"
 
 # FIXME: doc about create-dmg
