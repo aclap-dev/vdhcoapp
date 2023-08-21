@@ -4,7 +4,7 @@ app_version=$(jq -r '.version' ./package.json)
 pkg_filename="vdh-coapp-$app_version"
 pkg_version=`date +%s`
 
-# Create .app
+echo "Creating dotApp"
 
 dot_app_path=$dist/dotApp/
 app_path=$dot_app_path/$app_id.app
@@ -19,39 +19,40 @@ mkdir -p $res_dir
 scripts_dir=$dist/scripts
 mkdir -p $scripts_dir
 
-cd $ffmpeg_dir
 echo "Extracting ffmpeg"
+
+cd $ffmpeg_dir
 tar -xf $ffmpeg_tarball
 mv ffmpeg-mac-$target_arch/ffmpeg ffmpeg-mac-$target_arch/ffprobe ffmpeg-mac-$target_arch/presets .
 rmdir ffmpeg-mac-$target_arch
 cd -
 
-echo "Building single executable"
-pkg $dist/app.js \
-  --target node18-macos-$target_arch \
-  --output $macos_dir/bin/$binary_name
+cp $dist/app.bin $macos_dir/$binary_name
 
 echo "Creating pkg config files"
+
+cp LICENSE.txt assets/README.txt $macos_dir/
+cp assets/icon.icns $res_dir
 
 tmpfile=$(mktemp /tmp/coapp-build.XXXXXX)
 jq -n --argfile config config.json \
   --argfile package package.json \
   "{config:\$config, manifest:\$package, version:$pkg_version, binaryName:\"$binary_name\"}" \
   > $tmpfile
-
-ejs -f $tmpfile ./assets/pkg-distribution.xml.ejs > $dist/pkg-distribution.xml
-ejs -f $tmpfile ./assets/pkg-component.plist.ejs > $dist/pkg-component.plist
-ejs -f $tmpfile ./assets/Info.plist.ejs > $app_path/Contents/Info.plist
-ejs -f $tmpfile ./assets/setup-mac-pkg.sh.ejs > $scripts_dir/postinstall
-
+ejs -f $tmpfile ./assets/pkg-distribution.xml.ejs \
+  > $dist/pkg-distribution.xml
+ejs -f $tmpfile ./assets/pkg-component.plist.ejs \
+  > $dist/pkg-component.plist
+ejs -f $tmpfile ./assets/Info.plist.ejs \
+  > $app_path/Contents/Info.plist
+ejs -f $tmpfile ./assets/setup-mac-pkg.sh.ejs \
+  > $scripts_dir/postinstall
 rm $tmpfile
 
 chmod +x $scripts_dir/postinstall
 
-cp LICENSE.txt assets/README.txt $macos_dir/
-cp assets/icon.icns $res_dir
-
-jq "{id, name, description, allowed_extensions}" ./config.json > $macos_dir/config.json
+jq "{id, name, description, allowed_extensions}" ./config.json \
+  > $macos_dir/config.json
 
 echo "Building $pkg_filename.pkg"
 
@@ -72,9 +73,7 @@ pkgbuild \
 # --sign "Developer ID Installer: *******"
 # /path_to_signed_pkg/signed.pkg
 
-exit
-
-echo "Building $pkg_filename.dmg"
+echo "Building DMG file"
 
 # FIXME: doc about create-dmg
 create-dmg --volname "DownloadHelper Co-app" \

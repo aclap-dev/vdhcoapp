@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # execute application once to setup pointers to native messaging host application
-exec $DSTROOT/<%= config.id %>.app/Contents/MacOS/bin/<%= config.id %> install 2>> /tmp/vdh.logs
+exec $DSTROOT/<%= config.id %>.app/Contents/MacOS/<%= config.id %> install 2>> /tmp/vdh.logs
 

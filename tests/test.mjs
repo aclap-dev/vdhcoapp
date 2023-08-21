@@ -10,7 +10,7 @@ import { register_request_handler } from "./rpc.mjs"
 const PATH_CHROME_OSX = "/Library/Google/Chrome/NativeMessagingHosts/net.downloadhelper.coapp.json";
 const PATH_EDGE_OSX = "/Library/Microsoft/Edge/NativeMessagingHosts/net.downloadhelper.coapp.json";
 const PATH_FIREFOX_OSX = "/Library/Application Support/Mozilla/NativeMessagingHosts/net.downloadhelper.coapp.json";
-const BINARY_PATH_OSX = "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/bin/net.downloadhelper.coapp";
+const BINARY_PATH_OSX = "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/net.downloadhelper.coapp";
 
 if (process.platform === "darwin") {
   const files = [PATH_CHROME_OSX, PATH_EDGE_OSX, PATH_FIREFOX_OSX];

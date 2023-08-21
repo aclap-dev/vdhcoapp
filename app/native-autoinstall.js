@@ -64,7 +64,7 @@ function ParseModeConfig() {
   }
   let config;
   try {
-    config = JSON.parse(fs.readFileSync(path.resolve(path.dirname(process.execPath), "../config.json"), "utf8"));
+    config = JSON.parse(fs.readFileSync(path.resolve(path.dirname(process.execPath), "./config.json"), "utf8"));
   } catch (err) {
     DisplayMessage("Cannot read config file: " + err.message, "Error");
     process.exit(-1);
