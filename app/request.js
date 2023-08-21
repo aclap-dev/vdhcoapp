@@ -55,14 +55,14 @@ function GetData(id) {
       reqInfo.timer = null;
     }
     if (retBuffers.length > 0) {
-      data = new Buffer(retLength);
+      data = Buffer.alloc(retLength);
       let length = 0;
       retBuffers.forEach((buf) => {
         data.set(buf, length);
         length += buf.length;
       });
     } else if (!more) {
-      data = new Buffer(0);
+      data = Buffer.alloc(0);
     } else {
       return new Promise((resolve, reject) => {
         reqInfo.resolve = resolve;

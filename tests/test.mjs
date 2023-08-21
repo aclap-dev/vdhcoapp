@@ -10,7 +10,7 @@ import { register_request_handler } from "./rpc.mjs"
 const PATH_CHROME_OSX = "/Library/Google/Chrome/NativeMessagingHosts/net.downloadhelper.coapp.json";
 const PATH_EDGE_OSX = "/Library/Microsoft/Edge/NativeMessagingHosts/net.downloadhelper.coapp.json";
 const PATH_FIREFOX_OSX = "/Library/Application Support/Mozilla/NativeMessagingHosts/net.downloadhelper.coapp.json";
-const BINARY_PATH_OSX = "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/bin/net.downloadhelper.coapp-mac-64";
+const BINARY_PATH_OSX = "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/bin/net.downloadhelper.coapp";
 
 if (process.platform === "darwin") {
   const files = [PATH_CHROME_OSX, PATH_EDGE_OSX, PATH_FIREFOX_OSX];
@@ -24,13 +24,13 @@ if (process.platform === "darwin") {
 }
 
 const child = spawn_process(BINARY_PATH_OSX);
-const stream = child.stdin;
 const exec = async (...args) => send(child.stdin, ...args);
 
 // Tests:
 
 const info = await exec("info");
 
+const r1 = await exec("ping", "foo");
 
 assert("ping", r1, "foo");
 
