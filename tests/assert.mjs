@@ -7,7 +7,7 @@ export function assert_true(msg, bool) {
 
 export function assert(msg, a, b) {
   if (a != b) {
-    console.error("Assert failed", msg);
+    console.error(`Assert failed: ${msg}. ${a} != ${b}`);
     process.exit(1);
   }
 }

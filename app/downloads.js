@@ -1,6 +1,6 @@
 const dl = require('download');
 const path = require('path');
-const fs = require('fs.extra');
+const fs = require('node:fs');
 const rpc = require('./weh-rpc');
 
 let downloadFolder = path.join(process.env.HOME || process.env.HOMEDIR, "dwhelper");
@@ -130,6 +130,7 @@ function cancel(downloadId) {
   }
 }
 
+// FIXME: test
 rpc.listen({
   "downloads.download": download,
   "downloads.search": search,

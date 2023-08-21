@@ -1,4 +1,4 @@
-const fs = require('fs.extra');
+const fs = require('node:fs');
 const path = require('path');
 const tmp = require('tmp');
 const rpc = require('./weh-rpc');
@@ -10,6 +10,7 @@ const uniqueFileNames = {};
 const MAX_FILE_ENTRIES = 1000;
 
 rpc.listen({
+  // In test suite
   "listFiles": (directory) => {
     return new Promise((resolve, reject) => {
       directory = path.resolve(process.env.HOME || process.env.HOMEDIR, directory);
@@ -50,9 +51,11 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "path.homeJoin": (...args) => {
     return path.resolve(process.env.HOME || process.env.HOMEDIR, path.join(...args));
   },
+  // In test suite
   "getParents": (directory) => {
     return new Promise((resolve, _reject) => {
       directory = path.resolve(process.env.HOME || process.env.HOMEDIR, directory);
@@ -102,6 +105,7 @@ rpc.listen({
         }
       });
   },
+  // In test suite
   "makeUniqueFileName": (...args) => {
     return new Promise((resolve, _reject) => {
       let filePath = path.resolve(process.env.HOME || process.env.HOMEDIR, path.join(...args));
@@ -135,6 +139,7 @@ rpc.listen({
       Check();
     });
   },
+  // In test suite
   "tmp.file": (args) => {
     return new Promise((resolve, reject) => {
       tmp.file(args, (err, path, fd) => {
@@ -145,6 +150,7 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "tmp.tmpName": (args = {}) => {
     return new Promise((resolve, reject) => {
       tmp.tmpName(args, (err, filePath) => {
@@ -159,6 +165,7 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "fs.write2": (...args) => {
     return new Promise((resolve, reject) => {
       const byte_array = base64.toByteArray(args[1]);
@@ -172,6 +179,7 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "fs.write": (...args) => {
     return new Promise((resolve, reject) => {
       args[1] = Uint8Array.from(JSON.parse("[" + args[1] + "]"));
@@ -183,19 +191,7 @@ rpc.listen({
       });
     });
   },
-  /*
-  "fs.read": (fd,length) => {
-    return new Promise((resolve, reject) => {
-      fs.read(fd,Buffer.alloc(length),0,length,null,(err,bytesRead,buffer)=>{
-        if(err)
-          return reject(err);
-        if(bytesRead<buffer.length)
-          buffer = buffer.slice(0,bytesRead);
-        resolve(buffer);
-      });
-    });
-  },
-  */
+  // In test suite
   "fs.close": (...args) => {
     return new Promise((resolve, reject) => {
       fs.close(...args, (err) => {
@@ -206,6 +202,7 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "fs.open": (...args) => {
     return new Promise((resolve, reject) => {
       fs.open(...args, (err, fd) => {
@@ -216,6 +213,7 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "fs.stat": (...args) => {
     return new Promise((resolve, reject) => {
       fs.stat(...args, (err, stat) => {
@@ -226,6 +224,7 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "fs.rename": (...args) => {
     return new Promise((resolve, reject) => {
       fs.rename(...args, (err) => {
@@ -236,6 +235,7 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "fs.unlink": (...args) => {
     return new Promise((resolve, reject) => {
       fs.unlink(...args, (err) => {
@@ -246,6 +246,7 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "fs.copyFile": (source, dest) => {
     return new Promise((resolve, reject) => {
       fs.copyFile(source, dest, (err) => {
@@ -256,6 +257,7 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "fs.readFile": (...args) => {
     return new Promise((resolve, reject) => {
       fs.readFile(...args, (err, data) => {
@@ -266,6 +268,7 @@ rpc.listen({
       });
     });
   },
+  // In test suite
   "fs.mkdirp": (path) => {
     return new Promise((resolve, reject) => {
       fs.mkdirp(path, (err) => {

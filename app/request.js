@@ -111,6 +111,7 @@ function GotProxy(proxy) {
 }
 
 rpc.listen({
+  // FIXME: test
   "request": (url, options) => {
     let method = got.get;
     if (options.method) {
@@ -135,9 +136,11 @@ rpc.listen({
         .catch(reject);
     });
   },
+  // FIXME: test
   "requestExtra": (id) => {
     return GetData(id);
   },
+  // FIXME: test
   "requestBinary": (url, options) => {
     options = options || {};
     let id = ++currentIndex;

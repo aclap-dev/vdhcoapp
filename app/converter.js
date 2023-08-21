@@ -31,6 +31,7 @@ function ExecConverter(args) {
 
 rpc.listen({
 
+  // FIXME: test
   "convert": (args = ["-h"], options = {}) => new Promise((resolve, _reject) => {
 
     // `-progress pipe:1` send program-friendly progress information to stdin every 500ms.
@@ -65,6 +66,7 @@ rpc.listen({
     }
 
   }),
+  // FIXME: test
   "probe": (input, json = false) => {
     return new Promise((resolve, reject) => {
       let args = [];
@@ -112,6 +114,7 @@ rpc.listen({
       });
     });
   },
+  // FIXME: test
   "play": (filePath) => {
     return new Promise((resolve, _reject) => {
       // FIXME: use https://github.com/sindresorhus/open
@@ -119,6 +122,7 @@ rpc.listen({
       resolve();
     });
   },
+  // FIXME: test
   "codecs": () => {
     return ExecConverter(["-codecs"])
       .then((out) => {
@@ -142,6 +146,7 @@ rpc.listen({
         return result;
       });
   },
+  // FIXME: test
   "formats": () => {
     return ExecConverter(["-formats"])
       .then((out) => {
@@ -161,6 +166,7 @@ rpc.listen({
         return result;
       });
   },
+  // FIXME: test
   "open": (filePath) => {
     open(filePath);
   },

@@ -39,7 +39,6 @@ export async function send(stream, method, ...args) {
   };
   const buf = Buffer.allocUnsafe(4);
   const msg = JSON.stringify(obj) + "\n";
-  console.log(msg);
 
   buf.writeUInt32LE(msg.length, 0);
   stream.write(buf);

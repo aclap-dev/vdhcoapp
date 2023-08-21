@@ -21,17 +21,21 @@ const manifest = require('../package');
 const config = require('../config');
 
 rpc.listen({
+  // FIXME: test
   quit: () => {
     logger.shutdown(() => {
       process.exit(0);
     });
   },
+  // FIXME: test
   env: () => {
     return process.env;
   },
+  // FIXME: test
   ping: (arg) => {
     return arg;
   },
+  // FIXME: test
   info: () => {
     let result = {
       id: config.id,
