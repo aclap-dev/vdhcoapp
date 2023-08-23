@@ -3,9 +3,7 @@ import { spawn } from "node:child_process";
 
 export function spawn_process(path) {
   const child = spawn(path, [], {
-    env: {
-      WEH_NATIVE_LOGFILE: "/tmp/vdh.log"
-    }
+    env: { ...process.env, FOO: "BAR" }
   });
 
   child.stdin.setEncoding('utf-8');

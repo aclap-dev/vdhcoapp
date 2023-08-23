@@ -271,7 +271,7 @@ rpc.listen({
   // In test suite
   "fs.mkdirp": (path) => {
     return new Promise((resolve, reject) => {
-      fs.mkdirp(path, (err) => {
+      fs.mkdir(path, {recursive: true}, (err) => {
         if (err) {
           return reject(err);
         }

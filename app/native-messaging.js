@@ -1,7 +1,7 @@
 const rpc = require('./weh-rpc');
 const logger = require('./logger');
 
-logger.info("started");
+logger.info("\n\n\n\n=================== started ====================");
 
 function exitHandler(reason, err) {
   logger.info('ended');

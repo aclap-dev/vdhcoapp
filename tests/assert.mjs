@@ -3,6 +3,7 @@ export function assert_true(msg, bool) {
     console.error("Assert failed", msg);
     process.exit(1);
   }
+  console.log("success:", msg);
 }
 
 export function assert(msg, a, b) {
@@ -10,6 +11,7 @@ export function assert(msg, a, b) {
     console.error(`Assert failed: ${msg}. ${a} != ${b}`);
     process.exit(1);
   }
+  console.log("success:", msg);
 }
 
 
