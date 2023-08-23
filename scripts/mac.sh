@@ -1,3 +1,4 @@
+sign_identity="Developer ID Installer: ACLAP"
 binary_name="net.downloadhelper.coapp"
 app_id=$(jq -r '.id' ./config.json)
 app_version=$(jq -r '.version' ./package.json)
@@ -56,6 +57,16 @@ jq "{id, name, description, allowed_extensions}" ./config.json \
 
 echo "Building $pkg_filename.pkg"
 
+echo pkgbuild \
+  --root $dot_app_path \
+  --install-location /Applications \
+  --scripts $scripts_dir \
+  --identifier $app_id \
+  --component-plist $dist/pkg-component.plist \
+  --version $pkg_version \
+  --sign "$sign_identity" \
+  $dist/$pkg_filename.pkg
+
 pkgbuild \
   --root $dot_app_path \
   --install-location /Applications \
@@ -63,23 +74,19 @@ pkgbuild \
   --identifier $app_id \
   --component-plist $dist/pkg-component.plist \
   --version $pkg_version \
+  --sign "$sign_identity" \
   $dist/$pkg_filename.pkg
 
-# pkgbuild option:
-# --sign "Developer ID Installer: ACLAP" \
-# sudo productbuild \
-# --package /path_to_saved_package/packagename.pkg \
-# --content /path_to_app/
-# --sign "Developer ID Installer: *******"
-# /path_to_signed_pkg/signed.pkg
+# FIXME: notorize
 
 echo "Building DMG file"
 
-# FIXME: doc about create-dmg
+# FIXME: test it exist, and doc
 create-dmg --volname "DownloadHelper Co-app" \
   --background ./assets/mac/dmg-background.tiff \
   --window-pos 200 120 --window-size 500 400 --icon-size 70 \
   --icon "net.downloadhelper.coapp.app" 100 200 \
   --app-drop-link 350 200 \
+  --codesign "ACLAP" \
   $dist/$pkg_filename.dmg \
   $dot_app_path

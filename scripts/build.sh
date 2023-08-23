@@ -88,7 +88,7 @@ ffmpeg_tarball=/tmp/vdh-ffmpeg-$ffmpeg_build_id-$target.tar.bz2
 wget --quiet -c -O $ffmpeg_tarball $ffmpeg_url
 
 dist=$PWD/dist2/$target_os/$target_arch
-# rm -rf $dist
+rm -rf $dist
 
 echo "Bundling JS code"
 # This could be done by pkg directly, but esbuild is more tweakable.
@@ -102,8 +102,6 @@ echo "Bundling Node and JS Code"
 pkg $dist/app.js \
   --target node18-$target_os-$target_arch \
   --output $dist/app.bin
-
-exit
 
 echo "Packaging"
 case $target_os in
