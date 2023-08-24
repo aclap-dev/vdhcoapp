@@ -33,8 +33,6 @@ cd -
 
 cp $dist/app.bin $macos_dir/$binary_name
 
-cp node_modules/open/xdg-open $res_dir
-
 echo "Creating pkg config files"
 
 cp LICENSE.txt assets/README.txt assets/mac/icon.icns $res_dir

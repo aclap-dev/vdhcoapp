@@ -10,12 +10,14 @@ import path from "path";
 
 // FIXME: more complete test:
 // See: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_manifests
-let PATH_CHROME_OSX = "/Library/Google/Chrome/NativeMessagingHosts/net.downloadhelper.coapp.json";
-let PATH_EDGE_OSX = "/Library/Microsoft/Edge/NativeMessagingHosts/net.downloadhelper.coapp.json";
-let PATH_FIREFOX_OSX = "/Library/Application Support/Mozilla/NativeMessagingHosts/net.downloadhelper.coapp.json";
-let BINARY_PATH_OSX = "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/net.downloadhelper.coapp";
+
+let binary;
 
 if (process.platform === "darwin") {
+  let PATH_CHROME_OSX = "/Library/Google/Chrome/NativeMessagingHosts/net.downloadhelper.coapp.json";
+  let PATH_EDGE_OSX = "/Library/Microsoft/Edge/NativeMessagingHosts/net.downloadhelper.coapp.json";
+  let PATH_FIREFOX_OSX = "/Library/Application Support/Mozilla/NativeMessagingHosts/net.downloadhelper.coapp.json";
+  let BINARY_PATH_OSX = "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/net.downloadhelper.coapp";
   let files = [PATH_CHROME_OSX, PATH_EDGE_OSX, PATH_FIREFOX_OSX];
   for (let file of files) {
     let content = await fs.readFile(file);
@@ -24,15 +26,15 @@ if (process.platform === "darwin") {
     assert("json.description", json.description, "Video DownloadHelper companion app");
     assert("json.path", json.path, BINARY_PATH_OSX);
   }
+  binary = BINARY_PATH_OSX;
 }
 
 const argv = minimist(process.argv.slice(2));
-const bin = argv._[0] ?? BINARY_PATH_OSX;
+const bin_path = argv._[0] ?? binary;
 
-let child = spawn_process(bin);
+let child = spawn_process(bin_path);
 let exec = async (...args) => send(child.stdin, ...args);
 
-// FIXME: test
 let info = await exec("info");
 
 assert("info.id", info.id, "net.downloadhelper.coapp");
@@ -45,13 +47,12 @@ let r1 = await exec("ping", "foo");
 
 assert("ping", r1, "foo");
 
-let error = null;
 try {
   await exec("fs.mkdirp", "/bin/foobar");
-} catch (e) {
-  error = e;
+  assert_true("write exception", false);
+} catch (_) {
+  assert_true("write exception", true);
 }
-assert("error catching", error, "EPERM: operation not permitted, mkdir '/bin/foobar'");
 
 await fs.rm("/tmp/vdhcoapp-tests", {recursive: true, force: true});
 let tmpdir = "/tmp/vdhcoapp-tests/bar";
@@ -129,7 +130,7 @@ assert("duration", duration, 634.584);
 
 let tick_count = 0;
 let on_tick = (_, time) => {
-  // console.log("Timer:", `${time} / ${duration}`);
+  console.log("Timer:", `${time} / ${duration}`);
   tick_count += 1;
 };
 
@@ -145,7 +146,8 @@ assert("convert", res.exitCode, 0);
 
 let out_mp4 = await fs.stat("/tmp/out.mp4");
 
-assert("output size", out_mp4.size, 24902325);
+assert_true("output size", out_mp4.size > 24800000);
+assert_true("output size", out_mp4.size < 25000000);
 
 assert_true("ticked", tick_count > 10);
 

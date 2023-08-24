@@ -112,6 +112,7 @@ pkg $top_dist/main.js \
 echo "Packaging"
 case $target_os in
   linux)
+    source ./scripts/linux.sh
     ;;
   mac)
     source ./scripts/mac.sh
