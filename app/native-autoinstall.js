@@ -1,6 +1,7 @@
 const os = require("os");
 const fs = require("fs-extra");
 const path = require("path");
+const pkgfiles = require("./pkgfiles");
 const { spawn, spawnSync } = require('child_process');
 
 function DisplayMessage(body, title) {
@@ -64,7 +65,7 @@ function ParseModeConfig() {
   }
   let config;
   try {
-    config = JSON.parse(fs.readFileSync(path.resolve(path.dirname(process.execPath), "./config.json"), "utf8"));
+    config = JSON.parse(fs.readFileSync(pkgfiles.config, "utf8"));
   } catch (err) {
     DisplayMessage("Cannot read config file: " + err.message, "Error");
     process.exit(-1);

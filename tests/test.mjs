@@ -33,7 +33,10 @@ let child = spawn_process(bin);
 let exec = async (...args) => send(child.stdin, ...args);
 
 // FIXME: test
-let _info = await exec("info");
+let info = await exec("info");
+
+assert("info.id", info.id, "net.downloadhelper.coapp");
+assert("info.version", info.version, "1.7.0");
 
 let env = await exec("env");
 assert("env", env["FOO"], "BAR");
@@ -114,27 +117,36 @@ let _ = await exec("fs.stat", vdhtmp);
 let parents = await exec("getParents", "/tmp/vdhcoapp-foo");
 assert("getParents", parents.join(""), "/tmp/");
 
-// ------------------------
-
-process.exit(0);
-
 let url = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
 
-let json = await exec("resolve", url);
+let json = await exec("probe", url, true);
 
-let total_ns = json.format.duration * 1000000;
+json = JSON.parse(json);
 
-let on_tick = (timer_id, ns) => {
-  console.log("Timer:", timer_id, Math.floor(100 * ns / total_ns));
+let duration = json.format.duration;
+
+assert("duration", duration, 634.584);
+
+let tick_count = 0;
+let on_tick = (_, time) => {
+  // console.log("Timer:", `${time} / ${duration}`);
+  tick_count += 1;
 };
 
-register_request_handler("consolidate_tick", on_tick);
+register_request_handler("convertOutput", on_tick);
 
-try {
-  await exec("consolidate", url, 3, 2, 42, "/tmp/js.mp4");
-  console.log("consolidate success");
-} catch (e) {
-  console.error(e);
-}
+let args = `-y -i ${url} -map m:variant_bitrate:246440 /tmp/out.mp4`;
+
+let res = await exec("convert", args.split(" "), {
+  progressTime: true
+});
+
+assert("convert", res.exitCode, 0);
+
+let out_mp4 = await fs.stat("/tmp/out.mp4");
+
+assert("output size", out_mp4.size, 24902325);
+
+assert_true("ticked", tick_count > 10);
 
 process.exit(0);

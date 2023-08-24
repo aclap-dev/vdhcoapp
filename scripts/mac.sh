@@ -63,7 +63,7 @@ echo "Signing binaries"
 
 # FIXME: is that first line necessary?
 # codesign --options=runtime --timestamp -v -f -s "$sign_app_id" $app_path
-codesign --options=runtime --timestamp -v -f -s "$sign_app_id" $macos_dir/*
+codesign  --entitlements ./assets/mac/entitlements.plist --options=runtime --timestamp -v -f -s "$sign_app_id" $macos_dir/*
 
 echo "Building $pkg_filename.pkg"
 
@@ -76,6 +76,8 @@ pkgbuild \
   --version $pkg_version \
   --sign "$sign_pkg_id" \
   $dist/$pkg_filename.pkg
+
+exit 0
 
 echo "Building DMG file"
 
