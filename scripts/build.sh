@@ -87,19 +87,25 @@ ffmpeg_url=$ffmpeg_url_base/ffmpeg-$ffmpeg_build_id/ffmpeg-$target.tar.bz2
 ffmpeg_tarball=/tmp/vdh-ffmpeg-$ffmpeg_build_id-$target.tar.bz2
 wget --quiet -c -O $ffmpeg_tarball $ffmpeg_url
 
-dist=$PWD/dist2/$target_os/$target_arch
+top_dist=$PWD/dist2
+dist=$top_dist/$target_os/$target_arch
 rm -rf $dist
 
 echo "Bundling JS code"
 # This could be done by pkg directly, but esbuild is more tweakable.
+# - hardcoding import.meta.url because the `open` module requires it.
+# - faking an electron module because `got` requires on (but it's never used)
 NODE_PATH=app esbuild ./app/main.js \
+  --format=cjs \
+  --banner:js="const _importMetaUrl=require('url').pathToFileURL(__filename)" \
+  --define:import.meta.url='_importMetaUrl' \
   --bundle --platform=node \
   --tree-shaking=true \
   --alias:electron=electron2 \
-  --outfile=$dist/app.js
+  --outfile=$top_dist/main.js
 
 echo "Bundling Node and JS Code"
-pkg $dist/app.js \
+pkg $top_dist/main.js \
   --target node18-$target_os-$target_arch \
   --output $dist/app.bin
 

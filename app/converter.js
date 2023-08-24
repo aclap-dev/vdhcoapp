@@ -117,7 +117,6 @@ rpc.listen({
   // FIXME: test
   "play": (filePath) => {
     return new Promise((resolve, _reject) => {
-      // FIXME: use https://github.com/sindresorhus/open
       open(filePath);
       resolve();
     });

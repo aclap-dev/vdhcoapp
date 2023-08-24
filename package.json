@@ -45,8 +45,10 @@
     "fs-extra": "^11.1.1",
     "got": "^13.0.0",
     "log4js": "^6.9.1",
+    "minimist": "^1.2.8",
     "open": "^9.1.0",
     "tmp": "0.2.1",
     "vinyl-fs": "^4.0.0"
-  }
+  },
+  "FIXME_devDependencies": {}
 }

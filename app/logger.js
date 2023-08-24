@@ -10,7 +10,8 @@ log4js.configure({
     logger: logAppender
   },
   categories: {
-    default: { appenders: ['logger'], level: process.env.WEH_NATIVE_LOGLEVEL || 'debug' }
+    default: { appenders: ['logger'],
+      level: process.env.WEH_NATIVE_LOGLEVEL || 'debug' }
   }
 });
 

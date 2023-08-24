@@ -8,7 +8,6 @@ import { register_request_handler } from "./rpc.mjs";
 import minimist from "minimist";
 import path from "path";
 
-
 // FIXME: more complete test:
 // See: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_manifests
 let PATH_CHROME_OSX = "/Library/Google/Chrome/NativeMessagingHosts/net.downloadhelper.coapp.json";

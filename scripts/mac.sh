@@ -1,4 +1,7 @@
-sign_identity="Developer ID Installer: ACLAP"
+set -euo pipefail
+
+sign_pkg_id="Developer ID Installer: ACLAP (4YP9AW3WW3)"
+sign_app_id="Developer ID Application: ACLAP (4YP9AW3WW3)"
 binary_name="net.downloadhelper.coapp"
 app_id=$(jq -r '.id' ./config.json)
 app_version=$(jq -r '.version' ./package.json)
@@ -10,11 +13,9 @@ echo "Creating dotApp"
 dot_app_path=$dist/dotApp/
 app_path=$dot_app_path/$app_id.app
 macos_dir=$app_path/Contents/MacOS
-ffmpeg_dir=$macos_dir/ffmpeg
 res_dir=$app_path/Contents/Resources
 
 mkdir -p $macos_dir
-mkdir -p $ffmpeg_dir
 mkdir -p $res_dir
 
 scripts_dir=$dist/scripts
@@ -22,20 +23,23 @@ mkdir -p $scripts_dir
 
 echo "Extracting ffmpeg"
 
-cd $ffmpeg_dir
+cd $res_dir
 tar -xf $ffmpeg_tarball
-mv ffmpeg-mac-$target_arch/ffmpeg ffmpeg-mac-$target_arch/ffprobe ffmpeg-mac-$target_arch/presets .
+mv ffmpeg-mac-$target_arch/ffmpeg $macos_dir
+mv ffmpeg-mac-$target_arch/ffprobe $macos_dir
+mv ffmpeg-mac-$target_arch/presets ffmpeg-presets
 rmdir ffmpeg-mac-$target_arch
 cd -
 
 cp $dist/app.bin $macos_dir/$binary_name
 
+cp node_modules/open/xdg-open $res_dir
+
 echo "Creating pkg config files"
 
-cp LICENSE.txt assets/README.txt $macos_dir/
-cp assets/mac/icon.icns $res_dir
+cp LICENSE.txt assets/README.txt assets/mac/icon.icns $res_dir
 
-tmpfile=$(mktemp /tmp/coapp-build.XXXXXX)
+tmpfile=$(mktemp /tmp/coapp-build.tmp)
 jq -n --argfile config config.json \
   --argfile package package.json \
   "{config:\$config, manifest:\$package, version:$pkg_version, binaryName:\"$binary_name\"}" \
@@ -53,19 +57,15 @@ rm $tmpfile
 chmod +x $scripts_dir/postinstall
 
 jq "{id, name, description, allowed_extensions}" ./config.json \
-  > $macos_dir/config.json
+  > $res_dir/config.json
+
+echo "Signing binaries"
+
+# FIXME: is that first line necessary?
+# codesign --options=runtime --timestamp -v -f -s "$sign_app_id" $app_path
+codesign --options=runtime --timestamp -v -f -s "$sign_app_id" $macos_dir/*
 
 echo "Building $pkg_filename.pkg"
-
-echo pkgbuild \
-  --root $dot_app_path \
-  --install-location /Applications \
-  --scripts $scripts_dir \
-  --identifier $app_id \
-  --component-plist $dist/pkg-component.plist \
-  --version $pkg_version \
-  --sign "$sign_identity" \
-  $dist/$pkg_filename.pkg
 
 pkgbuild \
   --root $dot_app_path \
@@ -74,10 +74,8 @@ pkgbuild \
   --identifier $app_id \
   --component-plist $dist/pkg-component.plist \
   --version $pkg_version \
-  --sign "$sign_identity" \
+  --sign "$sign_pkg_id" \
   $dist/$pkg_filename.pkg
-
-# FIXME: notorize
 
 echo "Building DMG file"
 
