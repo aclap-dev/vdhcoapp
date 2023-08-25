@@ -130,7 +130,15 @@ assert("duration", duration, 634.584);
 
 let tick_count = 0;
 let on_tick = (_, time) => {
-  console.log("Timer:", `${time} / ${duration}`);
+  let progress = Math.ceil(100 * time / duration);
+  progress = `  ${progress}%  `;
+  if (process.stdout.isTTY) {
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    process.stdout.write(progress);
+  } else {
+    console.log(progress);
+  }
   tick_count += 1;
 };
 
@@ -146,9 +154,5 @@ assert("convert", res.exitCode, 0);
 
 let out_mp4 = await fs.stat("/tmp/out.mp4");
 
-assert_true("output size", out_mp4.size > 24800000);
-assert_true("output size", out_mp4.size < 25000000);
-
+assert_true("output size", (out_mp4.size > 24800000) && (out_mp4.size < 25000000));
 assert_true("ticked", tick_count > 10);
-
-process.exit(0);
