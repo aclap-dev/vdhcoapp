@@ -31,17 +31,12 @@ function ExecConverter(args) {
 
 rpc.listen({
 
-  // FIXME: test
+  // FIXME: test (partly in. but just for hls retrieval)
   "convert": (args = ["-h"], options = {}) => new Promise((resolve, _reject) => {
-    
-    logger.info("PAUL1");
-
     // `-progress pipe:1` send program-friendly progress information to stdin every 500ms.
     // `-hide_banner -loglevel error`: make the output less noisy.
     const ffmpeg_base_args = "-progress pipe:1 -hide_banner -loglevel error";
     args = [...ffmpeg_base_args.split(" "), ...args];
-
-    logger.info("PAUL args", ffmpeg, args);
 
     const child = spawn(ffmpeg, args);
 
@@ -50,35 +45,27 @@ rpc.listen({
     child.on("exit", (code) => resolve({exitCode: code, stderr}));
     child.stderr.on("data", (data) => stderr += data);
 
-    logger.info("PAUL2");
-
     const on_line = async (line) => {
       if (line.startsWith("out_time_ms=")) {
         // out_time_ms is in ns, not ms.
-        logger.info("PAUL X0");
         const seconds = parseInt(line.split("=")[1]) / 1_000_000;
         try {
-          logger.info("PAUL X1");
           await rpc.call("convertOutput", options.progressTime, seconds);
         } catch (_) {
-          logger.info("PAUL X2");
           // Extension stopped caring
           child.kill();
         }
       }
     };
 
-    logger.info("PAUL3");
-
     if (options.progressTime) {
       child.stdout.on("data", (lines) => {
-        logger.info("PAUL X -1");
         lines.toString("utf-8").split("\n").forEach(on_line);
       });
     }
 
   }),
-  // FIXME: test
+  // FIXME: test (partly in. but just for hls retrieval)
   "probe": (input, json = false) => {
     return new Promise((resolve, reject) => {
       let args = [];

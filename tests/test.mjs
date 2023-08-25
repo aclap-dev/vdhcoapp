@@ -13,11 +13,13 @@ import path from "path";
 
 let binary;
 
+let old = true; //false;
+
 if (process.platform === "darwin") {
   let PATH_CHROME_OSX = "/Library/Google/Chrome/NativeMessagingHosts/net.downloadhelper.coapp.json";
   let PATH_EDGE_OSX = "/Library/Microsoft/Edge/NativeMessagingHosts/net.downloadhelper.coapp.json";
   let PATH_FIREFOX_OSX = "/Library/Application Support/Mozilla/NativeMessagingHosts/net.downloadhelper.coapp.json";
-  let BINARY_PATH_OSX = "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/net.downloadhelper.coapp";
+  let BINARY_PATH_OSX = "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/bin/net.downloadhelper.coapp-mac-64";
   let files = [PATH_CHROME_OSX, PATH_EDGE_OSX, PATH_FIREFOX_OSX];
   for (let file of files) {
     let content = await fs.readFile(file);
@@ -35,10 +37,48 @@ const bin_path = argv._[0] ?? binary;
 let child = spawn_process(bin_path);
 let exec = async (...args) => send(child.stdin, ...args);
 
+let url1 = "http://echo.jsontest.com/foo/bar";
+let options = {
+  headers: [
+    {name: "Accept", value: "application/json"}
+  ]
+};
+let content = await exec("request", url1, options);
+assert("request", JSON.parse(content.data).foo, "bar");
+
+let img = "https://picsum.photos/id/237/20";
+let bin = await exec("requestBinary", img);
+let hash = bin.data.data.reduce((a, b) => a + b, 0);
+assert("requestBinary", hash, 51268);
+
+let img2 = "https://picsum.photos/id/237/800";
+let id = await exec("downloads.download", {
+  url: img2,
+  filename: "test.img",
+  directory: "/tmp"
+});
+
+assert("downloads.download", id, 1);
+
+let bytes = await new Promise((ok) => {
+  let check = async () => {
+    let state = await exec("downloads.search", { id });
+    if (state.length > 0 && state[0].state == "complete") {
+      ok(state[0].bytesReceived);
+    } else {
+      setTimeout(check, 100);
+    }
+  };
+  check();
+});
+
+let sestat = await fs.stat("/tmp/test.img");
+assert("downloads.search", sestat.size, bytes);
+
 let info = await exec("info");
 
 assert("info.id", info.id, "net.downloadhelper.coapp");
-assert("info.version", info.version, "1.7.0");
+assert("info.version", info.version, old ? "1.6.3" : "1.7.0");
 
 let env = await exec("env");
 assert("env", env["FOO"], "BAR");
@@ -61,7 +101,12 @@ let dir = await fs.stat(tmpdir);
 assert_true("mkdirp", dir.isDirectory());
 
 let bits = "70,79,79";
-let file1 = await exec("tmp.file", {prefix: 'foo-', postfix: '.txt', tmpdir });
+let file1;
+if (old) {
+  file1 = await exec("tmp.file", {prefix: 'foo-', postfix: '.txt', template: `${tmpdir}/foo-XXXXXX.txt` });
+} else {
+  file1 = await exec("tmp.file", {prefix: 'foo-', postfix: '.txt', tmpdir });
+}
 await exec("fs.write", file1.fd, bits);
 await exec("fs.close", file1.fd);
 let filename = path.basename(file1.path);
@@ -73,15 +118,21 @@ assert("fs.write", content1, "FOO");
 let content1_bis = await exec("fs.readFile", file1.path);
 assert("fs.readFile", content1_bis.data.join(), bits);
 
-let file2 = await exec("tmp.file", { tmpdir });
-await exec("fs.write2", file2.fd, "QkFS");
+let file2;
+if (old) {
+  file2 = await exec("tmp.file", { template: `${tmpdir}/vdh-XXXXXX` });
+  await exec("fs.write", file2.fd, "66,65,82");
+} else {
+  file2 = await exec("tmp.file", { tmpdir });
+  await exec("fs.write2", file2.fd, "QkFS");
+}
 await exec("fs.close", file2.fd);
 tmpdir = path.dirname(file2.path);
 let file2_new_path = tmpdir + "/newfile2";
 await exec("fs.rename", file2.path, file2_new_path);
 
 let content2 = await fs.readFile(file2_new_path);
-assert("fs.write2", content2, "BAR");
+assert("fs.write | fs.write2", content2, "BAR");
 
 let files = await exec("listFiles", tmpdir);
 assert("listFiles len", files.length, 2);
@@ -89,7 +140,11 @@ assert("listFiles 1", files[0][1].path, file1.path);
 assert("listFiles 2", files[1][1].path, file2_new_path);
 
 let fd1 = await exec("fs.open", file1.path, "a");
-await exec("fs.write2", fd1, "QkFS");
+if (old) {
+  await exec("fs.write", fd1, "66,65,82");
+} else {
+  await exec("fs.write2", fd1, "QkFS");
+}
 await exec("fs.close", fd1);
 
 let stat1 = await exec("fs.stat", file1.path);
@@ -150,9 +205,13 @@ let res = await exec("convert", args.split(" "), {
   progressTime: true
 });
 
+console.log(""); // clear on_tick missing CR
+
 assert("convert", res.exitCode, 0);
 
 let out_mp4 = await fs.stat("/tmp/out.mp4");
 
 assert_true("output size", (out_mp4.size > 24800000) && (out_mp4.size < 25000000));
 assert_true("ticked", tick_count > 10);
+
+process.exit(0);

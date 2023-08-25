@@ -111,14 +111,13 @@ function GotProxy(proxy) {
 }
 
 rpc.listen({
-  // FIXME: test
-  "request": (url, options) => {
+  // In test suite
+  "request": (url, options = {}) => {
     let method = got.get;
     if (options.method) {
       method = got[options.method.toLowerCase()];
       delete options.method;
     }
-    options = options || {};
     options.headers = GotHeaders(options.headers);
     options.proxy = GotProxy(options.proxy);
     return new Promise((resolve, reject) => {
@@ -140,9 +139,8 @@ rpc.listen({
   "requestExtra": (id) => {
     return GetData(id);
   },
-  // FIXME: test
-  "requestBinary": (url, options) => {
-    options = options || {};
+  // In test suite
+  "requestBinary": (url, options = {}) => {
     let id = ++currentIndex;
     let reqInfo = requestStore[id];
     if (!reqInfo) {

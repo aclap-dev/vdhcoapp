@@ -2,47 +2,10 @@
 
 set -euo pipefail
 cd $(dirname $0)/..
+source ./scripts/target.sh
+source ./scripts/ffmpeg.sh
 
-host_os=$(uname -s)
-host_arch=$(uname -m)
-
-case $host_os in
-  Linux)
-    host_os="linux"
-    ;;
-  Darwin)
-    host_os="mac"
-    ;;
-  MINGW*)
-    host_os="windows"
-    ;;
-esac
-
-host="${host_os}-${host_arch}"
-
-if [ $# -eq 0 ]; then
-  target_os=$host_os
-  target_arch=$host_arch
-else
-  case $1 in
-    linux-x86_64 | \
-    linux-i686 | \
-    windows-x86_64 | \
-    windows-i686 | \
-    mac-x86_64 | \
-    mac-arm64)
-        ;;
-    *)
-      echo "Unsupported target: $1"
-      exit 1
-      ;;
-  esac
-
-  target_os=$(echo $1 | cut -f1 -d-)
-  target_arch=$(echo $1 | cut -f2 -d-)
-fi
-
-target="${target_os}-${target_arch}"
+rm -rf $dist
 
 echo "Building packages for $target on $host"
 
@@ -81,15 +44,7 @@ fi
 # -----------------------------
 
 echo "Fetching ffmpeg"
-ffmpeg_build_id=$(jq -r '.ffmpeg_build_id' ./config.json)
-ffmpeg_url_base="https://github.com/aclap-dev/ffmpeg-static-builder/releases/download/"
-ffmpeg_url=$ffmpeg_url_base/ffmpeg-$ffmpeg_build_id/ffmpeg-$target.tar.bz2
-ffmpeg_tarball=/tmp/vdh-ffmpeg-$ffmpeg_build_id-$target.tar.bz2
 wget --quiet -c -O $ffmpeg_tarball $ffmpeg_url
-
-top_dist=$PWD/dist2
-dist=$top_dist/$target_os/$target_arch
-rm -rf $dist
 
 echo "Bundling JS code"
 # This could be done by pkg directly, but esbuild is more tweakable.
@@ -108,16 +63,3 @@ echo "Bundling Node and JS Code"
 pkg $top_dist/main.js \
   --target node18-$target_os-$target_arch \
   --output $dist/app.bin
-
-echo "Packaging"
-case $target_os in
-  linux)
-    source ./scripts/linux.sh
-    ;;
-  mac)
-    source ./scripts/mac.sh
-    ;;
-  windows)
-    ;;
-esac
-

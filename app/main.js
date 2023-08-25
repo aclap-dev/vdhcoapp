@@ -27,15 +27,15 @@ rpc.listen({
       process.exit(0);
     });
   },
-  // FIXME: test
+  // In test suite
   env: () => {
     return process.env;
   },
-  // FIXME: test
+  // In test suite
   ping: (arg) => {
     return arg;
   },
-  // FIXME: test
+  // In test suite
   info: () => {
     let result = {
       id: config.id,

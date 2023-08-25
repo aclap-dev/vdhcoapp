@@ -10,6 +10,7 @@ let currentDownloadId = 0;
 const downloads = {};
 const NAME_PATTERN = new RegExp("/([^/]+?)(?:\\.([a-z0-9]{1,5}))?(?:\\?|#|$)", "i");
 
+// In test suite
 function download(options) {
   if (!options.url) {
     throw new Error("url not specified");
@@ -67,7 +68,7 @@ function download(options) {
     }
   }
 
-  fs.mkdirp(path.dirname(filename), (err) => {
+  fs.mkdir(path.dirname(filename), {recursive: true}, (err) => {
     if (err) {
       FailedDownload(err);
       return;
@@ -103,6 +104,7 @@ function download(options) {
   return downloadId;
 }
 
+// In test suite
 function search(query) {
   let downloadEntry = downloads[query.id];
   if (downloadEntry) {
@@ -119,6 +121,7 @@ function search(query) {
   }
 }
 
+// FIXME: test
 function cancel(downloadId) {
   let downloadEntry = downloads[downloadId];
   if (downloadEntry && downloadEntry.state == "in_progress") {
@@ -130,7 +133,6 @@ function cancel(downloadId) {
   }
 }
 
-// FIXME: test
 rpc.listen({
   "downloads.download": download,
   "downloads.search": search,

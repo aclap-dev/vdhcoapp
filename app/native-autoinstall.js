@@ -261,6 +261,7 @@ function WindowsInstall() {
   }
   let manifestsDir = path.resolve(path.dirname(process.execPath), "../manifests");
   try {
+    // FIXME
     fs.mkdirpSync(manifestsDir);
   } catch (e) {
     DisplayMessage("Error creating directory", manifestsDir, ":", e.message);
