@@ -22,10 +22,6 @@ then
   exit 1
 fi
 
-if [ ! -d "node_modules" ]; then
-  npm install
-fi
-
 if ! [ -x "$(command -v esbuild)" ]; then
   echo "Installing esbuild"
   npm install -g esbuild
@@ -40,6 +36,8 @@ if ! [ -x "$(command -v ejs)" ]; then
   echo "Installing ejs"
   npm install -g ejs
 fi
+
+npm install
 
 # -----------------------------
 
