@@ -8,7 +8,7 @@ let resource_dir;
 if (process.platform === "darwin") {
   resource_dir = path.join(exec_dir, "../Resources/");
 } else {
-  resource_dir = exec_dir;
+  resource_dir = path.join(exec_dir, "..");
 }
 
 exports.ffmpeg = path.join(exec_dir, "ffmpeg");
