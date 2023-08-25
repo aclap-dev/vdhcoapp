@@ -13,7 +13,7 @@ import path from "path";
 
 let binary;
 
-let old = true; //false;
+let old = false;
 
 if (process.platform === "darwin") {
   let PATH_CHROME_OSX = "/Library/Google/Chrome/NativeMessagingHosts/net.downloadhelper.coapp.json";
