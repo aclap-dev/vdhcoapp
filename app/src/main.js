@@ -16,6 +16,7 @@ const converter = require('./converter');
 require('./file');
 require('./downloads');
 require('./request');
+require('./vm');
 
 const config = require('../../dist/config.json');
 
