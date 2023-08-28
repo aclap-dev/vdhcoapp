@@ -75,8 +75,6 @@ pkgbuild \
   --sign "$sign_pkg_id" \
   $dist/$pkg_filename.pkg
 
-exit 0
-
 echo "Building DMG file"
 
 # FIXME: test it exist, and doc
