@@ -21,10 +21,13 @@ const manifest = require('../package');
 const config = require('../config');
 
 rpc.listen({
-  // FIXME: test
+  // In test suite
   quit: () => {
-    logger.shutdown(() => {
-      process.exit(0);
+    return new Promise((ok, _) => {
+      logger.shutdown(() => {
+        ok();
+        process.exit(0);
+      });
     });
   },
   // In test suite

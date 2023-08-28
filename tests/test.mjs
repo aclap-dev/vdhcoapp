@@ -3,11 +3,12 @@
 import * as fs from "node:fs/promises";
 import { homedir } from 'os';
 import { send } from "./rpc.mjs";
-import { assert, assert_true } from "./assert.mjs";
+import { assert, assert_true, assert_deep_equal } from "./assert.mjs";
 import { spawn_process } from "./process.mjs";
 import { register_request_handler } from "./rpc.mjs";
 import minimist from "minimist";
 import path from "path";
+import { expected_codecs, expected_formats } from "./codecs.mjs";
 
 if (!process.versions.node.startsWith("18.")) {
   console.error("Error: run test with Node 18");
@@ -125,9 +126,6 @@ let exec = async (...args) => send(child.stdin, ...args);
 
   let sestat = await fs.stat("/tmp/test.png");
   assert("downloads.search", sestat.size, bytes);
-
-  await exec("open", "/tmp/test.png");
-  assert_true("open", true);
 }
 
 let old_coapp;
@@ -152,6 +150,13 @@ let old_coapp;
 {
   let r1 = await exec("ping", "foo");
   assert("ping", r1, "foo");
+}
+
+if (!old_coapp) {
+  const codecs = await exec("codecs");
+  assert_deep_equal("codecs", codecs, expected_codecs);
+  const formats = await exec("formats");
+  assert_deep_equal("formats", formats, expected_formats);
 }
 
 {
@@ -301,5 +306,13 @@ let file2_path;
   assert_true("output size", (out_mp4.size > 24800000) && (out_mp4.size < 25000000));
   assert_true("ticked", tick_count > 10);
 }
+
+{
+  await exec("open", "/tmp/test.png");
+  assert_true("open", true);
+}
+
+await exec("quit");
+assert_true("quit", true);
 
 process.exit(0);

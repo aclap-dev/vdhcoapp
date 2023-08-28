@@ -32,7 +32,7 @@ function ExecConverter(args) {
 
 rpc.listen({
 
-  // FIXME: test (partly in. but just for hls retrieval)
+  // FIXME: Partly in test suite. But just for hls retrieval.
   "convert": (args = ["-h"], options = {}) => new Promise((resolve, _reject) => {
     // `-progress pipe:1` send program-friendly progress information to stdin every 500ms.
     // `-hide_banner -loglevel error`: make the output less noisy.
@@ -66,7 +66,7 @@ rpc.listen({
     }
 
   }),
-  // FIXME: test (partly in. but just for hls retrieval)
+  // FIXME: Partly in test suite. But just for hls retrieval.
   "probe": (input, json = false) => {
     return new Promise((resolve, reject) => {
       let args = [];
@@ -114,14 +114,14 @@ rpc.listen({
       });
     });
   },
-  // FIXME: test
+  // FIXME: test (partly because as open is tested
   "play": (filePath) => {
     return new Promise((resolve, _reject) => {
       open(filePath);
       resolve();
     });
   },
-  // FIXME: test
+    // In test suite
   "codecs": () => {
     return ExecConverter(["-codecs"])
       .then((out) => {
@@ -145,7 +145,7 @@ rpc.listen({
         return result;
       });
   },
-  // FIXME: test
+  // In test suite
   "formats": () => {
     return ExecConverter(["-formats"])
       .then((out) => {
