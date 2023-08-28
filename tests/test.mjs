@@ -70,6 +70,7 @@ if (!arg) {
 }
 
 let child = spawn_process(bin_path);
+
 let exec = async (...args) => send(child.stdin, ...args);
 
 {
@@ -312,7 +313,10 @@ let file2_path;
   assert_true("open", true);
 }
 
-await exec("quit");
-assert_true("quit", true);
+exec("quit");
+
+let exit_code = await child.exiting;
+
+assert("quit", exit_code, 0);
 
 process.exit(0);

@@ -23,11 +23,8 @@ const config = require('../config');
 rpc.listen({
   // In test suite
   quit: () => {
-    return new Promise((ok, _) => {
-      logger.shutdown(() => {
-        ok();
-        process.exit(0);
-      });
+    logger.shutdown(() => {
+      process.exit(0);
     });
   },
   // In test suite

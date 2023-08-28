@@ -1,4 +1,4 @@
-import { on_receive } from "./rpc.mjs"
+import { on_receive } from "./rpc.mjs";
 import { spawn } from "node:child_process";
 
 export function spawn_process(path) {
@@ -14,10 +14,6 @@ export function spawn_process(path) {
 
   child.on('error', (code) => {
     console.error(`child process exited with error ${code}`);
-  });
-
-  child.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
   });
 
   let buffer = Buffer.alloc(0);
@@ -42,5 +38,14 @@ export function spawn_process(path) {
     }
   });
 
-  return child;
+  let exiting = new Promise((ok) => {
+    child.on('close', (code) => {
+      ok(code);
+    });
+  });
+
+  return {
+    stdin: child.stdin,
+    exiting
+  };
 }
