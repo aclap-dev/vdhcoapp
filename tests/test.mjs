@@ -15,25 +15,47 @@ if (!process.versions.node.startsWith("18.")) {
 }
 
 const install_locations = {
+  linux: {
+    bin: "/usr/local/bin/net.downloadhelper.coapp",
+    user: [
+      "/.mozilla/native-messaging-hosts/",
+      "/.config/google-chrome/NativeMessagingHosts/",
+      "/.config/chromium/NativeMessagingHosts/",
+      "/.config/microsoft-edge/NativeMessagingHosts",
+      "/.config/vivaldi/NativeMessagingHosts",
+      "/.config/vivaldi-snapshot/NativeMessagingHosts",
+      "/.config/opera/NativeMessagingHosts",
+      "/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts",
+      "/.config/opera/NativeMessagingHosts"
+    ],
+    system: [
+      "/etc/opt/edge/native-messaging-hosts/",
+      "/etc/opt/chrome/native-messaging-hosts/",
+      "/etc/chromium/native-messaging-hosts/"
+    ]
+  },
+
   darwin: {
     bin: "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/net.downloadhelper.coapp",
     user: [
-      "/Library/Application Support/Vivaldi/",
-      "/Library/Application Support/Chromium/",
-      "/Library/Application Support/Google/Chrome Beta/",
-      "/Library/Application Support/Google/Chrome Canary/",
-      "/Library/Application Support/Google/Chrome Dev/",
-      "/Library/Application Support/Google/Chrome/",
-      "/Library/Application Support/Microsoft Edge Beta/",
-      "/Library/Application Support/Microsoft Edge Canary/",
-      "/Library/Application Support/Microsoft Edge Dev/",
-      "/Library/Application Support/Microsoft Edge/",
-      "/Library/Application Support/Mozilla/"
+      "/Library/Application Support/Vivaldi/NativeMessagingHosts/",
+      "/Library/Application Support/Chromium/NativeMessagingHosts/",
+      "/Library/Application Support/Google/Chrome Beta/NativeMessagingHosts/",
+      "/Library/Application Support/Google/Chrome Canary/NativeMessagingHosts/",
+      "/Library/Application Support/Google/Chrome Dev/NativeMessagingHosts/",
+      "/Library/Application Support/Google/Chrome/NativeMessagingHosts/",
+      "/Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/",
+      "/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/",
+      "/Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/",
+      "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/",
+      "/Library/Application Support/Mozilla/NativeMessagingHosts/",
+      "/Library/Application Support/Opera/NativeMessagingHosts/",
+      "/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/",
     ],
     system: [
-      "/Library/Google/Chrome/",
-      "/Library/Microsoft/Edge/",
-      "/Library/Application Support/Mozilla/"
+      "/Library/Google/Chrome/NativeMessagingHosts/",
+      "/Library/Microsoft/Edge/NativeMessagingHosts/",
+      "/Library/Application Support/Mozilla/NativeMessagingHosts/"
     ]
   },
 };
@@ -51,7 +73,7 @@ let exec = async (...args) => send(child.stdin, ...args);
 
 {
   for (let dir of install_locations[process.platform].user) {
-    let json_path = path.join(homedir(), dir, "NativeMessagingHosts", "net.downloadhelper.coapp.json");
+    let json_path = path.join(homedir(), dir, "net.downloadhelper.coapp.json");
     try {
       let json = await fs.readFile(json_path);
       let registered_path = JSON.parse(json).path;
@@ -84,7 +106,7 @@ let exec = async (...args) => send(child.stdin, ...args);
   let url = "https://picsum.photos/id/237/800";
   let id = await exec("downloads.download", {
     url: url,
-    filename: "test.img",
+    filename: "test.png",
     directory: "/tmp"
   });
   assert("downloads.download", id, 1);
@@ -101,8 +123,11 @@ let exec = async (...args) => send(child.stdin, ...args);
     check();
   });
 
-  let sestat = await fs.stat("/tmp/test.img");
+  let sestat = await fs.stat("/tmp/test.png");
   assert("downloads.search", sestat.size, bytes);
+
+  await exec("open", "/tmp/test.png");
+  assert_true("open", true);
 }
 
 let old_coapp;

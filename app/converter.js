@@ -1,6 +1,7 @@
+import open from 'open';
+
 const path = require('path');
 const { spawn } = require('child_process');
-const { open } = require('open');
 const { ffmpeg, ffprobe } = require('./pkgfiles');
 
 const logger = require('./logger');
@@ -164,9 +165,10 @@ rpc.listen({
         return result;
       });
   },
-  // FIXME: test
+  // In test suite, but just to check if not throwing.
   "open": (filePath) => {
     open(filePath);
+    return Promise.resolve();
   },
 
 });
