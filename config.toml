@@ -1,0 +1,129 @@
+[meta]
+id = "net.downloadhelper.coapp"
+name = "VdhCoApp"
+description = "Video DownloadHelper companion app"
+version = "2.0.0"
+
+[package]
+binary_name = "vdhcoapp"
+ffmpeg_build_id = "285c7f6f6b-2023-06-26-001"
+
+[package.windows]
+publisher = "DownloadHelper"
+certificate = "private/certificate.json"
+
+[package.mac]
+category = "public.app-category.utilities"
+icon_icns = "icon.icns"
+dmg_background = "dmg-background.tiff"
+
+[package.mac.signing]
+name = "ACLAP"
+pkg_cert = "Developer ID Installer: ACLAP (4YP9AW3WW3)"
+app_cert = "Developer ID Application: ACLAP (4YP9AW3WW3)"
+
+[package.linux]
+maintainer = "Michel Gutierrez <coapp@downloadhelper.net>"
+section = "base"
+priority = "optional"
+homepage = "https://github.com/aclap-dev/vdhcoapp"
+installedSize = 100000
+
+[store.mozilla]
+extension_ids = [
+  "weh-native-test@downloadhelper.net",
+  "{b9db16a4-6edc-47ec-a1f4-b86292ed211d}",
+]
+
+[store.google]
+extension_ids = [
+  "chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/"
+]
+
+[store.microsoft]
+extension_ids = [
+  "chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/"
+]
+
+# Location of the native messaging manifests. See:
+# https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_manifests
+# https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/#native-messaging-host-location
+# https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/developer-guide/native-messaging?tabs=v3%2Cwindows
+
+[store.mozilla.msg_manifest_paths.linux]
+user = [ "~/.mozilla/native-messaging-hosts/" ]
+system = [ "/usr/lib/mozilla/native-messaging-hosts/" ]
+
+[store.mozilla.msg_manifest_paths.windows]
+regs = [
+  "\\Software\\Mozilla\\NativeMessagingHosts",
+  "\\Software\\ComodoGroup\\NativeMessagingHosts",
+]
+
+[store.mozilla.msg_manifest_paths.mac]
+user = [
+  "~/Library/Application Support/Mozilla/NativeMessagingHosts/",
+]
+system = [
+  "/Library/Application Support/Mozilla/NativeMessagingHosts/"
+]
+
+[store.google.msg_manifest_paths.linux]
+user = [
+  "~/.config/google-chrome/NativeMessagingHosts/",
+  "~/.config/chromium/NativeMessagingHosts/",
+  "~/.config/microsoft-edge/NativeMessagingHosts",
+  "~/.config/vivaldi/NativeMessagingHosts",
+  "~/.config/vivaldi-snapshot/NativeMessagingHosts",
+  "~/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts",
+  "~/.config/opera/NativeMessagingHosts"
+]
+system = [
+  "/etc/opt/chrome/native-messaging-hosts/",
+  "/etc/chromium/native-messaging-hosts/"
+]
+
+[store.google.msg_manifest_paths.mac]
+user = [
+  "~/Library/Application Support/Vivaldi/NativeMessagingHosts/",
+  "~/Library/Application Support/Chromium/NativeMessagingHosts/",
+  "~/Library/Application Support/Google/Chrome Beta/NativeMessagingHosts/",
+  "~/Library/Application Support/Google/Chrome Canary/NativeMessagingHosts/",
+  "~/Library/Application Support/Google/Chrome Dev/NativeMessagingHosts/",
+  "~/Library/Application Support/Google/Chrome/NativeMessagingHosts/",
+  "~/Library/Application Support/Opera/NativeMessagingHosts/",
+  "~/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/",
+]
+system = [
+  "/Library/Google/Chrome/NativeMessagingHosts/",
+  "/Library/Application Support/Chromium/NativeMessagingHosts/",
+]
+
+[store.google.msg_manifest_paths.windows]
+regs = [
+  "\\Software\\Google\\Chrome\\NativeMessagingHosts",
+  "\\Software\\Chromium\\NativeMessagingHosts",
+]
+
+[store.microsoft.msg_manifest_paths.linux]
+user = [
+  "~/.config/microsoft-edge/NativeMessagingHosts",
+]
+system = [
+  "/etc/opt/edge/native-messaging-hosts/",
+]
+[store.microsoft.msg_manifest_paths.mac]
+user = [
+  "~/Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/",
+  "~/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/",
+  "~/Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/",
+  "~/Library/Application Support/Microsoft Edge/NativeMessagingHosts/",
+]
+system = [
+  "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/",
+  "/Library/Microsoft/Edge/NativeMessagingHosts/",
+]
+[store.microsoft.msg_manifest_paths.windows]
+regs = [
+  "\\Software\\Microsoft\\Edge\\NativeMessagingHosts\\"
+]

@@ -1,9 +1,19 @@
 import { on_receive } from "./rpc.mjs";
 import { spawn } from "node:child_process";
 
-export function spawn_process(path) {
-  const child = spawn(path, [], {
-    env: { ...process.env, FOO: "BAR" }
+
+export function spawn_process(path, args = []) {
+  const child = spawn(path, args);
+  return new Promise((ok) => {
+    child.on('close', (code) => {
+      ok(code);
+    });
+  });
+}
+
+export function spawn_process_and_track(path, args = []) {
+  const child = spawn(path, args, {
+    env: { ...process.env, FOO: "BAR", WEH_NATIVE_LOGFILE: "/tmp/vdhcoapp.logs" }
   });
 
   child.stdin.setEncoding('utf-8');

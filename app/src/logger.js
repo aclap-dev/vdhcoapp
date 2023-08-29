@@ -1,17 +1,21 @@
 const log4js = require('log4js');
+const _ = require('./null-appender.js');
 
-let logAppender = {
+const silent = {
+  type: 'app/src/null-appender'
+};
+
+const file = {
   type: 'file',
-  filename: '/tmp/coapp.logs'
+  filename: process.env.WEH_NATIVE_LOGFILE
 };
 
 log4js.configure({
   appenders: {
-    logger: logAppender
+    logger: process.env.WEH_NATIVE_LOGFILE ? file : silent,
   },
   categories: {
-    default: { appenders: ['logger'],
-      level: process.env.WEH_NATIVE_LOGLEVEL || 'debug' }
+    default: { appenders: ['logger'], level: process.env.WEH_NATIVE_LOGLEVEL || 'debug' }
   }
 });
 

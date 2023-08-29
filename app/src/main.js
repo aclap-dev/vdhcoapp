@@ -17,8 +17,7 @@ require('./file');
 require('./downloads');
 require('./request');
 
-const manifest = require('../package');
-const config = require('../../config');
+const config = require('../../dist/config.json');
 
 rpc.listen({
   // In test suite
@@ -38,12 +37,12 @@ rpc.listen({
   // In test suite
   info: () => {
     let result = {
-      id: config.id,
-      name: manifest.name,
-      version: manifest.version,
+      id: config.meta.id,
+      name: config.meta.name,
+      version: config.meta.version,
       binary: process.execPath,
-      displayName: config.name,
-      description: config.description,
+      displayName: config.meta.name,
+      description: config.meta.description,
       home: process.env.HOME || process.env.HOMEDIR || ""
     };
     return converter.info().then((convInfo) => {

@@ -7,13 +7,13 @@ if ! [ -x "$(command -v create-dmg)" ]; then
   exit 1
 fi
 
-
-sign_id=$(jq -r '.mac.sign' ./config.json)
-sign_pkg_id=$(jq -r '.mac.pkg_cert' ./config.json)
-sign_app_id=$(jq -r '.mac.app_cert' ./config.json)
-binary_name="net.downloadhelper.coapp"
-app_id=$(jq -r '.id' ./config.json)
-app_version=$(jq -r '.version' ./package.json)
+sign_id=$(toml '.package.mac.signing.name')
+sign_pkg_id=$(toml '.package.mac.signing.pkg_cert')
+sign_app_id=$(toml '.package.mac.signing.app_cert')
+binary_name=$(toml '.package.binary_name')
+app_name=$(toml '.meta.name')
+app_id=$(toml '.meta.id')
+app_version=$(toml '.meta.version')
 pkg_filename="vdh-coapp-$app_version"
 pkg_version=`date +%s`
 
@@ -24,43 +24,34 @@ app_path=$dot_app_path/$app_id.app
 macos_dir=$app_path/Contents/MacOS
 res_dir=$app_path/Contents/Resources
 
+rm -rf $dot_app_path
+
 mkdir -p $macos_dir
 mkdir -p $res_dir
 
 scripts_dir=$dist/scripts
+rm -rf $scripts_dir
 mkdir -p $scripts_dir
 
 cd $res_dir
-mv $ffmpeg_dir/ffmpeg $macos_dir
-mv $ffmpeg_dir/ffprobe $macos_dir
-mv $ffmpeg_dir/presets ffmpeg-presets
+cp $ffmpeg_dir/ffmpeg $macos_dir
+cp $ffmpeg_dir/ffprobe $macos_dir
+mkdir -p ffmpeg-presets
+cp $ffmpeg_dir/presets/* ffmpeg-presets
 cd -
 
 cp $dist/app.bin $macos_dir/$binary_name
 
 echo "Creating pkg config files"
 
-cp LICENSE.txt assets/README.txt assets/mac/icon.icns $res_dir
+cp LICENSE.txt README.md assets/mac/icon.icns $res_dir
 
-tmpfile=$(mktemp /tmp/coapp-build.tmp)
-jq -n --argfile config config.json \
-  --argfile package package.json \
-  "{config:\$config, manifest:\$package, version:$pkg_version, binaryName:\"$binary_name\"}" \
-  > $tmpfile
-ejs -f $tmpfile ./assets/mac/pkg-distribution.xml.ejs \
-  > $dist/pkg-distribution.xml
-ejs -f $tmpfile ./assets/mac/pkg-component.plist.ejs \
-  > $dist/pkg-component.plist
-ejs -f $tmpfile ./assets/mac/Info.plist.ejs \
-  > $app_path/Contents/Info.plist
-ejs -f $tmpfile ./assets/mac/postinstall.ejs \
-  > $scripts_dir/postinstall
-rm $tmpfile
+ejs -f $top_dist/config.json ./assets/mac/pkg-distribution.xml.ejs > $dist/pkg-distribution.xml
+ejs -f $top_dist/config.json ./assets/mac/pkg-component.plist.ejs > $dist/pkg-component.plist
+ejs -f $top_dist/config.json ./assets/mac/Info.plist.ejs > $app_path/Contents/Info.plist
+ejs -f $top_dist/config.json ./assets/mac/postinstall.ejs > $scripts_dir/postinstall
 
 chmod +x $scripts_dir/postinstall
-
-jq "{id, name, description, allowed_extensions}" ./config.json \
-  > $res_dir/config.json
 
 echo "Signing binaries"
 
@@ -82,10 +73,10 @@ pkgbuild \
 
 echo "Building DMG file"
 
-create-dmg --volname "DownloadHelper Co-app" \
+create-dmg --volname "$app_name" \
   --background ./assets/mac/dmg-background.tiff \
   --window-pos 200 120 --window-size 500 400 --icon-size 70 \
-  --icon "net.downloadhelper.coapp.app" 100 200 \
+  --icon "$app_id.app" 100 200 \
   --app-drop-link 350 200 \
   --codesign $sign_id \
   $dist/$pkg_filename.dmg \

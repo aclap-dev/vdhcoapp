@@ -1,14 +1,25 @@
 #!/usr/bin/env node
 
 import * as fs from "node:fs/promises";
-import { homedir } from 'os';
 import { send } from "./rpc.mjs";
 import { assert, assert_true, assert_deep_equal } from "./assert.mjs";
-import { spawn_process } from "./process.mjs";
+import { spawn_process, spawn_process_and_track } from "./process.mjs";
 import { register_request_handler } from "./rpc.mjs";
-import minimist from "minimist";
 import path from "path";
 import { expected_codecs, expected_formats } from "./codecs.mjs";
+
+const amo = JSON.stringify([
+  "weh-native-test@downloadhelper.net",
+  "{b9db16a4-6edc-47ec-a1f4-b86292ed211d}"
+]);
+
+const ggl = JSON.stringify([
+  "chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/"
+]);
+
+const ms = JSON.stringify([
+  "chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/"
+]);
 
 if (!process.versions.node.startsWith("18.")) {
   console.error("Error: run test with Node 18");
@@ -19,72 +30,98 @@ const install_locations = {
   linux: {
     bin: "/usr/local/bin/net.downloadhelper.coapp",
     user: [
-      "/.mozilla/native-messaging-hosts/",
-      "/.config/google-chrome/NativeMessagingHosts/",
-      "/.config/chromium/NativeMessagingHosts/",
-      "/.config/microsoft-edge/NativeMessagingHosts",
-      "/.config/vivaldi/NativeMessagingHosts",
-      "/.config/vivaldi-snapshot/NativeMessagingHosts",
-      "/.config/opera/NativeMessagingHosts",
-      "/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts",
-      "/.config/opera/NativeMessagingHosts"
+      [".mozilla/native-messaging-hosts/", "amo"],
+      [".config/microsoft-edge/NativeMessagingHosts", "ms"],
+      [".config/google-chrome/NativeMessagingHosts/", "ggl"],
+      [".config/chromium/NativeMessagingHosts/", "ggl"],
+      [".config/vivaldi/NativeMessagingHosts", "ggl"],
+      [".config/vivaldi-snapshot/NativeMessagingHosts", "ggl"],
+      [".config/opera/NativeMessagingHosts", "ggl"],
+      [".config/BraveSoftware/Brave-Browser/NativeMessagingHosts", "ggl"],
     ],
     system: [
-      "/etc/opt/edge/native-messaging-hosts/",
-      "/etc/opt/chrome/native-messaging-hosts/",
-      "/etc/chromium/native-messaging-hosts/"
+      ["/etc/opt/edge/native-messaging-hosts/", "ms"],
+      ["/etc/opt/chrome/native-messaging-hosts/", "ggl"],
+      ["/etc/chromium/native-messaging-hosts/", "amo"]
     ]
   },
 
   darwin: {
     bin: "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/net.downloadhelper.coapp",
     user: [
-      "/Library/Application Support/Vivaldi/NativeMessagingHosts/",
-      "/Library/Application Support/Chromium/NativeMessagingHosts/",
-      "/Library/Application Support/Google/Chrome Beta/NativeMessagingHosts/",
-      "/Library/Application Support/Google/Chrome Canary/NativeMessagingHosts/",
-      "/Library/Application Support/Google/Chrome Dev/NativeMessagingHosts/",
-      "/Library/Application Support/Google/Chrome/NativeMessagingHosts/",
-      "/Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/",
-      "/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/",
-      "/Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/",
-      "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/",
-      "/Library/Application Support/Mozilla/NativeMessagingHosts/",
-      "/Library/Application Support/Opera/NativeMessagingHosts/",
-      "/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/",
+      ["Library/Application Support/Vivaldi/NativeMessagingHosts/", "ggl"],
+      ["Library/Application Support/Chromium/NativeMessagingHosts/", "ggl"],
+      ["Library/Application Support/Google/Chrome Beta/NativeMessagingHosts/", "ggl"],
+      ["Library/Application Support/Google/Chrome Canary/NativeMessagingHosts/", "ggl"],
+      ["Library/Application Support/Google/Chrome Dev/NativeMessagingHosts/", "ggl"],
+      ["Library/Application Support/Google/Chrome/NativeMessagingHosts/", "ggl"],
+      ["Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/", "ms"],
+      ["Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/", "ms"],
+      ["Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/", "ms"],
+      ["Library/Application Support/Microsoft Edge/NativeMessagingHosts/", "ms"],
+      ["Library/Application Support/Mozilla/NativeMessagingHosts/", "amo"],
+      ["Library/Application Support/Opera/NativeMessagingHosts/", "ggl"],
+      ["Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/", "ggl"],
     ],
     system: [
-      "/Library/Google/Chrome/NativeMessagingHosts/",
-      "/Library/Microsoft/Edge/NativeMessagingHosts/",
-      "/Library/Application Support/Mozilla/NativeMessagingHosts/"
+      ["/Library/Google/Chrome/NativeMessagingHosts/", "ggl"],
+      ["/Library/Microsoft/Edge/NativeMessagingHosts/", "ms"],
+      ["/Library/Application Support/Mozilla/NativeMessagingHosts/", "amo"],
     ]
   },
 };
 
 let bin_path;
-let arg = minimist(process.argv.slice(2))._[0];
+let arg = process.argv[2];
 if (!arg) {
   bin_path = install_locations[process.platform].bin;
 } else {
   bin_path = path.resolve(arg);
 }
 
-let child = spawn_process(bin_path);
-
-let exec = async (...args) => send(child.stdin, ...args);
+{
+  let code = await spawn_process(bin_path, ["uninstall", "--user"]);
+  assert("uninstall success", code, 0);
+}
 
 {
-  for (let dir of install_locations[process.platform].user) {
-    let json_path = path.join(homedir(), dir, "net.downloadhelper.coapp.json");
-    try {
-      let json = await fs.readFile(json_path);
-      let registered_path = JSON.parse(json).path;
-      assert("registered path", registered_path, bin_path);
-    } catch (e) {
-      console.error(`Can't find manifest in ${dir}`);
+  let code = await spawn_process(bin_path, ["install", "--user"]);
+  assert("install success", code, 0);
+  for (let [dir, store] of install_locations[process.platform].user) {
+    let json_path = path.resolve(process.env.HOME, dir, "net.downloadhelper.coapp.json");
+    let json = JSON.parse(await fs.readFile(json_path));
+    assert_true("bin is absolute", json.path.startsWith("/"));
+    assert("bin path", json.path, bin_path);
+    if (store == "amo") {
+      assert(dir, JSON.stringify(json.allowed_extensions), amo);
+    } else if (store == "ms") {
+      assert(dir, JSON.stringify(json.allowed_origins), ms);
+    } else if (store == "ggl") {
+      assert(dir, JSON.stringify(json.allowed_origins), ggl);
+    } else {
+      throw new Error("Unexpected store");
     }
   }
 }
+
+{
+  let code = await spawn_process(bin_path, ["uninstall", "--user"]);
+  assert("uninstall success", code, 0);
+  for (let [dir, _] of install_locations[process.platform].user) {
+    let json = path.resolve(process.env.HOME, dir, "net.downloadhelper.coapp.json");
+    let doesnt_exist = false;
+    try {
+      await fs.access(path.dir, json);
+    } catch (_) {
+      doesnt_exist = true;
+    }
+    assert_true("File removed", doesnt_exist);
+  }
+}
+
+let child = spawn_process_and_track(bin_path);
+
+let exec = async (...args) => send(child.stdin, ...args);
 
 {
   let url = "http://echo.jsontest.com/foo/bar";
@@ -136,10 +173,10 @@ let old_coapp;
   assert("info.id", info.id, "net.downloadhelper.coapp");
   if (info.version == "1.6.3") {
     old_coapp = true;
-  } else if (info.version == "1.7.0") {
+  } else if (info.version == "2.0.0") {
     old_coapp = false;
   } else {
-    assert("info.version", false);
+    assert_true("info.version", false);
   }
 }
 

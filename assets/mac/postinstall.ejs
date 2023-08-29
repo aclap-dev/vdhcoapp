@@ -5,7 +5,6 @@
 
 set -euo pipefail
 
-bin=$DSTROOT/<%= config.id %>.app/Contents/MacOS/<%= binaryName %>
+bin="$DSTROOT/<%= meta.id %>.app/Contents/MacOS/<%= meta.binary_name %>"
 
-$bin install --system
-$bin install --user
+$bin install

@@ -5,23 +5,23 @@
     <key>BuildMachineOSBuild</key>
     <string>15G31</string>
     <key>CFBundleDisplayName</key>
-    <string><%= config.name %></string>
+    <string><%= meta.name %></string>
     <key>CFBundleExecutable</key>
-    <string><%= binaryName %></string>
+    <string><%= package.binary_name %></string>
     <key>CFBundleIconFile</key>
-    <string><%= config.mac.iconIcns %></string>
+    <string><%= package.mac.icon_icns %></string>
     <key>CFBundleIdentifier</key>
-    <string><%= config.id %></string>
+    <string><%= meta.id %></string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string><%= config.id %></string>
+    <string><%= meta.id %></string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string><%= manifest.version %></string>
+    <string><%= meta.version %></string>
     <key>CFBundleVersion</key>
-    <string><%= manifest.version %></string>
+    <string><%= meta.version %></string>
     <key>DTSDKBuild</key>
     <string>14D125</string>
     <key>DTSDKName</key>
@@ -31,10 +31,10 @@
     <key>DTXcodeBuild</key>
     <string>8C1002</string>
     <key>LSApplicationCategoryType</key>
-    <string><%= config.mac.category  %></string>
+    <string><%= package.mac.category  %></string>
     <key>LSMinimumSystemVersion</key>
     <string>10.9.0</string>
     <key>NSHumanReadableCopyright</key>
-    <string><%= "Copyright © " + new Date().getFullYear() + " " + config.name + " developers." %></string>
+    <string><%= "Copyright © " + new Date().getFullYear() + " " + meta.name + " developers." %></string>
   </dict>
 </plist>

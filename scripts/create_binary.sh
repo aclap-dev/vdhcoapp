@@ -4,6 +4,8 @@ set -euo pipefail
 cd $(dirname $0)/..
 
 source ./scripts/target.sh
+source ./scripts/toml.sh
+mkdir -p $dist
 
 echo "Building packages for $target on $host"
 
@@ -42,6 +44,8 @@ cd ..
 # -----------------------------
 
 echo "Bundling JS code"
+# Extracting meta data 
+toml_json "." > $top_dist/config.json
 # This could be done by pkg directly, but esbuild is more tweakable.
 # - hardcoding import.meta.url because the `open` module requires it.
 # - faking an electron module because `got` requires on (but it's never used)
@@ -60,9 +64,11 @@ pkg $top_dist/main.js \
   --output $dist/app.bin
 
 source ./scripts/ffmpeg.sh
+cd $dist
 echo "Fetching ffmpeg"
-wget --quiet -c -O $ffmpeg_tarball $ffmpeg_url
+wget -c -O $ffmpeg_tarball $ffmpeg_url
 echo "Extracting ffmpeg"
+tar -xf $ffmpeg_tarball
 rm -rf $ffmpeg_dir
-mkdir $ffmpeg_dir
-tar -xf $ffmpeg_tarball -C $ffmpeg_dir
+mv ffmpeg-$target $ffmpeg_dir
+cd ..
