@@ -1,6 +1,11 @@
 #!/bin/bash
 
+# Register the application into the different browser
+# configuration files.
+
 set -euo pipefail
 
-# execute application once to setup pointers to native messaging host application
-$DSTROOT/<%= config.id %>.app/Contents/MacOS/<%= config.id %> install > /tmp/vdh.logs 2>&1
+bin=$DSTROOT/<%= config.id %>.app/Contents/MacOS/<%= binaryName %>
+
+$bin install --system
+$bin install --user

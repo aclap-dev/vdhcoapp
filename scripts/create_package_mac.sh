@@ -1,7 +1,16 @@
+#!/bin/bash
+
 set -euo pipefail
 
-sign_pkg_id="Developer ID Installer: ACLAP (4YP9AW3WW3)"
-sign_app_id="Developer ID Application: ACLAP (4YP9AW3WW3)"
+if ! [ -x "$(command -v create-dmg)" ]; then
+  echo "create-dmg not installed"
+  exit 1
+fi
+
+
+sign_id=$(jq -r '.mac.sign' ./config.json)
+sign_pkg_id=$(jq -r '.mac.pkg_cert' ./config.json)
+sign_app_id=$(jq -r '.mac.app_cert' ./config.json)
 binary_name="net.downloadhelper.coapp"
 app_id=$(jq -r '.id' ./config.json)
 app_version=$(jq -r '.version' ./package.json)
@@ -21,14 +30,10 @@ mkdir -p $res_dir
 scripts_dir=$dist/scripts
 mkdir -p $scripts_dir
 
-echo "Extracting ffmpeg"
-
 cd $res_dir
-tar -xf $ffmpeg_tarball
-mv ffmpeg-mac-$target_arch/ffmpeg $macos_dir
-mv ffmpeg-mac-$target_arch/ffprobe $macos_dir
-mv ffmpeg-mac-$target_arch/presets ffmpeg-presets
-rmdir ffmpeg-mac-$target_arch
+mv $ffmpeg_dir/ffmpeg $macos_dir
+mv $ffmpeg_dir/ffprobe $macos_dir
+mv $ffmpeg_dir/presets ffmpeg-presets
 cd -
 
 cp $dist/app.bin $macos_dir/$binary_name
@@ -77,12 +82,11 @@ pkgbuild \
 
 echo "Building DMG file"
 
-# FIXME: test it exist, and doc
 create-dmg --volname "DownloadHelper Co-app" \
   --background ./assets/mac/dmg-background.tiff \
   --window-pos 200 120 --window-size 500 400 --icon-size 70 \
   --icon "net.downloadhelper.coapp.app" 100 200 \
   --app-drop-link 350 200 \
-  --codesign "ACLAP" \
+  --codesign $sign_id \
   $dist/$pkg_filename.dmg \
   $dot_app_path

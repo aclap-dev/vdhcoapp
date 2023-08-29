@@ -2,10 +2,8 @@
 
 set -euo pipefail
 cd $(dirname $0)/..
-source ./scripts/target.sh
-source ./scripts/ffmpeg.sh
 
-rm -rf $dist
+source ./scripts/target.sh
 
 echo "Building packages for $target on $host"
 
@@ -37,18 +35,17 @@ if ! [ -x "$(command -v ejs)" ]; then
   npm install -g ejs
 fi
 
+cd app/
 npm install
+cd ..
 
 # -----------------------------
-
-echo "Fetching ffmpeg"
-wget --quiet -c -O $ffmpeg_tarball $ffmpeg_url
 
 echo "Bundling JS code"
 # This could be done by pkg directly, but esbuild is more tweakable.
 # - hardcoding import.meta.url because the `open` module requires it.
 # - faking an electron module because `got` requires on (but it's never used)
-NODE_PATH=app esbuild ./app/main.js \
+NODE_PATH=app/src esbuild ./app/src/main.js \
   --format=cjs \
   --banner:js="const _importMetaUrl=require('url').pathToFileURL(__filename)" \
   --define:import.meta.url='_importMetaUrl' \
@@ -61,3 +58,11 @@ echo "Bundling Node and JS Code"
 pkg $top_dist/main.js \
   --target node18-$target_os-$target_arch \
   --output $dist/app.bin
+
+source ./scripts/ffmpeg.sh
+echo "Fetching ffmpeg"
+wget --quiet -c -O $ffmpeg_tarball $ffmpeg_url
+echo "Extracting ffmpeg"
+rm -rf $ffmpeg_dir
+mkdir $ffmpeg_dir
+tar -xf $ffmpeg_tarball -C $ffmpeg_dir

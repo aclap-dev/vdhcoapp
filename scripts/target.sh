@@ -44,5 +44,5 @@ fi
 
 target="${target_os}-${target_arch}"
 
-top_dist=$PWD/dist2
+top_dist=$PWD/dist
 dist=$top_dist/$target_os/$target_arch

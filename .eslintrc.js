@@ -14,7 +14,6 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module"
   },
-  ignorePatterns: ["addon/src-modules/chrome-buy.js"],
   rules: {
     "prefer-const": [OK],
     "no-constant-condition": [OK],

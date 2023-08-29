@@ -7,11 +7,9 @@
     <key>CFBundleDisplayName</key>
     <string><%= config.name %></string>
     <key>CFBundleExecutable</key>
-	<string><%= binaryName %></string>
-<% if(config.mac.iconIcns) { %>
-	<key>CFBundleIconFile</key>
-	<string><%= config.mac.iconIcns %></string>
-<% } %>
+    <string><%= binaryName %></string>
+    <key>CFBundleIconFile</key>
+    <string><%= config.mac.iconIcns %></string>
     <key>CFBundleIdentifier</key>
     <string><%= config.id %></string>
     <key>CFBundleInfoDictionaryVersion</key>
@@ -23,7 +21,7 @@
     <key>CFBundleShortVersionString</key>
     <string><%= manifest.version %></string>
     <key>CFBundleVersion</key>
-	<string><%= manifest.version %></string>
+    <string><%= manifest.version %></string>
     <key>DTSDKBuild</key>
     <string>14D125</string>
     <key>DTSDKName</key>
@@ -31,12 +29,12 @@
     <key>DTXcode</key>
     <string>0821</string>
     <key>DTXcodeBuild</key>
-	<string>8C1002</string>
+    <string>8C1002</string>
     <key>LSApplicationCategoryType</key>
-    <string><%= config.mac.category || "public.app-category.utilities" %></string>
+    <string><%= config.mac.category  %></string>
     <key>LSMinimumSystemVersion</key>
-	<string>10.9.0</string>
+    <string>10.9.0</string>
     <key>NSHumanReadableCopyright</key>
-	<string><%= config.copyright || "Copyright © "+new Date().getFullYear()+" "+config.id+" developers" %></string>
+    <string><%= "Copyright © " + new Date().getFullYear() + " " + config.name + " developers." %></string>
   </dict>
 </plist>

@@ -18,7 +18,7 @@ require('./downloads');
 require('./request');
 
 const manifest = require('../package');
-const config = require('../config');
+const config = require('../../config');
 
 rpc.listen({
   // In test suite
