@@ -1,7 +1,6 @@
 import { on_receive } from "./rpc.mjs";
 import { spawn } from "node:child_process";
 
-
 export function spawn_process(path, args = []) {
   const child = spawn(path, args);
   return new Promise((ok) => {
