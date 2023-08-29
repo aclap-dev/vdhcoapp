@@ -2,16 +2,13 @@ import open from 'open';
 
 const path = require('path');
 const { spawn } = require('child_process');
-const { ffmpeg, ffprobe } = require('./pkgfiles');
 
 const logger = require('./logger');
 const rpc = require('./weh-rpc');
 
-logger.info("process.cwd", process.cwd);
-logger.info("__dirname", __dirname);
-logger.info("__filename", __filename);
-logger.info("path.resolve('.')", path.resolve('.'));
-logger.info("process.execPath", process.execPath);
+const exec_dir = path.dirname(process.execPath);
+const ffmpeg = path.join(exec_dir, "ffmpeg");
+const ffprobe = path.join(exec_dir, "ffprobe");
 
 function ExecConverter(args) {
   return new Promise((resolve, reject) => {
