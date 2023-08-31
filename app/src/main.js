@@ -23,9 +23,7 @@ const config = require('../../dist/config.json');
 rpc.listen({
   // In test suite
   quit: () => {
-    logger.shutdown(() => {
-      process.exit(0);
-    });
+    process.exit(0);
   },
   // In test suite
   env: () => {

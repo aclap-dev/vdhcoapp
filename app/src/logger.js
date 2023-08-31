@@ -1,28 +1,15 @@
-const log4js = require('log4js');
-const _ = require('./null-appender.js');
+let simplelogger = require("simple-node-logger");
 
-const silent = {
-  type: 'app/src/null-appender'
-};
+let logfile = process.env.WEH_NATIVE_LOGFILE;
 
-const file = {
-  type: 'file',
-  filename: process.env.WEH_NATIVE_LOGFILE
-};
-
-log4js.configure({
-  appenders: {
-    logger: process.env.WEH_NATIVE_LOGFILE ? file : silent,
-  },
-  categories: {
-    default: { appenders: ['logger'], level: process.env.WEH_NATIVE_LOGLEVEL || 'debug' }
-  }
-});
-
-const logger = log4js.getLogger('logger');
-
-logger.shutdown = (callback) => {
-  log4js.shutdown(callback);
-};
-
-module.exports = logger;
+if (!logfile) {
+  module.exports = {
+    info: () => {},
+    error: () => {},
+    warn: () => {},
+    log: () => {},
+  };
+} else {
+  let logger = simplelogger.createSimpleFileLogger(logfile);
+  module.exports = logger;
+}

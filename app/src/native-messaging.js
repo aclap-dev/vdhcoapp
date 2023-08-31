@@ -9,9 +9,7 @@ function exitHandler(reason, err) {
     logger.warn(err.stack);
   }
   if (reason == "exit") {
-    logger.shutdown(() => {
-      process.exit(err ? -1 : 0);
-    });
+    process.exit(err ? 1 : 0);
   }
 }
 
