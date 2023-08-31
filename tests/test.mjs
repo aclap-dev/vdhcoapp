@@ -28,7 +28,6 @@ if (!process.versions.node.startsWith("18.")) {
 
 const install_locations = {
   linux: {
-    bin: "/usr/local/bin/net.downloadhelper.coapp",
     user: [
       [".mozilla/native-messaging-hosts/", "amo"],
       [".config/microsoft-edge/NativeMessagingHosts", "ms"],
@@ -47,7 +46,6 @@ const install_locations = {
   },
 
   darwin: {
-    bin: "/Applications/net.downloadhelper.coapp.app/Contents/MacOS/net.downloadhelper.coapp",
     user: [
       ["Library/Application Support/Vivaldi/NativeMessagingHosts/", "ggl"],
       ["Library/Application Support/Chromium/NativeMessagingHosts/", "ggl"],
@@ -74,7 +72,10 @@ const install_locations = {
 let bin_path;
 let arg = process.argv[2];
 if (!arg) {
-  bin_path = install_locations[process.platform].bin;
+  let dir = install_locations[process.platform].user[0][0];
+  let json_path = path.resolve(process.env.HOME, dir, "net.downloadhelper.coapp.json");
+  let json = JSON.parse(await fs.readFile(json_path));
+  bin_path = json.path;
 } else {
   bin_path = path.resolve(arg);
 }
