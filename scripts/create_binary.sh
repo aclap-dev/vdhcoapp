@@ -69,6 +69,8 @@ echo "Fetching ffmpeg"
 wget -c -O $ffmpeg_tarball $ffmpeg_url
 echo "Extracting ffmpeg"
 tar -xf $ffmpeg_tarball
-rm -rf $ffmpeg_dir
-mv ffmpeg-$target $ffmpeg_dir
-cd ..
+rm -rf ffmpeg-presets
+mv ffmpeg-$target/presets ffmpeg-presets
+mv ffmpeg-$target/* .
+rmdir ffmpeg-$target
+cd -
