@@ -34,10 +34,9 @@ rm -rf $scripts_dir
 mkdir -p $scripts_dir
 
 cd $res_dir
-cp $ffmpeg_dir/ffmpeg $macos_dir
-cp $ffmpeg_dir/ffprobe $macos_dir
-mkdir -p ffmpeg-presets
-cp $ffmpeg_dir/presets/* ffmpeg-presets
+cp $dist/ffmpeg $macos_dir
+cp $dist/ffprobe $macos_dir
+cp -r $dist/ffmpeg-presets $res_dir
 cd -
 
 cp $dist/app.bin $macos_dir/$binary_name
