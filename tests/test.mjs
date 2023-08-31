@@ -124,6 +124,11 @@ let child = spawn_process_and_track(bin_path);
 let exec = async (...args) => send(child.stdin, ...args);
 
 {
+  let result = await exec("vm.run", "var x = 2; x + 40");
+  assert("vm.run", result, 42);
+}
+
+{
   let url = "http://echo.jsontest.com/foo/bar";
   let options = {
     headers: [
