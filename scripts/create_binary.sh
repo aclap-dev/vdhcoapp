@@ -75,8 +75,8 @@ mv ffmpeg-$target/* .
 rmdir ffmpeg-$target
 cd -
 
-rpath="./$(realpath --relative-to=$PWD $dist/app.bin)"
-echo "Binary ready: $rpath"
-echo "Install with: $rpath install"
+rpath=./dist/$target_os/$target_arch
+echo "Binary ready: $rpath/app.bin"
+echo "Install with: $rpath/app.bin install"
 echo "Test with: ./tests/test.mjs (after install)"
-echo "Test with: ./tests/test.mjs $rpath (if not installed)"
+echo "Test with: ./tests/test.mjs $rpath/app.bin (if not installed)"
