@@ -319,11 +319,11 @@ let file2_path;
 }
 
 {
-  let url = "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+  let url = "https://s3.amazonaws.com/qa.jwplayer.com/hlsjs/muxed-fmp4/hls.m3u8";
   let json = await exec("probe", url, true);
   json = JSON.parse(json);
   let duration = json.format.duration;
-  assert("duration", duration, 634.584);
+  assert("duration", duration, 13.012993);
 
   let tick_count = 0;
   let on_tick = (_, time) => {
@@ -341,7 +341,7 @@ let file2_path;
 
   register_request_handler("convertOutput", on_tick);
 
-  let args = `-y -i ${url} -map m:variant_bitrate:246440 ${tmp_dir}/out.mp4`;
+  let args = `-y -i ${url} ${tmp_dir}/out.mp4`;
 
   let res = await exec("convert", args.split(" "), {
     progressTime: true
@@ -353,8 +353,8 @@ let file2_path;
 
   let out_mp4 = await fs.stat(`${tmp_dir}/out.mp4`);
 
-  assert_true("output size", (out_mp4.size > 24800000) && (out_mp4.size < 25000000));
-  assert_true("ticked", tick_count > 10);
+  assert_true("output size", (out_mp4.size > 3380000) && (out_mp4.size < 3400000));
+  assert_true("ticked", tick_count > 3);
 }
 
 {
