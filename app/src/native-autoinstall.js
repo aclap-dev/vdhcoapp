@@ -1,7 +1,7 @@
 const os = require("os");
 const fs = require("fs-extra");
 const path = require("path");
-const { spawn, spawnSync } = require('child_process');
+const { spawn } = require('child_process');
 const config = require('../../dist/config.json');
 
 function DisplayMessage(body, title) {
@@ -26,7 +26,7 @@ function BuildManifests() {
     stores[store] = {
       ...config.store[store],
       ...manifest
-    }
+    };
   }
   return stores;
 }

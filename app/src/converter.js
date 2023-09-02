@@ -13,7 +13,7 @@ let ffprobe = path.join(exec_dir, "ffprobe");
 
 if (os.platform() == "win32") {
   ffmpeg += ".exe";
-  ffprobe += ".exe"
+  ffprobe += ".exe";
 }
 
 function ExecConverter(args) {

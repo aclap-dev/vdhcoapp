@@ -7,7 +7,7 @@ import { assert, assert_true, assert_deep_equal } from "./assert.mjs";
 import { spawn_process, spawn_process_and_track } from "./process.mjs";
 import { register_request_handler } from "./rpc.mjs";
 import path from "path";
-import { expected_codecs, expected_formats } from "./codecs.mjs";
+import { expected_codecs, _expected_formats } from "./codecs.mjs";
 
 const amo = JSON.stringify([
   "weh-native-test@downloadhelper.net",
@@ -79,7 +79,7 @@ if (!arg && !is_window) {
   let json_path = path.resolve(os.homedir(), dir, "net.downloadhelper.coapp.json");
   let json = JSON.parse(await fs.readFile(json_path));
   bin_path = json.path;
-} else if(!arg && is_window) {
+} else if (!arg && is_window) {
   // FIXME
 } else {
   bin_path = path.resolve(arg);
@@ -244,7 +244,6 @@ if (old_coapp) {
   let sestat = await fs.stat(path.resolve(tmp_dir, "test.png"));
   assert("downloads.search", sestat.size, bytes);
 }
-
 
 let file1_path;
 {
