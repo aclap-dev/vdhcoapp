@@ -43,9 +43,14 @@ cd ..
 
 # -----------------------------
 
+# Note: 2 config.json are created. One generic under dist/ and one target
+# specific under dist/os/arch/.
+yq . -o json ./config.toml > $top_dist/config.json
+yq . -o yaml ./config.toml | \
+  yq e ".target.os = \"$target_os\"" |\
+  yq e ".target.arch = \"$target_arch\"" -o json > $dist/config.json
+
 echo "Bundling JS code"
-# Extracting meta data 
-toml_json "." > $top_dist/config.json
 # This could be done by pkg directly, but esbuild is more tweakable.
 # - hardcoding import.meta.url because the `open` module requires it.
 # - faking an electron module because `got` requires on (but it's never used)
@@ -61,7 +66,7 @@ NODE_PATH=app/src esbuild ./app/src/main.js \
 echo "Bundling Node and JS Code"
 pkg $top_dist/main.js \
   --target node18-$target_os-$target_arch \
-  --output $dist/app.bin
+  --output $dist/$app_binary_name
 
 source ./scripts/ffmpeg.sh
 cd $dist
@@ -75,8 +80,8 @@ mv ffmpeg-$target/* .
 rmdir ffmpeg-$target
 cd -
 
-rpath=./dist/$target_os/$target_arch
-echo "Binary ready: $rpath/app.bin"
-echo "Install with: $rpath/app.bin install"
+rpath=./$top_dist_rel/$target_os/$target_arch
+echo "Binary ready: $rpath/$app_binary_name"
+echo "Install with: $rpath/$app_binary_name install"
 echo "Test with: ./tests/test.mjs (after install)"
-echo "Test with: ./tests/test.mjs $rpath/app.bin (if not installed)"
+echo "Test with: ./tests/test.mjs $rpath/$app_binary_name (if not installed)"

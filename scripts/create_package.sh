@@ -14,6 +14,6 @@ case $target_os in
     source ./scripts/create_package_mac.sh
     ;;
   windows)
-    echo "Not supported yet"
+    source ./scripts/create_package_windows.sh
     ;;
 esac

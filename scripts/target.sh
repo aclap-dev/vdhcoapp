@@ -44,5 +44,15 @@ fi
 
 target="${target_os}-${target_arch}"
 
-top_dist=$PWD/dist
+top_dist_rel=dist
+top_dist=$PWD/$top_dist_rel
 dist=$top_dist/$target_os/$target_arch
+
+if [ $target_os == "windows" ];
+then
+  exe=".exe"
+  app_binary_name="app.exe"
+else
+  exe=""
+  app_binary_name="app.bin"
+fi

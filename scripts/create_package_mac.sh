@@ -45,10 +45,10 @@ echo "Creating pkg config files"
 
 cp LICENSE.txt README.md assets/mac/icon.icns $res_dir
 
-ejs -f $top_dist/config.json ./assets/mac/pkg-distribution.xml.ejs > $dist/pkg-distribution.xml
-ejs -f $top_dist/config.json ./assets/mac/pkg-component.plist.ejs > $dist/pkg-component.plist
-ejs -f $top_dist/config.json ./assets/mac/Info.plist.ejs > $app_path/Contents/Info.plist
-ejs -f $top_dist/config.json ./assets/mac/postinstall.ejs > $scripts_dir/postinstall
+ejs -f $dist/config.json ./assets/mac/pkg-distribution.xml.ejs > $dist/pkg-distribution.xml
+ejs -f $dist/config.json ./assets/mac/pkg-component.plist.ejs > $dist/pkg-component.plist
+ejs -f $dist/config.json ./assets/mac/Info.plist.ejs > $app_path/Contents/Info.plist
+ejs -f $dist/config.json ./assets/mac/postinstall.ejs > $scripts_dir/postinstall
 
 chmod +x $scripts_dir/postinstall
 

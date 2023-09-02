@@ -13,7 +13,7 @@ rpc.listen({
   // In test suite
   "listFiles": (directory) => {
     return new Promise((resolve, reject) => {
-      directory = path.resolve(process.env.HOME || process.env.HOMEDIR, directory);
+      directory = path.resolve(os.homedir(), directory);
       fs.readdir(directory, (err, files) => {
         if (err) {
           return reject(err);
@@ -53,12 +53,12 @@ rpc.listen({
   },
   // In test suite
   "path.homeJoin": (...args) => {
-    return path.resolve(process.env.HOME || process.env.HOMEDIR, path.join(...args));
+    return path.resolve(os.homedir(), path.join(...args));
   },
   // In test suite
   "getParents": (directory) => {
     return new Promise((resolve, _reject) => {
-      directory = path.resolve(process.env.HOME || process.env.HOMEDIR, directory);
+      directory = path.resolve(os.homedir(), directory);
       let parents = [];
       while (true) {
         let parent = path.resolve(directory, "..");
@@ -108,7 +108,7 @@ rpc.listen({
   // In test suite
   "makeUniqueFileName": (...args) => {
     return new Promise((resolve, _reject) => {
-      let filePath = path.resolve(process.env.HOME || process.env.HOMEDIR, path.join(...args));
+      let filePath = path.resolve(os.homedir(), path.join(...args));
       let index = uniqueFileNames[filePath] || 0;
       let dirName = path.dirname(filePath);
       let extName = path.extname(filePath);

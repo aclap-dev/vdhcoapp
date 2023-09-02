@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import os from "os";
 import * as fs from "node:fs/promises";
 import { send } from "./rpc.mjs";
 import { assert, assert_true, assert_deep_equal } from "./assert.mjs";
@@ -69,60 +70,66 @@ const install_locations = {
   },
 };
 
+let is_window = process.platform == "win32";
+
 let bin_path;
 let arg = process.argv[2];
-if (!arg) {
+if (!arg && !is_window) {
   let dir = install_locations[process.platform].user[0][0];
-  let json_path = path.resolve(process.env.HOME, dir, "net.downloadhelper.coapp.json");
+  let json_path = path.resolve(os.homedir(), dir, "net.downloadhelper.coapp.json");
   let json = JSON.parse(await fs.readFile(json_path));
   bin_path = json.path;
+} else if(!arg && is_window) {
+  // FIXME
 } else {
   bin_path = path.resolve(arg);
 }
 
-{
-  let code = await spawn_process(bin_path, ["uninstall", "--user"]);
-  assert("uninstall success", code, 0);
-}
+if (!is_window) {
+  {
+    let code = await spawn_process(bin_path, ["uninstall", "--user"]);
+    assert("uninstall success", code, 0);
+  }
 
-{
-  let code = await spawn_process(bin_path, ["install", "--user"]);
-  assert("install success", code, 0);
-  for (let [dir, store] of install_locations[process.platform].user) {
-    let json_path = path.resolve(process.env.HOME, dir, "net.downloadhelper.coapp.json");
-    let json = JSON.parse(await fs.readFile(json_path));
-    assert_true("bin is absolute", json.path.startsWith("/"));
-    assert("bin path", json.path, bin_path);
-    if (store == "amo") {
-      assert(dir, JSON.stringify(json.allowed_extensions), amo);
-    } else if (store == "ms") {
-      assert(dir, JSON.stringify(json.allowed_origins), ms);
-    } else if (store == "ggl") {
-      assert(dir, JSON.stringify(json.allowed_origins), ggl);
-    } else {
-      throw new Error("Unexpected store");
+  {
+    let code = await spawn_process(bin_path, ["install", "--user"]);
+    assert("install success", code, 0);
+    for (let [dir, store] of install_locations[process.platform].user) {
+      let json_path = path.resolve(os.homedir(), dir, "net.downloadhelper.coapp.json");
+      let json = JSON.parse(await fs.readFile(json_path));
+      assert_true("bin is absolute", json.path.startsWith("/"));
+      assert("bin path", json.path, bin_path);
+      if (store == "amo") {
+        assert(dir, JSON.stringify(json.allowed_extensions), amo);
+      } else if (store == "ms") {
+        assert(dir, JSON.stringify(json.allowed_origins), ms);
+      } else if (store == "ggl") {
+        assert(dir, JSON.stringify(json.allowed_origins), ggl);
+      } else {
+        throw new Error("Unexpected store");
+      }
     }
   }
-}
 
-{
-  let code = await spawn_process(bin_path, ["uninstall", "--user"]);
-  assert("uninstall success", code, 0);
-  for (let [dir, _] of install_locations[process.platform].user) {
-    let json = path.resolve(process.env.HOME, dir, "net.downloadhelper.coapp.json");
-    let doesnt_exist = false;
-    try {
-      await fs.access(path.dir, json);
-    } catch (_) {
-      doesnt_exist = true;
+  {
+    let code = await spawn_process(bin_path, ["uninstall", "--user"]);
+    assert("uninstall success", code, 0);
+    for (let [dir, _] of install_locations[process.platform].user) {
+      let json = path.resolve(os.homedir(), dir, "net.downloadhelper.coapp.json");
+      let doesnt_exist = false;
+      try {
+        await fs.access(path.dir, json);
+      } catch (_) {
+        doesnt_exist = true;
+      }
+      assert_true("File removed", doesnt_exist);
     }
-    assert_true("File removed", doesnt_exist);
   }
-}
 
-{
-  let code = await spawn_process(bin_path, ["install", "--user"]);
-  assert("uninstall success", code, 0);
+  {
+    let code = await spawn_process(bin_path, ["install", "--user"]);
+    assert("uninstall success", code, 0);
+  }
 }
 
 let child = spawn_process_and_track(bin_path);
@@ -150,31 +157,6 @@ let exec = async (...args) => send(child.stdin, ...args);
   let bin = await exec("requestBinary", url);
   let hash = bin.data.data.reduce((a, b) => a + b, 0);
   assert("requestBinary", hash, 51268);
-}
-
-{
-  let url = "https://picsum.photos/id/237/800";
-  let id = await exec("downloads.download", {
-    url: url,
-    filename: "test.png",
-    directory: "/tmp"
-  });
-  assert("downloads.download", id, 1);
-
-  let bytes = await new Promise((ok) => {
-    let check = async () => {
-      let state = await exec("downloads.search", { id });
-      if (state.length > 0 && state[0].state == "complete") {
-        ok(state[0].bytesReceived);
-      } else {
-        setTimeout(check, 100);
-      }
-    };
-    check();
-  });
-
-  let sestat = await fs.stat("/tmp/test.png");
-  assert("downloads.search", sestat.size, bytes);
 }
 
 let old_coapp;
@@ -218,9 +200,14 @@ if (!old_coapp) {
   }
 }
 
-let tmp_dir = "/tmp/vdhcoapp-tests/tests/";
-let tmp_options;
+let tmp_dir = await exec("path.homeJoin", "vdh-tmp-a");
 await fs.rm(tmp_dir, {recursive: true, force: true});
+
+{
+  assert("path.homeJoin", tmp_dir, path.resolve(os.homedir(), "vdh-tmp-a"));
+}
+
+let tmp_options;
 if (old_coapp) {
   tmp_options = {template: `${tmp_dir}/foo-XXXXXX.raw` };
 } else {
@@ -232,6 +219,32 @@ if (old_coapp) {
   let dir = await fs.stat(tmp_dir);
   assert_true("mkdirp", dir.isDirectory());
 }
+
+{
+  let url = "https://picsum.photos/id/237/800";
+  let id = await exec("downloads.download", {
+    url: url,
+    filename: "test.png",
+    directory: tmp_dir,
+  });
+  assert("downloads.download", id, 1);
+
+  let bytes = await new Promise((ok) => {
+    let check = async () => {
+      let state = await exec("downloads.search", { id });
+      if (state.length > 0 && state[0].state == "complete") {
+        ok(state[0].bytesReceived);
+      } else {
+        setTimeout(check, 100);
+      }
+    };
+    check();
+  });
+
+  let sestat = await fs.stat(path.resolve(tmp_dir, "test.png"));
+  assert("downloads.search", sestat.size, bytes);
+}
+
 
 let file1_path;
 {
@@ -268,7 +281,7 @@ let file2_path;
 
 {
   let files = await exec("listFiles", tmp_dir);
-  assert("listFiles len", files.length, 2);
+  assert("listFiles len", files.length, 3);
   assert("listFiles 1", files[0][1].path, file1_path);
   assert("listFiles 2", files[1][1].path, file2_path);
 }
@@ -291,7 +304,7 @@ let file2_path;
 {
   await exec("fs.unlink", file2_path);
   let files = await exec("listFiles", tmp_dir);
-  assert("listFiles len after unlink", files.length, 1);
+  assert("listFiles len after unlink", files.length, 2);
 }
 
 {
@@ -302,7 +315,7 @@ let file2_path;
 }
 
 {
-  await fs.rm(process.env.HOME + "/vdh-tmp", {recursive: true, force: true});
+  await fs.rm(os.homedir() + "/vdh-tmp", {recursive: true, force: true});
   let uniq1 = await exec("makeUniqueFileName", "vdh-tmp", "foobar-42");
   await fs.mkdir(uniq1.directory, {recursive: true});
   await fs.writeFile(uniq1.filePath, "xx");
@@ -310,12 +323,17 @@ let file2_path;
   assert("makeUniqueFileName", uniq2.fileName, "foobar-43");
   let vdhtmp = await exec("path.homeJoin", "vdh-tmp", "foobar-42");
   let _ = await exec("fs.stat", vdhtmp);
-  await fs.rm(process.env.HOME + "/vdh-tmp", {recursive: true, force: true});
+  await fs.rm(os.homedir() + "/vdh-tmp", {recursive: true, force: true});
 }
 
 {
-  let parents = await exec("getParents", tmp_dir);
-  assert("getParents", parents.join(""), "/tmp/vdhcoapp-tests/tmp/");
+  if (!is_window) {
+    let parents = await exec("getParents", "/foo/bar/xxx/");
+    assert("getParents", parents.join(""), "/foo/bar/foo/");
+  } else {
+    let parents = await exec("getParents", "C:/foo/bar/xxx/");
+    assert_true("getParents", parents.join("").startsWith("C:\\foo\\barC:\\fooC:"));
+  }
 }
 
 {

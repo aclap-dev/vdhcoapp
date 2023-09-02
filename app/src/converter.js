@@ -1,5 +1,6 @@
 import open from 'open';
 
+const os = require("os");
 const path = require('path');
 const { spawn } = require('child_process');
 
@@ -7,8 +8,13 @@ const logger = require('./logger');
 const rpc = require('./weh-rpc');
 
 const exec_dir = path.dirname(process.execPath);
-const ffmpeg = path.join(exec_dir, "ffmpeg");
-const ffprobe = path.join(exec_dir, "ffprobe");
+let ffmpeg = path.join(exec_dir, "ffmpeg");
+let ffprobe = path.join(exec_dir, "ffprobe");
+
+if (os.platform() == "win32") {
+  ffmpeg += ".exe";
+  ffprobe += ".exe"
+}
 
 function ExecConverter(args) {
   return new Promise((resolve, reject) => {
@@ -111,7 +117,7 @@ rpc.listen({
       });
     });
   },
-  // FIXME: test (partly because as open is tested
+  // FIXME: test (partly because open result is untested)
   "play": (filePath) => {
     return new Promise((resolve, _reject) => {
       open(filePath);

@@ -2,8 +2,9 @@ const dl = require('download');
 const path = require('path');
 const fs = require('node:fs');
 const rpc = require('./weh-rpc');
+const os = require("os");
 
-let downloadFolder = path.join(process.env.HOME || process.env.HOMEDIR, "dwhelper");
+let downloadFolder = path.join(os.homedir(), "dwhelper");
 
 let currentDownloadId = 0;
 

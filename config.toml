@@ -5,12 +5,12 @@ description = "Video DownloadHelper companion app"
 version = "2.0.0"
 
 [package]
-binary_name = "vdhcoapp"
+binary_name = "vdhcoapp" # .exe added automatically
 ffmpeg_build_id = "285c7f6f6b-2023-06-26-001"
 
 [package.windows]
-publisher = "DownloadHelper"
-certificate = "private/certificate.json"
+publisher = "ACLAP"
+certificate = "private/windows-cert.p12"
 
 [package.mac]
 category = "public.app-category.utilities"
@@ -29,19 +29,22 @@ priority = "optional"
 homepage = "https://github.com/aclap-dev/vdhcoapp"
 installedSize = 100000
 
-[store.mozilla]
-extension_ids = [
+[store.mozilla.manifest]
+type = "stdio"
+allowed_extensions = [
   "weh-native-test@downloadhelper.net",
   "{b9db16a4-6edc-47ec-a1f4-b86292ed211d}",
 ]
 
-[store.google]
-extension_ids = [
+[store.google.manifest]
+type = "stdio"
+allowed_origins = [
   "chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/"
 ]
 
-[store.microsoft]
-extension_ids = [
+[store.microsoft.manifest]
+type = "stdio"
+allowed_origins = [
   "chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/"
 ]
 
@@ -56,8 +59,8 @@ system = [ "/usr/lib/mozilla/native-messaging-hosts/" ]
 
 [store.mozilla.msg_manifest_paths.windows]
 regs = [
-  "\\Software\\Mozilla\\NativeMessagingHosts",
-  "\\Software\\ComodoGroup\\NativeMessagingHosts",
+  "Software\\Mozilla\\NativeMessagingHosts",
+  "Software\\ComodoGroup\\NativeMessagingHosts",
 ]
 
 [store.mozilla.msg_manifest_paths.mac]
@@ -101,8 +104,8 @@ system = [
 
 [store.google.msg_manifest_paths.windows]
 regs = [
-  "\\Software\\Google\\Chrome\\NativeMessagingHosts",
-  "\\Software\\Chromium\\NativeMessagingHosts",
+  "Software\\Google\\Chrome\\NativeMessagingHosts",
+  "Software\\Chromium\\NativeMessagingHosts",
 ]
 
 [store.microsoft.msg_manifest_paths.linux]
@@ -125,5 +128,5 @@ system = [
 ]
 [store.microsoft.msg_manifest_paths.windows]
 regs = [
-  "\\Software\\Microsoft\\Edge\\NativeMessagingHosts\\"
+  "Software\\Microsoft\\Edge\\NativeMessagingHosts\\"
 ]

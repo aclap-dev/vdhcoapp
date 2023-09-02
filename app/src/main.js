@@ -5,6 +5,8 @@ if (process.argv[2] == "uninstall") {
   require("./native-autoinstall").uninstall();
 }
 
+const os = require("os");
+
 require('./native-messaging');
 const logger = require('./logger');
 const rpc = require('./weh-rpc');
@@ -42,7 +44,7 @@ rpc.listen({
       binary: process.execPath,
       displayName: config.meta.name,
       description: config.meta.description,
-      home: process.env.HOME || process.env.HOMEDIR || ""
+      home: os.homedir() || ""
     };
     return converter.info().then((convInfo) => {
       return Object.assign(result, {
