@@ -15,14 +15,15 @@ certificate = "private/windows-cert.p12"
 [package.mac]
 category = "public.app-category.utilities"
 icon_icns = "icon.icns"
-dmg_background = "dmg-background.tiff"
 
 [package.mac.signing]
+keychain_profile = "aclap"
 name = "ACLAP"
 pkg_cert = "Developer ID Installer: ACLAP (4YP9AW3WW3)"
 app_cert = "Developer ID Application: ACLAP (4YP9AW3WW3)"
 
 [package.linux]
+# FIXME: Unused
 maintainer = "Michel Gutierrez <coapp@downloadhelper.net>"
 section = "base"
 priority = "optional"
