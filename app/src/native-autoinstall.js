@@ -50,7 +50,7 @@ function GetMode() {
     mode = "flatpak";
   } else if (process.argv.indexOf("--system") >= 0) {
     mode = "system";
-  } else if (!process.execPath.startsWith(os.homedir())) {
+  } else if (process.getuid() == 0) {
     mode = "system";
   } else {
     mode = "user";
@@ -58,7 +58,7 @@ function GetMode() {
 
   if (mode == "system") {
     if (!process.getuid() == 0) {
-      console.error("Can't install system wide without root privilege. Re-run with sudo.");
+      console.error("Can't install system wide without root privilege. Re-run with sudo or with --user.");
       process.exit(1);
     }
   }
