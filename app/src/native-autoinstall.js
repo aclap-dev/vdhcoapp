@@ -100,7 +100,7 @@ async function InstallBinariesInFlatpak(uninstall) {
           }
           await fs.rm(dir, {recursive: true});
           console.log(`CoApp unregistered for ${pak}`);
-        } else if(!uninstall) {
+        } else if (!uninstall) {
           await fs.mkdir(dir, {recursive: true});
           for (let i = 0; i < dest.length; i++) {
             await fs.copyFile(binaries[i], dest[i]);
@@ -139,7 +139,7 @@ async function SetupFiles(platform, mode, uninstall) {
     if (uninstall) {
       try {
         console.log(`Removing file ${op.path}`);
-        await fs.rm(op.path, { force :true });
+        await fs.rm(op.path, { force: true });
       } catch (err) {
         DisplayMessage("Cannot delete manifest file: " + err.message, op.path);
         process.exit(1);
