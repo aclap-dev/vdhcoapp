@@ -46,7 +46,7 @@ function GetMode() {
   let mode;
   if (process.argv.indexOf("--user") >= 0) {
     mode = "user";
-  } else if (process.argv.indexOf("--flatpak") >= 0) {
+  } else if (process.argv.indexOf("--flatpak-workaround") >= 0) {
     mode = "flatpak";
   } else if (process.argv.indexOf("--system") >= 0) {
     mode = "system";

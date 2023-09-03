@@ -35,10 +35,12 @@ Recommended method:
 INSTALL_LOCATION/vdhcoapp install --user
 ```
 
-If you install your browser via Flatpak:
+In older version of Flatpak and Snap, the application was not visible from within the Flatpak-ed browser.
+This should work around the limitation:
 
 ```
-INSTALL_LOCATION/vdhcoapp install --flatpak
+# Only for old versions of Ubuntu
+INSTALL_LOCATION/vdhcoapp install --flatpak-workaround
 ```
 
 For system wide installation (not recommened):
