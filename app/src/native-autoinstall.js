@@ -1,10 +1,20 @@
 const os = require("os");
-const fs = require("fs");
+const fs = require("node:fs/promises");
+const buffer = require("node:buffer");
 const path = require("path");
 const { spawn, spawnSync } = require('child_process');
 const config = require('../../dist/config.json');
 
 const STORES = ["mozilla", "google", "microsoft"];
+
+async function FileExist(path) {
+  try {
+    await fs.stat(path);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
 
 function DisplayMessage(body, title) {
   if (title) {
@@ -26,7 +36,7 @@ function BuildManifests() {
   const stores = {};
   for (let store in config.store) {
     stores[store] = {
-      ...config.store[store],
+      ...config.store[store].manifest,
       ...manifest
     };
   }
@@ -37,8 +47,8 @@ function GetMode() {
   let mode;
   if (process.argv.indexOf("--user") >= 0) {
     mode = "user";
-  } else if (process.argv.indexOf("--flatpack") >= 0) {
-    mode = "platform";
+  } else if (process.argv.indexOf("--flatpak") >= 0) {
+    mode = "flatpak";
   } else if (process.argv.indexOf("--system") >= 0) {
     mode = "system";
   } else if (!process.execPath.startsWith(os.homedir())) {
@@ -54,40 +64,42 @@ function GetMode() {
     }
   }
 
-  if (mode == "flatpack") {
-    let process = spawnSync("flatpack", ["-v"]);
+  if (mode == "flatpak") {
+    let process = spawnSync("flatpak", ["-v"]);
     if (process.error) {
-      console.error("flatpack returned an error", process.error);
+      console.error("flatpak returned an error", process.error);
       process.exit(1);
     }
   }
   return mode;
 }
 
-async function InstallBinariesInFlatpack(uninstall) {
+async function InstallBinariesInFlatpak(uninstall) {
   let dir = path.dirname(process.execPath);
-  let binaries = ["ffmpeg", "ffprobe", config.package.binary_name].map((name) => {
+  let binaries = ["ffmpeg", "ffprobe", "xdg-open", config.package.binary_name].map((name) => {
     return path.resolve(dir, name);
   });
   for (let store of STORES) {
-    let packs = config.store[store].msg_manifest_paths.flatpack;
-    for (let pack of packs) {
-      dir = path.resolve(os.homedir(), ".var/app", pack);
-      if (fs.existsSync(dir)) {
-        console.log(`Flatpack for ${pack} seems to exist. Installing.`);
+    let paks = config.store[store].msg_manifest_paths.linux.flatpak;
+    for (let pak of paks) {
+      dir = path.resolve(os.homedir(), ".var/app", pak);
+      if (await FileExist(dir)) {
+        console.log(`Flatpak for ${pak} seems to exist. Installing.`);
         dir = path.resolve(dir, config.meta.id);
-        if (uninstall && fs.existsSync(dir)) {
-          fs.unlink(dir, {recursive: true});
+        let exist = await FileExist(dir);
+        if (uninstall && exist) {
+          await fs.rm(dir, {recursive: true});
         } else {
-          let xxx = fs.mkdir(dir, {recursive: true});
-          console.log("FIXME", xxx);
-          for (let bin of binaries) {
-            fs.copyFileSync(bin, dir);
+          await fs.mkdir(dir, {recursive: true});
+          let dest = binaries.map((bin) => path.resolve(dir, path.basename(bin)));
+          for (let i = 0; i < dest.lenth; i++) {
+            await fs.copyFile(binaries[i], dest[i]);
           }
-          let args = `run --command=${binaries[2]} ${pack} install --user`;
-          let process = spawnSync("flatpack", args.split(" "));
-          if (process.error) {
-            console.error("flatpack returned an error", process.error);
+          let args = `run --command=${dest[3]} ${pak} install --user`;
+          let process = spawnSync("flatpak", args.split(" "));
+          if (process.status != 0) {
+            console.error("flatpak returned an error:");
+            console.error(process.stderr.toString());
             process.exit(1);
           }
         }
@@ -96,7 +108,7 @@ async function InstallBinariesInFlatpack(uninstall) {
   }
 }
 
-function SetupFiles(platform, mode, uninstall) {
+async function SetupFiles(platform, mode, uninstall) {
   let manifests = BuildManifests();
   let ops = [];
   for (let store of STORES) {
@@ -116,7 +128,7 @@ function SetupFiles(platform, mode, uninstall) {
     if (uninstall) {
       try {
         console.log(`Removing file ${op.path}`);
-        fs.removeSync(op.path);
+        await fs.unlink(op.path);
       } catch (err) {
         DisplayMessage("Cannot delete manifest file: " + err.message, op.path);
         process.exit(1);
@@ -124,7 +136,10 @@ function SetupFiles(platform, mode, uninstall) {
     } else {
       try {
         console.log(`Writing ${op.path}`);
-        fs.outputFileSync(op.path, op.content, "utf8");
+        let dir = path.dirname(op.path);
+        await fs.mkdir(dir, { recursive: true });
+        const data = new Uint8Array(Buffer.from(op.content));
+        await fs.writeFile(op.path, data);
       } catch (err) {
         DisplayMessage("Cannot write manifest file: " + err.message, op.path);
         process.exit(1);
@@ -145,8 +160,8 @@ function install_uninstall(uninstall = false) {
   let platform = os.platform();
   if (platform == "darwin") {
     SetupFiles("mac", mode, uninstall);
-  } else if (platform == "linux" && mode == "flatpack") {
-    InstallBinariesInFlatpack(uninstall);
+  } else if (platform == "linux" && mode == "flatpak") {
+    InstallBinariesInFlatpak(uninstall);
   } else if (platform == "linux") {
     SetupFiles("linux", mode, uninstall);
   } else {

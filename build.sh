@@ -148,6 +148,9 @@ if [ ! $skip_packaging == 1 ]; then
 
   if [ $target_os == "linux" ]; then
     cp LICENSE.txt README.md app/node_modules/open/xdg-open $target_dist_dir
+    cp $target_dist_dir/ffmpeg-$target/ffmpeg \
+      $target_dist_dir/ffmpeg-$target/ffprobe \
+      $target_dist_dir
   fi
 
   if [ $target_os == "mac" ]; then

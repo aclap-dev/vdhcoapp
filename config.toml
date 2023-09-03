@@ -57,7 +57,7 @@ allowed_origins = [
 [store.mozilla.msg_manifest_paths.linux]
 user = [ "~/.mozilla/native-messaging-hosts/" ]
 system = [ "/usr/lib/mozilla/native-messaging-hosts/" ]
-flatpack = [ "org.mozilla.firefox" ]
+flatpak = [ "org.mozilla.firefox" ]
 
 [store.mozilla.msg_manifest_paths.windows]
 regs = [
@@ -77,7 +77,6 @@ system = [
 user = [
   "~/.config/google-chrome/NativeMessagingHosts/",
   "~/.config/chromium/NativeMessagingHosts/",
-  "~/.config/microsoft-edge/NativeMessagingHosts",
   "~/.config/vivaldi/NativeMessagingHosts",
   "~/.config/vivaldi-snapshot/NativeMessagingHosts",
   "~/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts",
@@ -87,7 +86,7 @@ system = [
   "/etc/opt/chrome/native-messaging-hosts/",
   "/etc/chromium/native-messaging-hosts/"
 ]
-flatpack = [
+flatpak = [
   "com.google.Chrome",
   "com.google.ChromeDev",
   "com.github.Eloston.UngoogledChromium",
@@ -124,7 +123,7 @@ user = [
 system = [
   "/etc/opt/edge/native-messaging-hosts/",
 ]
-flatpack = [
+flatpak = [
   "com.microsoft.Edge",
   "com.microsoft.EdgeDev",
 ]
