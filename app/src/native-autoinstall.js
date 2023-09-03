@@ -1,6 +1,5 @@
 const os = require("os");
 const fs = require("node:fs/promises");
-const buffer = require("node:buffer");
 const path = require("path");
 const { spawn, spawnSync } = require('child_process');
 const config = require('../../dist/config.json');
