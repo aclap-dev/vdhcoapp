@@ -64,7 +64,7 @@ function GetMode() {
   }
 
   if (mode == "flatpak") {
-    let process = spawnSync("flatpak", ["-v"]);
+    let process = spawnSync("flatpak", ["-h"]);
     if (process.error) {
       console.error("flatpak returned an error", process.error);
       process.exit(1);
@@ -91,7 +91,7 @@ async function InstallBinariesInFlatpak(uninstall) {
         } else {
           await fs.mkdir(dir, {recursive: true});
           let dest = binaries.map((bin) => path.resolve(dir, path.basename(bin)));
-          for (let i = 0; i < dest.lenth; i++) {
+          for (let i = 0; i < dest.length; i++) {
             await fs.copyFile(binaries[i], dest[i]);
           }
           let args = `run --command=${dest[3]} ${pak} install --user`;
@@ -101,6 +101,7 @@ async function InstallBinariesInFlatpak(uninstall) {
             console.error(process.stderr.toString());
             process.exit(1);
           }
+          console.log(`CoApp registered for ${pak}`);
         }
       }
     }
