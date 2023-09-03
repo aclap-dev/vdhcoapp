@@ -7,7 +7,7 @@ import { assert, assert_true, assert_deep_equal } from "./assert.mjs";
 import { spawn_process, spawn_process_and_track } from "./process.mjs";
 import { register_request_handler } from "./rpc.mjs";
 import path from "path";
-import { expected_codecs, _expected_formats } from "./codecs.mjs";
+import { expected_codecs, expected_formats } from "./codecs.mjs";
 
 const amo = JSON.stringify([
   "weh-native-test@downloadhelper.net",
@@ -70,22 +70,35 @@ const install_locations = {
   },
 };
 
-let is_window = process.platform == "win32";
+let is_windows = process.platform == "win32";
 
 let bin_path;
-let arg = process.argv[2];
-if (!arg && !is_window) {
+let arg1 = process.argv[2];
+let arg2 = process.argv[3];
+
+let with_network = false;
+if (arg1 == "--with-network" || arg2 == "--with-network") {
+  with_network = true;
+}
+
+let arg1_is_bin = false;
+if (arg1 && !arg1.startsWith("-")) {
+  arg1_is_bin = true;
+}
+
+if (!arg1_is_bin && !is_windows) {
   let dir = install_locations[process.platform].user[0][0];
   let json_path = path.resolve(os.homedir(), dir, "net.downloadhelper.coapp.json");
   let json = JSON.parse(await fs.readFile(json_path));
   bin_path = json.path;
-} else if (!arg && is_window) {
-  // FIXME
+} else if (!arg1_is_bin && is_windows) {
+  console.error("Not supported (FIXME)");
+  process.exit(1);
 } else {
-  bin_path = path.resolve(arg);
+  bin_path = path.resolve(arg1);
 }
 
-if (!is_window) {
+if (!is_windows) {
   {
     let code = await spawn_process(bin_path, ["uninstall", "--user"]);
     assert("uninstall success", code, 0);
@@ -141,7 +154,7 @@ let exec = async (...args) => send(child.stdin, ...args);
   assert("vm.run", result, 42);
 }
 
-{
+if (with_network) {
   let url = "http://echo.jsontest.com/foo/bar";
   let options = {
     headers: [
@@ -152,7 +165,7 @@ let exec = async (...args) => send(child.stdin, ...args);
   assert("request", JSON.parse(content.data).foo, "bar");
 }
 
-{
+if (with_network) {
   let url = "https://picsum.photos/id/237/20";
   let bin = await exec("requestBinary", url);
   let hash = bin.data.data.reduce((a, b) => a + b, 0);
@@ -195,9 +208,12 @@ let old_coapp;
 if (!old_coapp) {
   const codecs = await exec("codecs");
   assert_deep_equal("codecs", codecs, expected_codecs);
-  console.warn("Skipping format test as it fails on Linux");
-  // const formats = await exec("formats");
-  // assert_deep_equal("formats", formats, expected_formats);
+  const formats = await exec("formats");
+  if (os.platform() != "linux") {
+    assert_deep_equal("formats", formats, expected_formats);
+  } else {
+    console.warn("Skipping format test as it fails on Linux");
+  }
 }
 
 {
@@ -229,7 +245,7 @@ if (old_coapp) {
   assert_true("mkdirp", dir.isDirectory());
 }
 
-{
+if (with_network) {
   let url = "https://picsum.photos/id/237/800";
   let id = await exec("downloads.download", {
     url: url,
@@ -289,7 +305,7 @@ let file2_path;
 
 {
   let files = await exec("listFiles", tmp_dir);
-  assert("listFiles len", files.length, 3);
+  assert("listFiles len", files.length, with_network ? 3 : 2);
   assert("listFiles 1", files[0][1].path, file1_path);
   assert("listFiles 2", files[1][1].path, file2_path);
 }
@@ -312,7 +328,7 @@ let file2_path;
 {
   await exec("fs.unlink", file2_path);
   let files = await exec("listFiles", tmp_dir);
-  assert("listFiles len after unlink", files.length, 2);
+  assert("listFiles len after unlink", files.length, with_network ? 2 : 1);
 }
 
 {
@@ -335,7 +351,7 @@ let file2_path;
 }
 
 {
-  if (!is_window) {
+  if (!is_windows) {
     let parents = await exec("getParents", "/foo/bar/xxx/");
     assert("getParents", parents.join(""), "/foo/bar/foo/");
   } else {
@@ -344,7 +360,7 @@ let file2_path;
   }
 }
 
-{
+if (with_network) {
   let url = "https://s3.amazonaws.com/qa.jwplayer.com/hlsjs/muxed-fmp4/hls.m3u8";
   let json = await exec("probe", url, true);
   json = JSON.parse(json);

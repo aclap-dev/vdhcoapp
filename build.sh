@@ -149,6 +149,10 @@ if [ ! -d "$target_dist_dir/ffmpeg-$target" ]; then
   rm $ffmpeg_tarball
 fi
 
+cp $target_dist_dir/ffmpeg-$target/ffmpeg$exe_extension \
+  $target_dist_dir/ffmpeg-$target/ffprobe$exe_extension \
+  $target_dist_dir/
+
 if [ ! $skip_packaging == 1 ]; then
 
   if [ $target_os == "linux" ]; then
