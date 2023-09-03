@@ -86,11 +86,22 @@ async function InstallBinariesInFlatpak(uninstall) {
         console.log(`Flatpak for ${pak} seems to exist. Installing.`);
         dir = path.resolve(dir, config.meta.id);
         let exist = await FileExist(dir);
+        let dest = binaries.map((bin) => path.resolve(dir, path.basename(bin)));
         if (uninstall && exist) {
+          let args = `run --command=${dest[3]} ${pak} uninstall --user`;
+          let process = spawnSync("flatpak", args.split(" "));
+          if (process.status != 0) {
+            console.error("flatpak returned an error:");
+            console.error("Stderr:");
+            console.error(process.stderr.toString());
+            console.error("Stdout:");
+            console.error(process.stdout.toString());
+            process.exit(1);
+          }
           await fs.rm(dir, {recursive: true});
-        } else {
+          console.log(`CoApp unregistered for ${pak}`);
+        } else if(!uninstall) {
           await fs.mkdir(dir, {recursive: true});
-          let dest = binaries.map((bin) => path.resolve(dir, path.basename(bin)));
           for (let i = 0; i < dest.length; i++) {
             await fs.copyFile(binaries[i], dest[i]);
           }
@@ -128,7 +139,7 @@ async function SetupFiles(platform, mode, uninstall) {
     if (uninstall) {
       try {
         console.log(`Removing file ${op.path}`);
-        await fs.unlink(op.path);
+        await fs.rm(op.path, { force :true });
       } catch (err) {
         DisplayMessage("Cannot delete manifest file: " + err.message, op.path);
         process.exit(1);
