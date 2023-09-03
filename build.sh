@@ -179,7 +179,8 @@ if [ ! $skip_packaging == 1 ]; then
       $target_dist_dir/$package_binary_name \
       $macos_dir
 
-    cp -r $target_dist_dir/ffmpeg-$target/presets $res_dir/ffmpeg-presets
+    # Not installing presets
+    # cp -r $target_dist_dir/ffmpeg-$target/presets $res_dir/ffmpeg-presets
 
     ejs -f $target_dist_dir/config.json ./assets/mac/pkg-distribution.xml.ejs > $target_dist_dir/pkg-distribution.xml
     ejs -f $target_dist_dir/config.json ./assets/mac/pkg-component.plist.ejs > $target_dist_dir/pkg-component.plist
@@ -254,7 +255,8 @@ if [ ! $skip_packaging == 1 ]; then
     cp $target_dist_dir/ffmpeg-$target/ffmpeg.exe \
       $target_dist_dir/ffmpeg-$target/ffprobe.exe \
       $install_dir
-    cp -r $target_dist_dir/ffmpeg-$target/presets $install_dir/ffmpeg-presets
+    # Not installing presets
+    # cp -r $target_dist_dir/ffmpeg-$target/presets $install_dir/ffmpeg-presets
     cp LICENSE.txt $target_dist_dir
     cp assets/windows/icon.ico $target_dist_dir
     ejs -f $target_dist_dir/config.json ./assets/windows/installer.nsh.ejs > $target_dist_dir/installer.nsh
