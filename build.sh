@@ -63,7 +63,7 @@ while [[ "$#" -gt 0 ]]; do
     -h|--help)
       echo "Usage:"
       echo "--skip-bundling    # skip bundling JS code into binary. Packaging will reuse already built binaries"
-      echo "--skip-packaging   # skip packaging operations"
+      echo "--skip-packaging   # skip packaging operations (including signing)"
       echo "--skip-signing     # do not sign the binaries"
       echo "--target <os-arch> # os: linux / mac / windows, arch: x86_64 / i686 / arm64"
       exit 0
@@ -193,6 +193,14 @@ if [ ! $skip_packaging == 1 ]; then
     fi
 
     rm -f $target_dist_dir/$package_binary_name-installer-$meta_version.pkg
+
+    pkgbuild_sign=()
+    create_dmg_sign=()
+    if [ ! $skip_signing == 1 ]; then
+      pkgbuild_sign=("--sign" "$package_mac_signing_pkg_cert")
+      create_dmg_sign=("--codesign" "$package_mac_signing_app_cert")
+    fi
+
     pkgbuild \
       --root $dot_app_dir \
       --install-location /Applications \
@@ -200,7 +208,7 @@ if [ ! $skip_packaging == 1 ]; then
       --identifier $meta_id \
       --component-plist $target_dist_dir/pkg-component.plist \
       --version $meta_version \
-      --sign "$package_mac_signing_pkg_cert" \
+      ${pkgbuild_sign[@]+"${pkgbuild_sign[@]}"} \
       $target_dist_dir/$package_binary_name-installer-$meta_version.pkg
 
     rm -f $target_dist_dir/$package_binary_name.dmg
@@ -209,7 +217,7 @@ if [ ! $skip_packaging == 1 ]; then
       --window-pos 200 120 --window-size 500 400 --icon-size 70 \
       --icon "$meta_id.app" 100 200 \
       --app-drop-link 350 200 \
-      --codesign $package_mac_signing_name \
+      ${create_dmg_sign[@]+"${create_dmg_sign[@]}"} \
       $target_dist_dir/$package_binary_name.dmg \
       $dot_app_dir
 
