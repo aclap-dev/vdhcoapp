@@ -147,10 +147,18 @@ fi
 if [ ! $skip_packaging == 1 ]; then
 
   if [ $target_os == "linux" ]; then
-    cp LICENSE.txt README.md app/node_modules/open/xdg-open $target_dist_dir
-    cp $target_dist_dir/ffmpeg-$target/ffmpeg \
+    rm -rf $target_dist_dir/$package_binary_name-$meta_version
+    rm -rf $target_dist_dir/$package_binary_name-$meta_version.tar.bz2
+    mkdir $target_dist_dir/$package_binary_name-$meta_version
+    cp LICENSE.txt README.md app/node_modules/open/xdg-open \
+      $target_dist_dir/ffmpeg-$target/ffmpeg \
       $target_dist_dir/ffmpeg-$target/ffprobe \
-      $target_dist_dir
+      $target_dist_dir/$package_binary_name \
+      $target_dist_dir/$package_binary_name-$meta_version
+    (cd $target_dist_dir && \
+      tar -cvjSf \
+        $package_binary_name-$meta_version.tar.bz2 \
+        $package_binary_name-$meta_version)
   fi
 
   if [ $target_os == "mac" ]; then
