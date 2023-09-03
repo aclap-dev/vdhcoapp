@@ -60,6 +60,14 @@ skip_bundling=0
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
+    -h|--help)
+      echo "Usage:"
+      echo "--skip-bundling    # skip bundling JS code into binary. Packaging will reuse already built binaries"
+      echo "--skip-packaging   # skip packaging operations"
+      echo "--skip-signing     # do not sign the binaries"
+      echo "--target <os-arch> # os: linux / mac / windows, arch: x86_64 / i686 / arm64"
+      exit 0
+      ;;
     --skip-bundling) skip_bundling=1 ;;
     --skip-packaging) skip_packaging=1 ;;
     --skip-signing) skip_signing=1 ;;
