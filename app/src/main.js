@@ -43,6 +43,8 @@ if (process.argv[2] == "install") {
         binary: process.execPath,
         displayName: config.meta.name,
         description: config.meta.description,
+        target_os: config.target.os,
+        target_arch: config.target.arch,
         home: os.homedir() || ""
       };
       return converter.info().then((convInfo) => {

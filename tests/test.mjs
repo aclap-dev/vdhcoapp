@@ -171,6 +171,15 @@ let old_coapp;
   } else {
     assert_true("info.version", false);
   }
+
+  let os_arch = os.arch();
+  if (os_arch == "arm64") {
+    assert("info.target_arch", info.target_arch, "arm64");
+  } else if (os_arch == "x64") {
+    assert("info.target_arch", info.target_arch, "x86_64");
+  } else {
+    assert_true("info.target_arch", false);
+  }
 }
 
 {
