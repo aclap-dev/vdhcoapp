@@ -22,13 +22,15 @@ name = "ACLAP"
 pkg_cert = "Developer ID Installer: ACLAP (4YP9AW3WW3)"
 app_cert = "Developer ID Application: ACLAP (4YP9AW3WW3)"
 
-[package.linux]
-# FIXME: Unused
+[package.deb]
 maintainer = "Michel Gutierrez <coapp@downloadhelper.net>"
 section = "base"
 priority = "optional"
 homepage = "https://github.com/aclap-dev/vdhcoapp"
 installedSize = 100000
+Copyright = "2018-2023 Michel Gutierrez"
+License = "GPL-2.0"
+Files = "*"
 
 [store.mozilla.manifest]
 type = "stdio"

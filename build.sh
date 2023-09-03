@@ -152,18 +152,45 @@ fi
 if [ ! $skip_packaging == 1 ]; then
 
   if [ $target_os == "linux" ]; then
-    rm -rf $target_dist_dir/$package_binary_name-$meta_version
-    rm -rf $target_dist_dir/$package_binary_name-$meta_version.tar.bz2
-    mkdir $target_dist_dir/$package_binary_name-$meta_version
+    rm -rf $target_dist_dir/deb
+    mkdir -p $target_dist_dir/deb/opt/$package_binary_name
+    mkdir -p $target_dist_dir/deb/DEBIAN
     cp LICENSE.txt README.md app/node_modules/open/xdg-open \
+      $target_dist_dir/$package_binary_name \
       $target_dist_dir/ffmpeg-$target/ffmpeg \
       $target_dist_dir/ffmpeg-$target/ffprobe \
-      $target_dist_dir/$package_binary_name \
+      $target_dist_dir/deb/opt/$package_binary_name
+
+    deb_arch=$target_arch
+    if [ $target_arch == "x86_64" ]; then
+      deb_arch="amd64"
+    fi
+
+    yq ".package.deb" ./config.toml -o yaml | \
+      yq e ".package = \"$meta_id\"" |\
+      yq e ".description = \"$meta_description\"" |\
+      yq e ".architecture = \"$deb_arch\"" |\
+      yq e ".version = \"$meta_version\"" -o yaml > $target_dist_dir/deb/DEBIAN/control
+
+    echo "/opt/$package_binary_name/$package_binary_name install --system" > $target_dist_dir/deb/DEBIAN/postinst
+    chmod +x $target_dist_dir/deb/DEBIAN/postinst
+
+    dpkg-deb --build $target_dist_dir/deb \
+      $target_dist_dir/${package_binary_name}-${target_arch}-${meta_version}.deb
+
+    rm -rf $target_dist_dir/$package_binary_name-$meta_version
+    rm -f $target_dist_dir/$package_binary_name-$meta_version.tar.bz2
+    mkdir $target_dist_dir/$package_binary_name-$meta_version
+    cp $target_dist_dir/deb/opt/$package_binary_name/* \
       $target_dist_dir/$package_binary_name-$meta_version
     (cd $target_dist_dir && \
       tar -cvjSf \
         $package_binary_name-$meta_version.tar.bz2 \
         $package_binary_name-$meta_version)
+
+    rm -rf $target_dist_dir/$package_binary_name-$meta_version
+    rm -rf $target_dist_dir/deb
+
   fi
 
   if [ $target_os == "mac" ]; then
