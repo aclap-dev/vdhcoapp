@@ -3,6 +3,11 @@
 set -euo pipefail
 cd $(dirname $0)/
 
+if ! [ -x "$(command -v yq)" ]; then
+  echo "yq not installed. See https://github.com/mikefarah/yq/#install"
+  exit 1
+fi
+
 if ! [ -x "$(command -v node)" ]; then
   echo "Node not installed"
   exit 1
