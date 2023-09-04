@@ -169,9 +169,8 @@ rpc.listen({
       });
   },
   // In test suite, but just to check if not throwing.
-  "open": (filePath) => {
-    open(filePath);
-    return Promise.resolve();
+  "open": (filePath, options = {}) => {
+    return open(filePath, options);
   },
 
 });

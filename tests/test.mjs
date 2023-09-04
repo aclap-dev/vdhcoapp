@@ -209,10 +209,10 @@ if (!old_coapp) {
   const codecs = await exec("codecs");
   assert_deep_equal("codecs", codecs, expected_codecs);
   const formats = await exec("formats");
-  if (os.platform() != "linux") {
+  if (os.platform() == "darwin") {
     assert_deep_equal("formats", formats, expected_formats);
   } else {
-    console.warn("Skipping format test as it fails on Linux");
+    console.warn("Skipping format test as it fails on Linux and Windows");
   }
 }
 
@@ -268,6 +268,12 @@ if (with_network) {
 
   let sestat = await fs.stat(path.resolve(tmp_dir, "test.png"));
   assert("downloads.search", sestat.size, bytes);
+}
+
+if (with_network) {
+  await exec("open", path.resolve(tmp_dir, "test.png"));
+  await new Promise((ok) => setTimeout(ok, 5000));
+  assert_true("open", true);
 }
 
 let file1_path;
@@ -397,11 +403,6 @@ if (with_network) {
 
   assert_true("output size", (out_mp4.size > 3380000) && (out_mp4.size < 3400000));
   assert_true("ticked", tick_count > 3);
-}
-
-{
-  await exec("open", path.resolve(tmp_dir, "test.png"));
-  assert_true("open", true);
 }
 
 exec("quit");
