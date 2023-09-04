@@ -400,7 +400,7 @@ if (with_network) {
 }
 
 {
-  await exec("open", "/tmp/test.png");
+  await exec("open", path.resolve(tmp_dir, "test.png"));
   assert_true("open", true);
 }
 
