@@ -4,7 +4,7 @@ const path = require("path");
 const { spawn, spawnSync } = require('child_process');
 const config = require('../../dist/config.json');
 
-const STORES = ["mozilla", "google", "microsoft"];
+const STORES = Object.keys(config.store);
 
 async function FileExist(path) {
   try {
