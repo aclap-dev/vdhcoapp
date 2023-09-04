@@ -136,6 +136,7 @@ cp $target_dist_dir/config.json $dist_dir # for JS require(config.json)
 eval $(yq ./config.toml -o shell)
 
 out_deb_file="$package_binary_name-$meta_version-$target_arch.deb"
+out_bz2_file="$package_binary_name-$meta_version-$target.tar.bz2"
 out_pkg_file="$package_binary_name-$meta_version-$target_arch.pkg"
 out_dmg_file="$package_binary_name-$meta_version-$target_arch.dmg"
 out_win_file="$package_binary_name-installer-$meta_version-$target_arch.exe"
@@ -217,7 +218,7 @@ if [ ! $skip_packaging == 1 ]; then
     cp $target_dist_dir/deb/opt/$package_binary_name/* \
       $target_dist_dir/$package_binary_name-$meta_version
     log "Building .tar.bz2 file"
-    (cd $target_dist_dir && tar -cvjSf $out_deb_file $package_binary_name-$meta_version)
+    (cd $target_dist_dir && tar -cvjSf $out_bz2_file $package_binary_name-$meta_version)
 
     rm -rf $target_dist_dir/$package_binary_name-$meta_version
     rm -rf $target_dist_dir/deb
@@ -364,8 +365,8 @@ if [ $target_os == "linux" ]; then
   log "Binary available: $target_dist_dir_rel/ffmpeg"
   log "Binary available: $target_dist_dir_rel/ffprobe"
   if [ ! $skip_packaging == 1 ]; then
-    log "Deb file available: $target_dist_dir_rel/$out_deb_file
-    log "Tarball available: $target_dist_dir_rel/$out_bz2_file
+    log "Deb file available: $target_dist_dir_rel/$out_deb_file"
+    log "Tarball available: $target_dist_dir_rel/$out_bz2_file"
   fi
 fi
 
