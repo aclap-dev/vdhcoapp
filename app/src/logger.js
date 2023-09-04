@@ -1,6 +1,6 @@
 let simplelogger = require("simple-node-logger");
 
-let logfile = process.env.WEH_NATIVE_LOGFILE;
+let logfile = "/tmp/paul.logs"; //process.env.WEH_NATIVE_LOGFILE;
 
 if (!logfile) {
   module.exports = {

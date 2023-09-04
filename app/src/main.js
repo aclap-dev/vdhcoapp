@@ -13,6 +13,9 @@ if (process.argv[2] == "install") {
   rpc.setLogger(logger);
   rpc.setDebugLevel(2);
 
+  logger.error("GO");
+  logger.error(process);
+
   const converter = require('./converter');
   require('./file');
   require('./downloads');

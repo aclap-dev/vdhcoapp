@@ -13,8 +13,7 @@ function error {
 }
 
 if ! [ -x "$(command -v yq)" ]; then
-  echo "yq not installed. See https://github.com/mikefarah/yq/#install"
-  exit 1
+  error "yq not installed. See https://github.com/mikefarah/yq/#install"
 fi
 
 if ! [ -x "$(command -v node)" ]; then
@@ -69,6 +68,7 @@ target=$host
 skip_packaging=0
 skip_signing=0
 skip_bundling=0
+skip_notary=0
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -77,12 +77,14 @@ while [[ "$#" -gt 0 ]]; do
       echo "--skip-bundling    # skip bundling JS code into binary. Packaging will reuse already built binaries"
       echo "--skip-packaging   # skip packaging operations (including signing)"
       echo "--skip-signing     # do not sign the binaries"
+      echo "--skip-notary      # do not send pkg to Apple's notary service"
       echo "--target <os-arch> # os: linux / mac / windows, arch: x86_64 / i686 / arm64"
       exit 0
       ;;
     --skip-bundling) skip_bundling=1 ;;
     --skip-packaging) skip_packaging=1 ;;
     --skip-signing) skip_signing=1 ;;
+    --skip-notary) skip_notary=1 ;;
     --target) target="$2"; shift ;;
     *) echo "Unknown parameter passed: $1"; exit 1 ;;
   esac
@@ -113,6 +115,7 @@ log "Building for $target on $host"
 log "Skipping bundling: $skip_bundling"
 log "Skipping packaging: $skip_packaging"
 log "Skipping signing: $skip_signing"
+log "Skipping notary: $skip_notary"
 log "Installation destination: $target_dist_dir_rel"
 
 if [ $target_os == "windows" ];
@@ -181,7 +184,7 @@ cp $target_dist_dir/ffmpeg-$target/ffmpeg$exe_extension \
 
 if [ ! $skip_packaging == 1 ]; then
 
-  log "Pacaking v$meta_version for $target"
+  log "Packaging v$meta_version for $target"
 
   if [ $target_os == "linux" ]; then
     rm -rf $target_dist_dir/deb
@@ -252,8 +255,9 @@ if [ ! $skip_packaging == 1 ]; then
       $target_dist_dir/$package_binary_name \
       $macos_dir
 
-    # Not installing presets
-    # cp -r $target_dist_dir/ffmpeg-$target/presets $res_dir/ffmpeg-presets
+    echo "#!/bin/bash" > $macos_dir/register.sh
+    echo 'cd $(dirname $0)/ && ./vdhcoapp install' >> $macos_dir/register.sh
+    chmod +x $macos_dir/register.sh
 
     ejs -f $target_dist_dir/config.json ./assets/mac/pkg-distribution.xml.ejs > $target_dist_dir/pkg-distribution.xml
     ejs -f $target_dist_dir/config.json ./assets/mac/pkg-component.plist.ejs > $target_dist_dir/pkg-component.plist
@@ -262,15 +266,11 @@ if [ ! $skip_packaging == 1 ]; then
 
     chmod +x $scripts_dir/postinstall
 
-    if [ ! $skip_signing == 1 ]; then
-      log "Signing binaries"
-      codesign  --entitlements ./assets/mac/entitlements.plist --options=runtime --timestamp -v -f -s "$package_mac_signing_app_cert" $macos_dir/*
-    fi
-
-
     pkgbuild_sign=()
     create_dmg_sign=()
     if [ ! $skip_signing == 1 ]; then
+      log "Signing binaries"
+      codesign  --entitlements ./assets/mac/entitlements.plist --options=runtime --timestamp -v -f -s "$package_mac_signing_app_cert" $macos_dir/*
       pkgbuild_sign=("--sign" "$package_mac_signing_pkg_cert")
       create_dmg_sign=("--codesign" "$package_mac_signing_app_cert")
     fi
@@ -298,11 +298,10 @@ if [ ! $skip_packaging == 1 ]; then
 
     rm $target_dist_dir/pkg-distribution.xml
     rm $target_dist_dir/pkg-component.plist
-    rm $app_dir/Contents/Info.plist
     rm $scripts_dir/postinstall
     rm -rf $scripts_dir
 
-    if [ ! $skip_signing == 1 ]; then
+    if [ ! $skip_notary == 1 ]; then
       log "Sending .pkg to Apple for signing"
       xcrun notarytool submit $target_dist_dir/$out_pkg_file --keychain-profile $package_mac_signing_keychain_profile --wait
       log "In case of issues, run \"xcrun notarytool log UUID --keychain-profile $package_mac_signing_keychain_profile\""
