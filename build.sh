@@ -86,7 +86,7 @@ while [[ "$#" -gt 0 ]]; do
     --skip-signing) skip_signing=1 ;;
     --skip-notary) skip_notary=1 ;;
     --target) target="$2"; shift ;;
-    *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    *) error "Unknown parameter passed: $1" ;;
   esac
   shift
 done
@@ -125,6 +125,7 @@ else
   exe_extension=""
 fi
 
+rm -rf $target_dist_dir
 mkdir -p $target_dist_dir
 
 # Note: 2 config.json are created:
@@ -166,20 +167,20 @@ else
   log "Skipping bundling"
 fi
 
-if [ ! -d "$target_dist_dir/ffmpeg-$target" ]; then
+if [ ! -d "$dist_dir/ffmpeg-$target" ]; then
   log "Retrieving ffmpeg"
   ffmpeg_url_base="https://github.com/aclap-dev/ffmpeg-static-builder/releases/download/"
   ffmpeg_url=$ffmpeg_url_base/ffmpeg-$package_ffmpeg_build_id/ffmpeg-$target.tar.bz2
-  ffmpeg_tarball=$target_dist_dir/ffmpeg.tar.bz2
+  ffmpeg_tarball=$dist_dir/ffmpeg.tar.bz2
   wget --show-progress --quiet -c -O $ffmpeg_tarball $ffmpeg_url
-  (cd $target_dist_dir && tar -xf $ffmpeg_tarball)
+  (cd $dist_dir && tar -xf $ffmpeg_tarball)
   rm $ffmpeg_tarball
 else
   log "ffmpeg already downloaded"
 fi
 
-cp $target_dist_dir/ffmpeg-$target/ffmpeg$exe_extension \
-  $target_dist_dir/ffmpeg-$target/ffprobe$exe_extension \
+cp $dist_dir/ffmpeg-$target/ffmpeg$exe_extension \
+  $dist_dir/ffmpeg-$target/ffprobe$exe_extension \
   $target_dist_dir/
 
 if [ ! $skip_packaging == 1 ]; then
@@ -187,9 +188,6 @@ if [ ! $skip_packaging == 1 ]; then
   log "Packaging v$meta_version for $target"
 
   if [ $target_os == "linux" ]; then
-    rm -rf $target_dist_dir/deb
-    rm -f $target_dist_dir/$out_deb_file
-
     mkdir -p $target_dist_dir/deb/opt/$package_binary_name
     mkdir -p $target_dist_dir/deb/DEBIAN
     cp LICENSE.txt README.md app/node_modules/open/xdg-open \
@@ -215,7 +213,6 @@ if [ ! $skip_packaging == 1 ]; then
     log "Building .deb file"
     dpkg-deb --build $target_dist_dir/deb $target_dist_dir/$out_deb_file
 
-    rm -f $target_dist_dir/$out_bz2_file
     rm -rf $target_dist_dir/$package_binary_name-$meta_version
     mkdir $target_dist_dir/$package_binary_name-$meta_version
     cp $target_dist_dir/deb/opt/$package_binary_name/* \
@@ -232,17 +229,11 @@ if [ ! $skip_packaging == 1 ]; then
       error "create-dmg not installed"
     fi
 
-    rm -f $target_dist_dir/$out_pkg_file
-    rm -f $target_dist_dir/$out_dmg_file
-
     dot_app_dir=$target_dist_dir/dotApp/
     app_dir=$dot_app_dir/$meta_id.app
     macos_dir=$app_dir/Contents/MacOS
     res_dir=$app_dir/Contents/Resources
     scripts_dir=$target_dist_dir/scripts
-
-    rm -rf $dot_app_dir
-    rm -rf $scripts_dir
 
     mkdir -p $macos_dir
     mkdir -p $res_dir
@@ -250,29 +241,33 @@ if [ ! $skip_packaging == 1 ]; then
 
     cp LICENSE.txt README.md assets/mac/icon.icns $res_dir
 
-    cp $target_dist_dir/ffmpeg-$target/ffmpeg \
-      $target_dist_dir/ffmpeg-$target/ffprobe \
+    cp $dist_dir/ffmpeg-$target/ffmpeg \
+      $dist_dir/ffmpeg-$target/ffprobe \
       $target_dist_dir/$package_binary_name \
       $macos_dir
 
-    echo "#!/bin/bash" > $macos_dir/register.sh
+    # Note: without the shebang, the app is considered damaged by MacOS.
+    echo '#!/bin/bash' > $macos_dir/register.sh
     echo 'cd $(dirname $0)/ && ./vdhcoapp install' >> $macos_dir/register.sh
     chmod +x $macos_dir/register.sh
+
+    echo '#!/bin/bash' > $scripts_dir/postinstall
+    echo "\$DSTROOT/$meta_id.app/Contents/MacOS/register.sh" >> $scripts_dir/postinstall
+    chmod +x $scripts_dir/postinstall
 
     ejs -f $target_dist_dir/config.json ./assets/mac/pkg-distribution.xml.ejs > $target_dist_dir/pkg-distribution.xml
     ejs -f $target_dist_dir/config.json ./assets/mac/pkg-component.plist.ejs > $target_dist_dir/pkg-component.plist
     ejs -f $target_dist_dir/config.json ./assets/mac/Info.plist.ejs > $app_dir/Contents/Info.plist
-    ejs -f $target_dist_dir/config.json ./assets/mac/postinstall.ejs > $scripts_dir/postinstall
-
-    chmod +x $scripts_dir/postinstall
 
     pkgbuild_sign=()
     create_dmg_sign=()
     if [ ! $skip_signing == 1 ]; then
       log "Signing binaries"
-      codesign  --entitlements ./assets/mac/entitlements.plist --options=runtime --timestamp -v -f -s "$package_mac_signing_app_cert" $macos_dir/*
+      codesign --entitlements ./assets/mac/entitlements.plist --options=runtime --timestamp -v -f -s "$package_mac_signing_app_cert" $macos_dir/*
       pkgbuild_sign=("--sign" "$package_mac_signing_pkg_cert")
       create_dmg_sign=("--codesign" "$package_mac_signing_app_cert")
+    else
+      log "Skip signing"
     fi
 
     log "Creating .pkg file"
@@ -301,7 +296,7 @@ if [ ! $skip_packaging == 1 ]; then
     rm $scripts_dir/postinstall
     rm -rf $scripts_dir
 
-    if [ ! $skip_notary == 1 ]; then
+    if [ ! $skip_notary == 1 ] && [ ! $skip_signing == 1 ]; then
       log "Sending .pkg to Apple for signing"
       xcrun notarytool submit $target_dist_dir/$out_pkg_file --keychain-profile $package_mac_signing_keychain_profile --wait
       log "In case of issues, run \"xcrun notarytool log UUID --keychain-profile $package_mac_signing_keychain_profile\""
@@ -311,7 +306,6 @@ if [ ! $skip_packaging == 1 ]; then
 
   if [ $target_os == "windows" ]; then
     install_dir=$target_dist_dir/install_dir
-    rm -rf $install_dir
     mkdir -p $install_dir
 
     IFS=',' read -a stores <<< "$(yq '.store | keys' ./config.toml -o csv)"
