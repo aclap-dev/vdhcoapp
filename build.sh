@@ -241,8 +241,8 @@ if [ ! $skip_packaging == 1 ]; then
 
     cp LICENSE.txt README.md assets/mac/icon.icns $res_dir
 
-    cp $dist_dir/ffmpeg-$target/ffmpeg \
-      $dist_dir/ffmpeg-$target/ffprobe \
+    cp $target_dist_dir/ffmpeg \
+      $target_dist_dir/ffprobe \
       $target_dist_dir/$package_binary_name \
       $macos_dir
 
@@ -317,9 +317,9 @@ if [ ! $skip_packaging == 1 ]; then
         yq e ".path = \"$package_binary_name.exe\"" -o json > $install_dir/$store.json
     done
 
-    cp $target_dist_dir/$package_binary_name.exe $install_dir/
-    cp $target_dist_dir/ffmpeg-$target/ffmpeg.exe \
-      $target_dist_dir/ffmpeg-$target/ffprobe.exe \
+    cp $target_dist_dir/$package_binary_name.exe \
+      $target_dist_dir/ffmpeg.exe \
+      $target_dist_dir/ffprobe.exe \
       $install_dir
     cp LICENSE.txt $target_dist_dir
     cp assets/windows/icon.ico $target_dist_dir
