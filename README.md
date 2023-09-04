@@ -1,5 +1,4 @@
-VdhCoApp:
-=========
+# VdhCoApp:
 
 *vdhcoapp* is a multi-platform (Windows, Mac, Linux) application
 providing the [Video DownloadHelper](https://downloadhelper.net/)
@@ -17,46 +16,31 @@ and is not intended to be used directly from the command line.
 Installer executables for the various platforms are available
 from the [releases page](https://github.com/aclap-dev/vdhcoapp/releases).
 
-Post manual installation process (Linux & Mac):
-==============================================
+## Post installation:
 
-If the application was installed via an installer (.deb on Linux, .pkg on Mac),
-these steps are not necessary.
+Post installation is *not* necessary on Windows, Mac `.pkg` and Linux `.deb`.
 
-Otherwise, after unpacking the application in its final location, these commands
-are necessary to let different browsers know where to look for the coapp:
+Only necessary for Mac `.dmg` and Linux `.tar.bz2`.
 
-Linux:
-=====
+### Mac (DMG)
 
-Recommended method:
+Just double click on the app, it will then register itself.
+If you move the app to a new location, double click on the app again.
+
+### Linux (tar.bz2)
 
 ```
-INSTALL_LOCATION/vdhcoapp install --user
+INSTALL_LOCATION/vdhcoapp install
 ```
 
-In older version of Flatpak and Snap, the application was not visible from within the Flatpak-ed browser.
+### Linux Flatpak-ed browsers
+
+In older version of Flatpak, Snap and Firefox, the application was not
+visible from within the Flatpak-ed browser.
+
 This should work around the limitation:
 
 ```
 # Only for old versions of Ubuntu
 INSTALL_LOCATION/vdhcoapp install --flatpak-workaround
 ```
-
-For system wide installation (not recommened):
-
-```
-sudo INSTALL_LOCATION/vdhcoapp install --system
-```
-
-Mac:
-===
-
-```
-INSTALL_LOCATION/net.downloadhelper.coapp.app/Contents/MacOS/vdhcoapp install
-```
-
-Uninstall:
-=========
-
-Same as above, but with `uninstall`, then you safely remove the app.
