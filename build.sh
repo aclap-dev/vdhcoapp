@@ -44,7 +44,6 @@ if [ ! -d "app/node_modules" ]; then
   (cd app/ ; npm install)
 fi
 
-
 dist_dir_name=dist
 
 host_os=$(uname -s)
