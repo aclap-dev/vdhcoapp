@@ -65,6 +65,7 @@ esac
 host="${host_os}-${host_arch}"
 
 target=$host
+build_all=0
 skip_packaging=0
 skip_signing=0
 skip_bundling=0
@@ -74,6 +75,7 @@ while [[ "$#" -gt 0 ]]; do
   case $1 in
     -h|--help)
       echo "Usage:"
+      echo "--all              # Build all targets. Only works from a Silicon Mac"
       echo "--skip-bundling    # skip bundling JS code into binary. Packaging will reuse already built binaries"
       echo "--skip-packaging   # skip packaging operations (including signing)"
       echo "--skip-signing     # do not sign the binaries"
@@ -81,6 +83,7 @@ while [[ "$#" -gt 0 ]]; do
       echo "--target <os-arch> # os: linux / mac / windows, arch: x86_64 / i686 / arm64"
       exit 0
       ;;
+    --all) build_all=1 ;;
     --skip-bundling) skip_bundling=1 ;;
     --skip-packaging) skip_packaging=1 ;;
     --skip-signing) skip_signing=1 ;;
@@ -91,6 +94,28 @@ while [[ "$#" -gt 0 ]]; do
   shift
 done
 
+if [ $build_all == 1 ]; then
+  if [ $host != "mac-arm64" ]; then
+    error "Can only build all targets on Apple Silicon"
+  fi
+
+  log "Building for Linux x86_64"
+  ./build.sh --target linux-x86_64
+
+  log "Building for Windows x86_64"
+  ./build.sh --target windows-x86_64
+
+  log "Building for Mac arm64"
+  ./build.sh --target mac-arm64
+
+  # Ensuring Rosetta is installed
+  softwareupdate --install-rosetta --agree-to-license
+
+  log "Building for Mac Intel"
+  arch -x86_64 ./build.sh --target mac-x86_64
+
+  exit 0
+fi
 
 case $target in
   linux-x86_64 | \
