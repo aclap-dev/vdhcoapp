@@ -322,9 +322,11 @@ if [ ! $skip_packaging == 1 ]; then
     rm -rf $scripts_dir
 
     if [ ! $skip_notary == 1 ] && [ ! $skip_signing == 1 ]; then
-      log "Sending .pkg to Apple for signing"
-      xcrun notarytool submit $target_dist_dir/$out_pkg_file --keychain-profile $package_mac_signing_keychain_profile --wait
+      log "Sending .pkg and .dmg to Apple for signing"
       log "In case of issues, run \"xcrun notarytool log UUID --keychain-profile $package_mac_signing_keychain_profile\""
+      xcrun notarytool submit $target_dist_dir/$out_dmg_file --keychain-profile $package_mac_signing_keychain_profile --wait
+      xcrun stapler staple $target_dist_dir/$out_dmg_file
+      xcrun notarytool submit $target_dist_dir/$out_pkg_file --keychain-profile $package_mac_signing_keychain_profile --wait
       xcrun stapler staple $target_dist_dir/$out_pkg_file
     fi
   fi
