@@ -1,26 +1,34 @@
+function success(msg) {
+  console.log('\x1b[36mSuccess:\x1b[0m', msg);
+}
+
+function error(msg) {
+  console.log('\x1b[31mError:\x1b[0m', msg);
+}
+
 export function assert_true(msg, bool) {
   if (!bool) {
-    console.error("Assert failed", msg);
+    error(msg);
     process.exit(1);
   }
-  console.log("success:", msg);
+  success(msg);
 }
 
 export function assert(msg, a, b) {
   if (a != b) {
-    console.error(`assert failed: ${msg}. ${a} != ${b}`);
+    error(`${msg}. ${a} != ${b}`);
     process.exit(1);
   }
-  console.log("success:", msg);
+  success(msg);
 }
 
 export function assert_deep_equal(msg, a, b) {
   let d = diff(a, b);
   if (d) {
-    console.error(`assert failed: ${msg}. ${d}`);
+    error(`${msg}. ${d}`);
     process.exit(1);
   }
-  console.log("success:", msg);
+  success(msg);
 }
 
 // https://dmitripavlutin.com/how-to-compare-objects-in-javascript/
