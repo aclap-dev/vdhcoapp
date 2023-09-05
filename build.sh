@@ -143,11 +143,11 @@ yq . -o yaml ./config.toml | \
 # Extract all toml data into shell variables.
 eval $(yq ./config.toml -o shell)
 
-out_deb_file="$package_binary_name-$meta_version-$target_arch.deb"
+out_deb_file="$package_binary_name-$meta_version-$target.deb"
 out_bz2_file="$package_binary_name-$meta_version-$target.tar.bz2"
-out_pkg_file="$package_binary_name-$meta_version-$target_arch.pkg"
-out_dmg_file="$package_binary_name-$meta_version-$target_arch.dmg"
-out_win_file="$package_binary_name-installer-$meta_version-$target_arch.exe"
+out_pkg_file="$package_binary_name-$meta_version-$target-installer.pkg"
+out_dmg_file="$package_binary_name-$meta_version-$target.dmg"
+out_win_file="$package_binary_name-$meta_version-$target-installer.exe"
 
 if [ $build_all == 1 ]; then
   if [ $host != "mac-arm64" ]; then
@@ -167,7 +167,11 @@ if [ $build_all == 1 ]; then
   softwareupdate --install-rosetta --agree-to-license
 
   log "Building for Mac Intel"
-  arch -x86_64 ./build.sh --target mac-x86_64
+  # env reset the env variables. Only keep HOME.
+  # arch starts rosetta
+  # then we set Intel brew env
+  # then we run the script
+  env -i HOME="$HOME" arch -x86_64 bash -l -c 'eval $(/usr/local/bin/brew shellenv); ./build.sh --target mac-x86_64'
 
   exit 0
 fi
@@ -245,7 +249,7 @@ if [ ! $skip_packaging == 1 ]; then
     cp $target_dist_dir/deb/opt/$package_binary_name/* \
       $target_dist_dir/$package_binary_name-$meta_version
     log "Building .tar.bz2 file"
-    (cd $target_dist_dir && tar -cvjSf $out_bz2_file $package_binary_name-$meta_version)
+    (cd $target_dist_dir && tar -cvjS --no-xattrs --no-mac-metadata -f $out_bz2_file $package_binary_name-$meta_version)
 
     rm -rf $target_dist_dir/$package_binary_name-$meta_version
     rm -rf $target_dist_dir/deb
@@ -288,13 +292,27 @@ if [ ! $skip_packaging == 1 ]; then
 
     pkgbuild_sign=()
     create_dmg_sign=()
+    create_dmg_notarize=()
     if [ ! $skip_signing == 1 ]; then
       log "Signing binaries"
-      codesign --entitlements ./assets/mac/entitlements.plist --options=runtime --timestamp -v -f -s "$package_mac_signing_app_cert" $macos_dir/*
+      # IMPORTANT: the entry point CFBundleExecutable must be the last
+      # object to be signed! (register.sh here)
+      codesign --entitlements \
+        ./assets/mac/entitlements.plist \
+        --options=runtime --timestamp -v -f \
+        -s "$package_mac_signing_app_cert" \
+        $macos_dir/ffmpeg \
+        $macos_dir/ffprobe \
+        $macos_dir/vdhcoapp \
+        $macos_dir/register.sh
       pkgbuild_sign=("--sign" "$package_mac_signing_pkg_cert")
       create_dmg_sign=("--codesign" "$package_mac_signing_app_cert")
     else
       log "Skip signing"
+    fi
+
+    if [ ! $skip_notary == 1 ]; then
+      create_dmg_notarize=("--notarize" "$package_mac_signing_keychain_profile")
     fi
 
     log "Creating .pkg file"
@@ -309,12 +327,15 @@ if [ ! $skip_packaging == 1 ]; then
       $target_dist_dir/$out_pkg_file
 
     log "Creating .dmg file"
-    create-dmg --volname "$meta_name" \
+    create-dmg \
+      --volname "$meta_name" \
       --background ./assets/mac/dmg-background.tiff \
       --window-pos 200 120 --window-size 500 400 --icon-size 70 \
+      --hide-extension "$meta_id.app" \
       --icon "$meta_id.app" 100 200 \
       --app-drop-link 350 200 \
       ${create_dmg_sign[@]+"${create_dmg_sign[@]}"} \
+      ${create_dmg_notarize[@]+"${create_dmg_notarize[@]}"} \
       $target_dist_dir/$out_dmg_file \
       $dot_app_dir
 
@@ -324,10 +345,8 @@ if [ ! $skip_packaging == 1 ]; then
     rm -rf $scripts_dir
 
     if [ ! $skip_notary == 1 ] && [ ! $skip_signing == 1 ]; then
-      log "Sending .pkg and .dmg to Apple for signing"
+      log "Sending .pkg to Apple for signing"
       log "In case of issues, run \"xcrun notarytool log UUID --keychain-profile $package_mac_signing_keychain_profile\""
-      xcrun notarytool submit $target_dist_dir/$out_dmg_file --keychain-profile $package_mac_signing_keychain_profile --wait
-      xcrun stapler staple $target_dist_dir/$out_dmg_file
       xcrun notarytool submit $target_dist_dir/$out_pkg_file --keychain-profile $package_mac_signing_keychain_profile --wait
       xcrun stapler staple $target_dist_dir/$out_pkg_file
     fi
