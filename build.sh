@@ -328,7 +328,7 @@ if [ ! $skip_packaging == 1 ]; then
 
     log "Creating .dmg file"
     create-dmg \
-      --volname "$meta_name" \
+      --volname "$meta_long_name" \
       --background ./assets/mac/dmg-background.tiff \
       --window-pos 200 120 --window-size 500 400 --icon-size 70 \
       --hide-extension "$meta_id.app" \

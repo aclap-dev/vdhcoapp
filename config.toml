@@ -1,6 +1,7 @@
 [meta]
 id = "net.downloadhelper.coapp"
 name = "VdhCoApp"
+long_name = "DownloadHelper CoApp"
 description = "Video DownloadHelper companion app"
 version = "2.0.0"
 
