@@ -234,7 +234,8 @@ if [ ! $skip_packaging == 1 ]; then
       yq e ".architecture = \"$deb_arch\"" |\
       yq e ".version = \"$meta_version\"" -o yaml > $target_dist_dir/deb/DEBIAN/control
 
-    echo "/opt/$package_binary_name/$package_binary_name install --system" > $target_dist_dir/deb/DEBIAN/postinst
+    ejs -f $target_dist_dir/config.json ./assets/linux/postinst.ejs \
+      > $target_dist_dir/deb/DEBIAN/postinst
     chmod +x $target_dist_dir/deb/DEBIAN/postinst
 
     log "Building .deb file"
