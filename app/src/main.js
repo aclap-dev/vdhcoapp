@@ -19,7 +19,7 @@ if (process.argv[2] == "install") {
   require('./request');
   require('./vm');
 
-  const config = require('../../dist/config.json');
+  const config = require('config.json');
 
   rpc.listen({
     // In test suite

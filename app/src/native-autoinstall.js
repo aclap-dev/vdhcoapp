@@ -2,7 +2,7 @@ const os = require("os");
 const fs = require("node:fs/promises");
 const path = require("path");
 const { spawn, spawnSync } = require('child_process');
-const config = require('../../dist/config.json');
+const config = require('config.json');
 
 const STORES = Object.keys(config.store);
 

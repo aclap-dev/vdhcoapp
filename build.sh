@@ -3,15 +3,18 @@
 set -euo pipefail
 cd $(dirname $0)/
 
+# Print green
 function log {
   echo -e "build.sh:" '\033[0;32m' "$@" '\033[0m'
 }
 
+# Print red and exit
 function error {
   echo -e "build.sh:" '\033[0;31m' "Error:" "$@" '\033[0m'
   exit 1
 }
 
+# yq is used to process the toml file.
 if ! [ -x "$(command -v yq)" ]; then
   error "yq not installed. See https://github.com/mikefarah/yq/#install"
 fi
@@ -74,7 +77,7 @@ while [[ "$#" -gt 0 ]]; do
   case $1 in
     -h|--help)
       echo "Usage:"
-      echo "--all              # Build all targets. Only works from a Silicon Mac"
+      echo "--all              # Build all targets. Only works from a Apple Silicon host"
       echo "--skip-bundling    # skip bundling JS code into binary. Packaging will reuse already built binaries"
       echo "--skip-packaging   # skip packaging operations (including signing)"
       echo "--skip-signing     # do not sign the binaries"
@@ -92,29 +95,6 @@ while [[ "$#" -gt 0 ]]; do
   esac
   shift
 done
-
-if [ $build_all == 1 ]; then
-  if [ $host != "mac-arm64" ]; then
-    error "Can only build all targets on Apple Silicon"
-  fi
-
-  log "Building for Linux x86_64"
-  ./build.sh --target linux-x86_64
-
-  log "Building for Windows x86_64"
-  ./build.sh --target windows-x86_64
-
-  log "Building for Mac arm64"
-  ./build.sh --target mac-arm64
-
-  # Ensuring Rosetta is installed
-  softwareupdate --install-rosetta --agree-to-license
-
-  log "Building for Mac Intel"
-  arch -x86_64 ./build.sh --target mac-x86_64
-
-  exit 0
-fi
 
 case $target in
   linux-x86_64 | \
@@ -152,15 +132,15 @@ fi
 rm -rf $target_dist_dir
 mkdir -p $target_dist_dir
 
-# Note: 2 config.json are created:
-# specific under dist/os/arch/.
+# The json file is a copy of the toml + target information.
+# Used for .ejs files and in JS code (importing config.json).
 log "Creating config.json"
 yq . -o yaml ./config.toml | \
   yq e ".target.os = \"$target_os\"" |\
   yq e ".target.arch = \"$target_arch\"" -o json \
   > $target_dist_dir/config.json
-cp $target_dist_dir/config.json $dist_dir # for JS require(config.json)
 
+# Extract all toml data into shell variables.
 eval $(yq ./config.toml -o shell)
 
 out_deb_file="$package_binary_name-$meta_version-$target_arch.deb"
@@ -169,12 +149,35 @@ out_pkg_file="$package_binary_name-$meta_version-$target_arch.pkg"
 out_dmg_file="$package_binary_name-$meta_version-$target_arch.dmg"
 out_win_file="$package_binary_name-installer-$meta_version-$target_arch.exe"
 
+if [ $build_all == 1 ]; then
+  if [ $host != "mac-arm64" ]; then
+    error "Can only build all targets on Apple Silicon"
+  fi
+
+  log "Building for Linux x86_64"
+  ./build.sh --target linux-x86_64
+
+  log "Building for Windows x86_64"
+  ./build.sh --target windows-x86_64
+
+  log "Building for Mac arm64"
+  ./build.sh --target mac-arm64
+
+  # Ensuring Rosetta is installed
+  softwareupdate --install-rosetta --agree-to-license
+
+  log "Building for Mac Intel"
+  arch -x86_64 ./build.sh --target mac-x86_64
+
+  exit 0
+fi
+
 if [ ! $skip_bundling == 1 ]; then
   # This could be done by pkg directly, but esbuild is more tweakable.
   # - hardcoding import.meta.url because the `open` module requires it.
   # - faking an electron module because `got` requires on (but it's never used)
   log "Bundling JS code into single file"
-  NODE_PATH=app/src esbuild ./app/src/main.js \
+  NODE_PATH=app/src:$target_dist_dir esbuild ./app/src/main.js \
     --format=cjs \
     --banner:js="const _importMetaUrl=require('url').pathToFileURL(__filename)" \
     --define:import.meta.url='_importMetaUrl' \
@@ -366,7 +369,7 @@ if [ ! $skip_packaging == 1 ]; then
   fi
 fi
 
-rm $dist_dir/config.json $target_dist_dir/config.json
+rm $target_dist_dir/config.json
 
 target_dist_dir=$dist_dir/$target_os/$target_arch
 
