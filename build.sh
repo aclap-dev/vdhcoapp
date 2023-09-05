@@ -154,24 +154,20 @@ if [ $build_all == 1 ]; then
     error "Can only build all targets on Apple Silicon"
   fi
 
+  # Ensuring Rosetta is installed
+  softwareupdate --install-rosetta --agree-to-license
+
+  log "Building for Mac Intel"
+  arch -x86_64 ./build.sh
+
+  log "Building for Mac arm64"
+  ./build.sh --target mac-arm64
+
   log "Building for Linux x86_64"
   ./build.sh --target linux-x86_64
 
   log "Building for Windows x86_64"
   ./build.sh --target windows-x86_64
-
-  log "Building for Mac arm64"
-  ./build.sh --target mac-arm64
-
-  # Ensuring Rosetta is installed
-  softwareupdate --install-rosetta --agree-to-license
-
-  log "Building for Mac Intel"
-  # env reset the env variables. Only keep HOME.
-  # arch starts rosetta
-  # then we set Intel brew env
-  # then we run the script
-  env -i HOME="$HOME" arch -x86_64 bash -l -c 'eval $(/usr/local/bin/brew shellenv); ./build.sh --target mac-x86_64'
 
   exit 0
 fi
