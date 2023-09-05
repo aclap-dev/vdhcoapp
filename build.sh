@@ -245,7 +245,11 @@ if [ ! $skip_packaging == 1 ]; then
     cp $target_dist_dir/deb/opt/$package_binary_name/* \
       $target_dist_dir/$package_binary_name-$meta_version
     log "Building .tar.bz2 file"
-    (cd $target_dist_dir && tar -cvjS --no-xattrs --no-mac-metadata -f $out_bz2_file $package_binary_name-$meta_version)
+    tar_extra=""
+    if [ $host_os == "mac" ]; then
+      tar_extra="--no-xattrs --no-mac-metadata"
+    fi
+    (cd $target_dist_dir && tar -cvjS $tar_extra -f $out_bz2_file $package_binary_name-$meta_version)
 
     rm -rf $target_dist_dir/$package_binary_name-$meta_version
     rm -rf $target_dist_dir/deb
