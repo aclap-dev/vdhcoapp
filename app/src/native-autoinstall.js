@@ -46,8 +46,6 @@ function GetMode() {
   let mode;
   if (process.argv.indexOf("--user") >= 0) {
     mode = "user";
-  } else if (process.argv.indexOf("--flatpak-workaround") >= 0) {
-    mode = "flatpak";
   } else if (process.argv.indexOf("--system") >= 0) {
     mode = "system";
   } else if (process.getuid() == 0) {
@@ -62,61 +60,7 @@ function GetMode() {
       process.exit(1);
     }
   }
-
-  if (mode == "flatpak") {
-    let process = spawnSync("flatpak", ["-h"]);
-    if (process.error) {
-      console.error("flatpak returned an error", process.error);
-      process.exit(1);
-    }
-  }
   return mode;
-}
-
-async function InstallBinariesInFlatpak(uninstall) {
-  let dir = path.dirname(process.execPath);
-  let binaries = ["ffmpeg", "ffprobe", "xdg-open", config.package.binary_name].map((name) => {
-    return path.resolve(dir, name);
-  });
-  for (let store of STORES) {
-    let paks = config.store[store].msg_manifest_paths.linux.flatpak;
-    for (let pak of paks) {
-      dir = path.resolve(os.homedir(), ".var/app", pak);
-      if (await FileExist(dir)) {
-        console.log(`Flatpak for ${pak} seems to exist. Installing.`);
-        dir = path.resolve(dir, config.meta.id);
-        let exist = await FileExist(dir);
-        let dest = binaries.map((bin) => path.resolve(dir, path.basename(bin)));
-        if (uninstall && exist) {
-          let args = `run --command=${dest[3]} ${pak} uninstall --user`;
-          let process = spawnSync("flatpak", args.split(" "));
-          if (process.status != 0) {
-            console.error("flatpak returned an error:");
-            console.error("Stderr:");
-            console.error(process.stderr.toString());
-            console.error("Stdout:");
-            console.error(process.stdout.toString());
-            process.exit(1);
-          }
-          await fs.rm(dir, {recursive: true});
-          console.log(`CoApp unregistered for ${pak}`);
-        } else if (!uninstall) {
-          await fs.mkdir(dir, {recursive: true});
-          for (let i = 0; i < dest.length; i++) {
-            await fs.copyFile(binaries[i], dest[i]);
-          }
-          let args = `run --command=${dest[3]} ${pak} install --user`;
-          let process = spawnSync("flatpak", args.split(" "));
-          if (process.status != 0) {
-            console.error("flatpak returned an error:");
-            console.error(process.stderr.toString());
-            process.exit(1);
-          }
-          console.log(`CoApp registered for ${pak}`);
-        }
-      }
-    }
-  }
 }
 
 async function SetupFiles(platform, mode, uninstall) {
@@ -171,8 +115,6 @@ function install_uninstall(uninstall = false) {
   let platform = os.platform();
   if (platform == "darwin") {
     SetupFiles("mac", mode, uninstall);
-  } else if (platform == "linux" && mode == "flatpak") {
-    InstallBinariesInFlatpak(uninstall);
   } else if (platform == "linux") {
     SetupFiles("linux", mode, uninstall);
   } else {

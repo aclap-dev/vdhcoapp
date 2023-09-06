@@ -1,6 +1,6 @@
-# VdhCoApp:
+# DownloadHelper CoApp:
 
-*vdhcoapp* is a multi-platform (Windows, Mac, Linux) application
+*DownloadHelper CoApp* is a multi-platform (Windows, Mac, Linux) application
 providing the [Video DownloadHelper](https://downloadhelper.net/)
 browser add-on with a set of extra features not available directly
 from the add-on:
@@ -9,38 +9,45 @@ from the add-on:
 - launching default video player application on a data file
 - a build of the [ffmpeg](http://ffmpeg.org/) video converter
 
-*vdhcoapp* complies with the
+*DownloadHelper CoApp* complies with the
 [native messaging protocol](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/Native_messaging)
 and is not intended to be used directly from the command line.
 
 Installer executables for the various platforms are available
 from the [releases page](https://github.com/aclap-dev/vdhcoapp/releases).
 
-## Post installation:
+# Installation
 
-Post installation is *not* necessary on Windows, Mac `.pkg` and Linux `.deb`.
+**Windows**: download the `.exe` file, double click on it, and follow the instructions.
 
-Only necessary for Mac `.dmg` and Linux `.tar.bz2`.
+**Mac**: download the `.pkg` file, double click on it, and follow the instructions.
 
-### Mac (DMG)
+**Linux**: download the `.deb` file (on Ubuntu and Debian), and install it: `dpkg -i <deb file>`.
 
-Just double click on the app, it will then register itself.
-If you move the app to a new location, double click on the app again.
+At this point, the app should be recognised within your browser.
 
-### Linux (tar.bz2)
+You can check in the Video DownloadHelper add-on setting:
 
-```
-INSTALL_LOCATION/vdhcoapp install
-```
+![settings](./assets/instruction1.png "Settings")
+![app check](./assets/instruction2.png "App check")
 
-### Linux Flatpak-ed browsers
+# Alternative installation methods
 
-In older version of Flatpak, Snap and Firefox, the application was not
-visible from within the Flatpak-ed browser.
+**Mac DMG**: download the `.dmg` file, open it and move the app to **Application** folder.
+Launch the app once to register its manifest within the different browsers (it will show
+a notification then close). Re-run the app if you ever move the application to a new location.
 
-This should work around the limitation:
+**Linux tar.bz2**: download the `.tar.bz2` file, extract it where ever you want to
+install the app, then run `<install location>/vdhcoapp install` to register the
+manifest within the different browsers. Re-run the install command if you ever move
+the application to a new location.
 
-```
-# Only for old versions of Ubuntu
-INSTALL_LOCATION/vdhcoapp install --flatpak-workaround
-```
+# Notes about Flatpak/Snap browsers
+
+**Firefox**: In older version of Flatpak, Snap and Firefox, the application was not
+visible from within the browser. This should not be a problem anymore.
+Make sure to update your Firefox.
+
+**Chromium based browsers (Chrome, Brave, …)**: sadly, there's no easy workaround as
+of now. It's up to the Chromium team to fix Native Messaging in sandboxes, or to packagers
+to allow a persistent `.config` directory in their flatpak installation.
