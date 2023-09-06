@@ -97,6 +97,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 case $target in
+  linux-aarch64 | \
   linux-x86_64 | \
   windows-x86_64 | \
   windows-i686 | \
@@ -110,6 +111,16 @@ esac
 
 target_os=$(echo $target | cut -f1 -d-)
 target_arch=$(echo $target | cut -f2 -d-)
+
+node_arch=$target_arch
+deb_arch=$target_arch
+if [ $target == "linux-aarch64" ]; then
+  node_arch="arm64"
+  deb_arch="arm64"
+fi
+if [ $target == "linux-x86_64" ]; then
+  deb_arch="amd64"
+fi
 
 target_dist_dir_rel=$dist_dir_name/$target_os/$target_arch
 target_dist_dir=$PWD/$target_dist_dir_rel
@@ -188,7 +199,7 @@ if [ ! $skip_bundling == 1 ]; then
 
   log "Bundling Node binary with code"
   pkg $dist_dir/bundled.js \
-    --target node18-$target \
+    --target node18-$target_os-$node_arch \
     --output $target_dist_dir/$package_binary_name$exe_extension
 else
   log "Skipping bundling"
@@ -199,7 +210,7 @@ if [ ! -d "$dist_dir/ffmpeg-$target" ]; then
   ffmpeg_url_base="https://github.com/aclap-dev/ffmpeg-static-builder/releases/download/"
   ffmpeg_url=$ffmpeg_url_base/ffmpeg-$package_ffmpeg_build_id/ffmpeg-$target.tar.bz2
   ffmpeg_tarball=$dist_dir/ffmpeg.tar.bz2
-  wget --show-progress --quiet -c -O $ffmpeg_tarball $ffmpeg_url
+  wget --show-progress -c -O $ffmpeg_tarball $ffmpeg_url
   (cd $dist_dir && tar -xf $ffmpeg_tarball)
   rm $ffmpeg_tarball
 else
@@ -222,11 +233,6 @@ if [ ! $skip_packaging == 1 ]; then
       $target_dist_dir/ffmpeg \
       $target_dist_dir/ffprobe \
       $target_dist_dir/deb/opt/$package_binary_name
-
-    deb_arch=$target_arch
-    if [ $target_arch == "x86_64" ]; then
-      deb_arch="amd64"
-    fi
 
     yq ".package.deb" ./config.toml -o yaml | \
       yq e ".package = \"$meta_id\"" |\
