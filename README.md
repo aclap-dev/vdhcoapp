@@ -26,7 +26,7 @@ from the [releases page](https://github.com/aclap-dev/vdhcoapp/releases).
 
 At this point, the app should be recognised within your browser.
 
-You can check in the Video DownloadHelper add-on setting:
+You can check in the Video DownloadHelper add-on settings:
 
 ![settings](./assets/instruction1.png "Settings")
 ![app check](./assets/instruction2.png "App check")

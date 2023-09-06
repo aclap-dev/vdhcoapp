@@ -1,19 +1,10 @@
 const os = require("os");
 const fs = require("node:fs/promises");
 const path = require("path");
-const { spawn, spawnSync } = require('child_process');
+const { spawn } = require('child_process');
 const config = require('config.json');
 
 const STORES = Object.keys(config.store);
-
-async function FileExist(path) {
-  try {
-    await fs.stat(path);
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
 
 function DisplayMessage(body, title) {
   if (title) {
