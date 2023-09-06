@@ -39,6 +39,21 @@ rpc.listen({
   "convert": (args = ["-h"], options = {}) => new Promise((resolve, _reject) => {
     // `-progress pipe:1` send program-friendly progress information to stdin every 500ms.
     // `-hide_banner -loglevel error`: make the output less noisy.
+
+    // This should never happen, but just in case a third party does a convert request
+    // with the old version of ffmpeg arguments, let's rewrite the arguments to fit
+    // the new syntax.
+    let fixed = false;
+    for (let i = 0; i < args.length; i++) {
+      if (args[i].startsWith("[1:v][2:v] overlay=") && !args[i].endsWith("[m]")) {
+        args[i] += " [m]";
+        fixed = true;
+      }
+      if (fixed && args[i] == "1:v") {
+        args[i] = "[m]";
+      }
+    }
+
     const ffmpeg_base_args = "-progress pipe:1 -hide_banner -loglevel error";
     args = [...ffmpeg_base_args.split(" "), ...args];
 
