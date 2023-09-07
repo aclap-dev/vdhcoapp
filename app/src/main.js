@@ -1,7 +1,11 @@
+import { run as run_tests } from "./tests";
+
 if (process.argv[2] == "install") {
   require("./native-autoinstall").install();
 } else if (process.argv[2] == "uninstall") {
   require("./native-autoinstall").uninstall();
+} else if (process.argv[2] == "test") {
+  run_tests();
 } else {
 
   const os = require("os");
@@ -35,7 +39,7 @@ if (process.argv[2] == "install") {
       return arg;
     },
     // In test suite
-    info: () => {
+    info: async () => {
       let result = {
         id: config.meta.id,
         name: config.meta.name,
@@ -47,17 +51,20 @@ if (process.argv[2] == "install") {
         target_arch: config.target.arch,
         home: os.homedir() || ""
       };
-      return converter.info().then((convInfo) => {
-        return Object.assign(result, {
+      try {
+        let convInfo = await converter.info();
+        return {
+          ...result,
           converterBinary: convInfo.converterBinary,
           converterBase: convInfo.program,
           converterBaseVersion: convInfo.version
-        });
-      }).catch((error) => {
-        return Object.assign(result, {
-          converterError: error.message
-        });
-      });
+        }
+      } catch (e) {
+        return {
+          ...result,
+          converterError: e.toString(),
+        }
+      }
     }
   });
 }

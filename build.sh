@@ -33,6 +33,11 @@ if ! [ -x "$(command -v esbuild)" ]; then
   npm install -g esbuild
 fi
 
+if ! [ -x "$(command -v tsc)" ]; then
+  log "Installing typescript"
+  npm install -g typescript
+fi
+
 if ! [ -x "$(command -v pkg)" ]; then
   log "Installing pkg"
   npm install -g pkg
@@ -184,6 +189,9 @@ if [ $build_all == 1 ]; then
 fi
 
 if [ ! $skip_bundling == 1 ]; then
+  # Typescript checking (no code gen, that's done by esbuild)
+  tsc --noEmit --allowJs --strict -p ./app/tsconfig.json
+
   # This could be done by pkg directly, but esbuild is more tweakable.
   # - hardcoding import.meta.url because the `open` module requires it.
   # - faking an electron module because `got` requires on (but it's never used)

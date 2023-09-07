@@ -11,5 +11,6 @@ if (!logfile) {
   };
 } else {
   let logger = simplelogger.createSimpleFileLogger(logfile);
+  logger.setLevel('debug');
   module.exports = logger;
 }

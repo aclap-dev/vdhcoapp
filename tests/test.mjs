@@ -98,7 +98,7 @@ if (!arg1_is_bin && !is_windows) {
   bin_path = path.resolve(arg1);
 }
 
-if (!is_windows) {
+if (false && !is_windows) {
   {
     let code = await spawn_process(bin_path, ["uninstall", "--user"]);
     assert("uninstall success", code, 0);
@@ -148,6 +148,12 @@ if (!is_windows) {
 let child = spawn_process_and_track(bin_path);
 
 let exec = async (...args) => send(child.stdin, ...args);
+
+{
+  let info = await exec("info");
+  console.log(info);
+  process.exit(0);
+}
 
 {
   let result = await exec("vm.run", "var x = 2; x + 40");

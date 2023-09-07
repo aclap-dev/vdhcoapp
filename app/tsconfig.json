@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "noImplicitReturns": true,
+    "strict": true,
+    "noUnusedLocals": true
+  }
+}

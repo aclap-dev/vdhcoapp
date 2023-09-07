@@ -1,10 +1,11 @@
 import open from 'open';
 
+import { ProcessManager } from "./process";
+
 const os = require("os");
 const path = require('path');
 const { spawn } = require('child_process');
 
-const logger = require('./logger');
 const rpc = require('./weh-rpc');
 
 const exec_dir = path.dirname(process.execPath);
@@ -15,6 +16,8 @@ if (os.platform() == "win32") {
   ffmpeg += ".exe";
   ffprobe += ".exe";
 }
+
+let ff_processes = new ProcessManager();
 
 function ExecConverter(args) {
   return new Promise((resolve, reject) => {
@@ -190,34 +193,19 @@ rpc.listen({
 
 });
 
-exports.info = () => {
-  return new Promise((resolve, reject) => {
-    let convProcess = spawn(ffmpeg, ["-h"]);
-    let done = false;
-
-    function Parse(data) {
-      if (done) {
-        return;
-      }
-      let str = data.toString("utf8");
-      logger.info("stdout:", str);
-      let m = /^(\S+).*?v.*?((?:\d+\.)+\d+)/.exec(str);
-      if (m) {
-        done = true;
-        resolve({
-          program: m[1],
-          version: m[2],
-          converterBinary: ffmpeg,
-        });
-      }
+exports.info = async () => {
+  let proc = ff_processes.spawn(ffmpeg, ["-h"]);
+  for await (let line of proc.read_stderr()) {
+    let m = /^(\S+)\sversion\s(\S+)/.exec(line);
+    if (m) {
+      await proc.exited();
+      return {
+        program: m[1],
+        version: m[2],
+        converterBinary: ffmpeg,
+      };
     }
-
-    convProcess.stdout.on("data", Parse);
-    convProcess.stderr.on("data", Parse);
-    convProcess.on("exit", (_code) => {
-      if (!done) {
-        reject(new Error("Exit without answer"));
-      }
-    });
-  });
+  }
+  let code = await proc.exited();
+  throw new Error(`Unexpected output. Exited with code ${code}`);
 };
