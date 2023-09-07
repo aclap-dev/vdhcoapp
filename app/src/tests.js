@@ -8,6 +8,7 @@ export async function run() {
 
   try {
     let res = await info();
+    console.log(res);
   } catch (e) {
     console.error(e);
   }
