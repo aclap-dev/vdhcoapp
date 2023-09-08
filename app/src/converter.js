@@ -33,10 +33,21 @@ function ExecConverter(args) {
   });
 }
 
+const convertChildren = {};
+let convertChildrenId = 0;
+
 rpc.listen({
 
+  "abortConvert": (childId) => {
+    let child = convertChildren[childId];
+    if (child) {
+      child.kill();
+    }
+  },
+
   // FIXME: Partly in test suite. But just for hls retrieval.
-  "convert": (args = ["-h"], options = {}) => new Promise((resolve, _reject) => {
+  /* eslint-disable no-async-promise-executor */
+  "convert": (args = ["-h"], options = {}) => new Promise(async (resolve, _reject) => {
     // `-progress pipe:1` send program-friendly progress information to stdin every 500ms.
     // `-hide_banner -loglevel error`: make the output less noisy.
     const ffmpeg_base_args = "-progress pipe:1 -hide_banner -loglevel error";
@@ -44,10 +55,21 @@ rpc.listen({
 
     const child = spawn(ffmpeg, args);
 
+    let convertId = ++convertChildrenId;
+
+    convertChildren[convertId] = child;
+
     let stderr = "";
 
-    child.on("exit", (code) => resolve({exitCode: code, stderr}));
+    child.on("exit", (code) => {
+      delete convertChildren[convertId];
+      resolve({exitCode: code, cid: convertId, stderr});
+    });
     child.stderr.on("data", (data) => stderr += data);
+
+    if (options.startHandler) {
+      await rpc.call("convertStartNotification", options.startHandler, convertId);
+    }
 
     const on_line = async (line) => {
       if (line.startsWith("out_time_ms=")) {
