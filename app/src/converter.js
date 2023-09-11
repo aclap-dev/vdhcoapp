@@ -45,8 +45,7 @@ rpc.listen({
   },
 
   // FIXME: Partly in test suite. But just for hls retrieval.
-  /* eslint-disable no-async-promise-executor */
-  "convert": (args = ["-h"], options = {}) => new Promise(async (resolve, _reject) => {
+  "convert": async (args = ["-h"], options = {}) => {
     // `-progress pipe:1` send program-friendly progress information to stdin every 500ms.
     // `-hide_banner -loglevel error`: make the output less noisy.
 
@@ -77,14 +76,17 @@ rpc.listen({
 
     let stderr = "";
 
-    child.on("exit", (code) => {
-      convertChildren.delete(child.pid);
-      resolve({exitCode: code, pid: child.pid, stderr});
+    let on_exit = new Promise((resolve) => {
+      child.on("exit", (code) => {
+        convertChildren.delete(child.pid);
+        resolve({exitCode: code, pid: child.pid, stderr});
+      });
     });
+
     child.stderr.on("data", (data) => stderr += data);
 
     if (options.startHandler) {
-      await rpc.call("convertStartNotification", options.startHandler, child.pid);
+      rpc.call("convertStartNotification", options.startHandler, child.pid);
     }
 
     const on_line = async (line) => {
@@ -106,7 +108,8 @@ rpc.listen({
       });
     }
 
-  }),
+    return on_exit;
+  },
   // FIXME: Partly in test suite. But just for hls retrieval.
   "probe": (input, json = false) => {
     return new Promise((resolve, reject) => {
@@ -162,7 +165,7 @@ rpc.listen({
       resolve();
     });
   },
-    // In test suite
+  // In test suite
   "codecs": () => {
     return ExecConverter(["-codecs"])
       .then((out) => {
