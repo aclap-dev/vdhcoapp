@@ -422,8 +422,8 @@ if [ $target_os == "mac" ]; then
   log "Binary available: $target_dist_dir_rel/$package_binary_name"
   log "Binary available: $target_dist_dir_rel/ffmpeg"
   log "Binary available: $target_dist_dir_rel/ffprobe"
-  log "App available: $target_dist_dir_rel/dotApp/$meta_id.app"
   if [ ! $skip_packaging == 1 ]; then
+    log "App available: $target_dist_dir_rel/dotApp/$meta_id.app"
     log "Pkg available: $target_dist_dir_rel/$out_pkg_file"
     log "Dmg available: $target_dist_dir_rel/$out_dmg_file"
   fi

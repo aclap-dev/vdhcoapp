@@ -33,14 +33,13 @@ function ExecConverter(args) {
   });
 }
 
-const convertChildren = {};
-let convertChildrenId = 0;
+const convertChildren = new Map();
 
 rpc.listen({
 
-  "abortConvert": (childId) => {
-    let child = convertChildren[childId];
-    if (child) {
+  "abortConvert": (pid) => {
+    let child = convertChildren.get(pid);
+    if (child && child.exitCode == null) {
       child.kill();
     }
   },
@@ -70,20 +69,22 @@ rpc.listen({
 
     const child = spawn(ffmpeg, args);
 
-    let convertId = ++convertChildrenId;
+    if (!child.pid) {
+      throw new Error("Process creation failed");
+    }
 
-    convertChildren[convertId] = child;
+    convertChildren.set(child.pid, child);
 
     let stderr = "";
 
     child.on("exit", (code) => {
-      delete convertChildren[convertId];
-      resolve({exitCode: code, cid: convertId, stderr});
+      convertChildren.delete(child.pid);
+      resolve({exitCode: code, pid: child.pid, stderr});
     });
     child.stderr.on("data", (data) => stderr += data);
 
     if (options.startHandler) {
-      await rpc.call("convertStartNotification", options.startHandler, convertId);
+      await rpc.call("convertStartNotification", options.startHandler, child.pid);
     }
 
     const on_line = async (line) => {
