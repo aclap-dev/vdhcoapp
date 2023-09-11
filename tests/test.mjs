@@ -387,17 +387,27 @@ if (with_network) {
     tick_count += 1;
   };
 
+  let on_pid = new Promise((ok) => {
+    register_request_handler("convertStartNotification", (_, pid) => ok(pid));
+  });
+
   register_request_handler("convertOutput", on_tick);
 
   let args = `-y -i ${url} ${tmp_dir}/out.mp4`;
 
-  let res = await exec("convert", args.split(" "), {
+  let convert_promise = exec("convert", args.split(" "), {
+    startHandler: true,
     progressTime: true
   });
+
+  let pid = await on_pid;
+
+  let res = await convert_promise;
 
   console.log(""); // clear on_tick missing CR
 
   assert("convert", res.exitCode, 0);
+  assert_true("convert pid", pid != 0);
 
   let out_mp4 = await fs.stat(`${tmp_dir}/out.mp4`);
 
