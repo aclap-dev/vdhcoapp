@@ -89,15 +89,31 @@ rpc.listen({
       rpc.call("convertStartNotification", options.startHandler, child.pid);
     }
 
+    const PROPS_RE = new RegExp("\\S+=\\s*\\S+");
+    const NAMEVAL_RE = new RegExp("(\\S+)=\\s*(\\S+)");
+    let progressInfo = {};
+
     const on_line = async (line) => {
-      if (line.startsWith("out_time_ms=")) {
-        // out_time_ms is in ns, not ms.
-        const seconds = parseInt(line.split("=")[1]) / 1_000_000;
-        try {
-          await rpc.call("convertOutput", options.progressTime, seconds);
-        } catch (_) {
-          // Extension stopped caring
-          child.kill();
+      let props = line.match(PROPS_RE) || [];
+      props.forEach((prop) => {
+        let m = NAMEVAL_RE.exec(prop);
+        if (m) {
+          progressInfo[m[1]] = m[2];
+        }
+      });
+      // last line of block is "progress"
+      if (progressInfo["progress"]) {
+        let info = progressInfo;
+        progressInfo = {};
+        if (typeof info["out_time_ms"] !== "undefined") {
+          // out_time_ms is in ns, not ms.
+          const seconds = parseInt(info["out_time_ms"]) / 1_000_000;
+          try {
+            await rpc.call("convertOutput", options.progressTime, seconds, info);
+          } catch (_) {
+            // Extension stopped caring
+            child.kill();
+          }
         }
       }
     };
