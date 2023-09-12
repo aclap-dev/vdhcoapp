@@ -87,8 +87,8 @@ while [[ "$#" -gt 0 ]]; do
       ;;
     --all) build_all=1 ;;
     --skip-bundling) skip_bundling=1 ;;
-    --skip-packaging) skip_packaging=1 ;;
-    --skip-signing) skip_signing=1 ;;
+    --skip-packaging) skip_packaging=1 ; skip_signing=1 ; skip_notary=1 ;;
+    --skip-signing) skip_signing=1 ; skip_notary=1 ;;
     --skip-notary) skip_notary=1 ;;
     --target) target="$2"; shift ;;
     *) error "Unknown parameter passed: $1" ;;
