@@ -1,7 +1,11 @@
+const config = require('config.json');
+
 if (process.argv[2] == "install") {
   require("./native-autoinstall").install();
 } else if (process.argv[2] == "uninstall") {
   require("./native-autoinstall").uninstall();
+} else if (process.argv[2] == "--version") {
+  console.log(config.meta.version);
 } else {
 
   const os = require("os");
@@ -18,8 +22,6 @@ if (process.argv[2] == "install") {
   require('./downloads');
   require('./request');
   require('./vm');
-
-  const config = require('config.json');
 
   rpc.listen({
     // In test suite
