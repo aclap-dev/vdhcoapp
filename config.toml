@@ -60,6 +60,7 @@ allowed_origins = [
 [store.mozilla.msg_manifest_paths.linux]
 user = [ "~/.mozilla/native-messaging-hosts/" ]
 system = [ "/usr/lib/mozilla/native-messaging-hosts/" ]
+flatpak = [ ] # No flatpak path as Firefox supports out-of-sandbox manifest
 
 [store.mozilla.msg_manifest_paths.windows]
 regs = [
@@ -87,6 +88,11 @@ user = [
 system = [
   "/etc/opt/chrome/native-messaging-hosts/",
   "/etc/chromium/native-messaging-hosts/"
+]
+flatpak = [
+  "~/.var/app/com.brave.Browser/config/BraveSoftware/Brave-Browser/NativeMessagingHosts",
+  "~/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts",
+  "~/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts"
 ]
 
 [store.google.msg_manifest_paths.mac]
@@ -118,6 +124,7 @@ user = [
 system = [
   "/etc/opt/edge/native-messaging-hosts/",
 ]
+flatpak = [ ] # Not supported yet.
 
 [store.microsoft.msg_manifest_paths.mac]
 user = [

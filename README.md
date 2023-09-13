@@ -44,10 +44,8 @@ the application to a new location.
 
 # Notes about Flatpak/Snap browsers
 
-**Firefox**: In older version of Flatpak, Snap and Firefox, the application was not
-visible from within the browser. This should not be a problem anymore.
-Make sure to update your Firefox.
+**Chromium based browsers (Chrome, Brave, …)**: if the coapp is not visible from your
+browser, you can trigger the coapp flatpak registration with: `vdhcoapp install --flatpak`.
 
-**Chromium based browsers (Chrome, Brave, …)**: sadly, there's no easy workaround as
-of now. It's up to the Chromium team to fix Native Messaging in sandboxes, or to packagers
-to allow a persistent `.config` directory in their flatpak installation.
+**Firefox**: In older version of Flatpak, Snap and Firefox, the application was not
+visible from within the browser. This should not be a problem anymore. Make sure to update your Firefox.

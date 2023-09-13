@@ -37,6 +37,8 @@ function GetMode() {
   let mode;
   if (process.argv.indexOf("--user") >= 0) {
     mode = "user";
+  } else if (process.argv.indexOf("--flatpak") >= 0) {
+    mode = "flatpak";
   } else if (process.argv.indexOf("--system") >= 0) {
     mode = "system";
   } else if (process.getuid() == 0) {
@@ -60,7 +62,7 @@ async function SetupFiles(platform, mode, uninstall) {
   for (let store of STORES) {
     let directories = config.store[store].msg_manifest_paths[platform][mode];
     directories.forEach((dir) => {
-      if (mode == "user") {
+      if (mode == "user" || mode == "flatpak") {
         dir = path.resolve(os.homedir(), dir.replace("~", "."));
       }
       ops.push({
@@ -101,12 +103,28 @@ async function SetupFiles(platform, mode, uninstall) {
   DisplayMessage(text, config.meta.name);
 }
 
+function PrepareFlatpak() {
+  const { exec } = require("child_process");
+  try {
+    let install_dir = path.dirname(process.execPath);
+    exec(`flatpak override --user --filesystem=${install_dir}:ro`);
+    console.log("flatpak is now aware of the coapp installation directory");
+  } catch (e) {
+    console.error("flatpak override failed");
+    console.error(e);
+    process.exit(1);
+  }
+}
+
 function install_uninstall(uninstall = false) {
   let mode = GetMode();
   let platform = os.platform();
   if (platform == "darwin") {
     SetupFiles("mac", mode, uninstall);
   } else if (platform == "linux") {
+    if (mode == "flatpak") {
+      PrepareFlatpak();
+    }
     SetupFiles("linux", mode, uninstall);
   } else {
     DisplayMessage("Unsupported platform: " + os.platform());
