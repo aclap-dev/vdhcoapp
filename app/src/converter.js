@@ -33,42 +33,60 @@ function ExecConverter(args) {
   });
 }
 
-const convertChildren = {};
-let convertChildrenId = 0;
+const convertChildren = new Map();
 
 rpc.listen({
 
-  "abortConvert": (childId) => {
-    let child = convertChildren[childId];
-    if (child) {
+  "abortConvert": (pid) => {
+    let child = convertChildren.get(pid);
+    if (child && child.exitCode == null) {
       child.kill();
     }
   },
 
   // FIXME: Partly in test suite. But just for hls retrieval.
-  /* eslint-disable no-async-promise-executor */
-  "convert": (args = ["-h"], options = {}) => new Promise(async (resolve, _reject) => {
+  "convert": async (args = ["-h"], options = {}) => {
     // `-progress pipe:1` send program-friendly progress information to stdin every 500ms.
     // `-hide_banner -loglevel error`: make the output less noisy.
+
+    // This should never happen, but just in case a third party does a convert request
+    // with the old version of ffmpeg arguments, let's rewrite the arguments to fit
+    // the new syntax.
+    let fixed = false;
+    for (let i = 0; i < args.length; i++) {
+      if (args[i].startsWith("[1:v][2:v] overlay=") && !args[i].endsWith("[m]")) {
+        args[i] += " [m]";
+        fixed = true;
+      }
+      if (fixed && args[i] == "1:v") {
+        args[i] = "[m]";
+      }
+    }
+
     const ffmpeg_base_args = "-progress pipe:1 -hide_banner -loglevel error";
     args = [...ffmpeg_base_args.split(" "), ...args];
 
     const child = spawn(ffmpeg, args);
 
-    let convertId = ++convertChildrenId;
+    if (!child.pid) {
+      throw new Error("Process creation failed");
+    }
 
-    convertChildren[convertId] = child;
+    convertChildren.set(child.pid, child);
 
     let stderr = "";
 
-    child.on("exit", (code) => {
-      delete convertChildren[convertId];
-      resolve({exitCode: code, cid: convertId, stderr});
+    let on_exit = new Promise((resolve) => {
+      child.on("exit", (code) => {
+        convertChildren.delete(child.pid);
+        resolve({exitCode: code, pid: child.pid, stderr});
+      });
     });
+
     child.stderr.on("data", (data) => stderr += data);
 
     if (options.startHandler) {
-      await rpc.call("convertStartNotification", options.startHandler, convertId);
+      rpc.call("convertStartNotificaion", options.startHandler, child.pid);
     }
 
     const PROPS_RE = new RegExp("\\S+=\\s*\\S+");
@@ -106,7 +124,8 @@ rpc.listen({
       });
     }
 
-  }),
+    return on_exit;
+  },
   // FIXME: Partly in test suite. But just for hls retrieval.
   "probe": (input, json = false) => {
     return new Promise((resolve, reject) => {
@@ -162,7 +181,7 @@ rpc.listen({
       resolve();
     });
   },
-    // In test suite
+  // In test suite
   "codecs": () => {
     return ExecConverter(["-codecs"])
       .then((out) => {
