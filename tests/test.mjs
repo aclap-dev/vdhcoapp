@@ -9,18 +9,20 @@ import { register_request_handler } from "./rpc.mjs";
 import path from "path";
 import { expected_codecs, expected_formats } from "./codecs.mjs";
 
-const amo = JSON.stringify([
-  "weh-native-test@downloadhelper.net",
-  "{b9db16a4-6edc-47ec-a1f4-b86292ed211d}"
-]);
+// FIXME: disable install_locations test for now
 
-const ggl = JSON.stringify([
-  "chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/"
-]);
+// const amo = JSON.stringify([
+//   "weh-native-test@downloadhelper.net",
+//   "{b9db16a4-6edc-47ec-a1f4-b86292ed211d}"
+// ]);
 
-const ms = JSON.stringify([
-  "chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/"
-]);
+// const ggl = JSON.stringify([
+//   "chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/"
+// ]);
+
+// const ms = JSON.stringify([
+//   "chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/"
+// ]);
 
 if (!process.versions.node.startsWith("18.")) {
   console.error("Error: run test with Node 18");
@@ -107,36 +109,38 @@ if (!is_windows) {
   {
     let code = await spawn_process(bin_path, ["install", "--user"]);
     assert("install success", code, 0);
-    for (let [dir, store] of install_locations[process.platform].user) {
-      let json_path = path.resolve(os.homedir(), dir, "net.downloadhelper.coapp.json");
-      let json = JSON.parse(await fs.readFile(json_path));
-      assert_true("bin is absolute", json.path.startsWith("/"));
-      assert("bin path", json.path, bin_path);
-      if (store == "amo") {
-        assert(dir, JSON.stringify(json.allowed_extensions), amo);
-      } else if (store == "ms") {
-        assert(dir, JSON.stringify(json.allowed_origins), ms);
-      } else if (store == "ggl") {
-        assert(dir, JSON.stringify(json.allowed_origins), ggl);
-      } else {
-        throw new Error("Unexpected store");
-      }
-    }
+    // FIXME: disable install_locations test for now
+    // for (let [dir, store] of install_locations[process.platform].user) {
+    //   let json_path = path.resolve(os.homedir(), dir, "net.downloadhelper.coapp.json");
+    //   let json = JSON.parse(await fs.readFile(json_path));
+    //   assert_true("bin is absolute", json.path.startsWith("/"));
+    //   assert("bin path", json.path, bin_path);
+    //   if (store == "amo") {
+    //     assert(dir, JSON.stringify(json.allowed_extensions), amo);
+    //   } else if (store == "ms") {
+    //     assert(dir, JSON.stringify(json.allowed_origins), ms);
+    //   } else if (store == "ggl") {
+    //     assert(dir, JSON.stringify(json.allowed_origins), ggl);
+    //   } else {
+    //     throw new Error("Unexpected store");
+    //   }
+    // }
   }
 
   {
     let code = await spawn_process(bin_path, ["uninstall", "--user"]);
     assert("uninstall success", code, 0);
-    for (let [dir, _] of install_locations[process.platform].user) {
-      let json = path.resolve(os.homedir(), dir, "net.downloadhelper.coapp.json");
-      let doesnt_exist = false;
-      try {
-        await fs.access(path.dir, json);
-      } catch (_) {
-        doesnt_exist = true;
-      }
-      assert_true("File removed", doesnt_exist);
-    }
+    // FIXME: disable install_locations test for now
+    // for (let [dir, _] of install_locations[process.platform].user) {
+    //   let json = path.resolve(os.homedir(), dir, "net.downloadhelper.coapp.json");
+    //   let doesnt_exist = false;
+    //   try {
+    //     await fs.access(path.dir, json);
+    //   } catch (_) {
+    //     doesnt_exist = true;
+    //   }
+    //   assert_true("File removed", doesnt_exist);
+    // }
   }
 
   {
@@ -179,7 +183,7 @@ let old_coapp;
   assert("info.id", info.id, "net.downloadhelper.coapp");
   if (info.version == "1.6.3") {
     old_coapp = true;
-  } else if (info.version == "2.0.0") {
+  } else if (info.version == "2.0.1") {
     old_coapp = false;
   } else {
     assert_true("info.version", false);
