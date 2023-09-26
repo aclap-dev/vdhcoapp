@@ -1,10 +1,22 @@
 const os = require("os");
 const fs = require("node:fs/promises");
 const path = require("path");
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
 const config = require('config.json');
 
 const STORES = Object.keys(config.store);
+
+function exec_p(cmd) {
+  return new Promise((ok, ko) => {
+    exec(cmd, (error) => {
+      if (error) {
+        ko(error);
+      } else {
+        ok();
+      }
+    });
+  });
+}
 
 function DisplayMessage(body, title) {
   if (title) {
@@ -37,8 +49,6 @@ function GetMode() {
   let mode;
   if (process.argv.indexOf("--user") >= 0) {
     mode = "user";
-  } else if (process.argv.indexOf("--flatpak") >= 0) {
-    mode = "flatpak";
   } else if (process.argv.indexOf("--system") >= 0) {
     mode = "system";
   } else if (process.getuid() == 0) {
@@ -57,19 +67,35 @@ function GetMode() {
 }
 
 async function SetupFiles(platform, mode, uninstall) {
+  function expand_tilde(p) {
+    if (p.startsWith("~")) {
+      return path.resolve(os.homedir(), p.replace("~", "."));
+    } else {
+      return p;
+    }
+  }
+
   let manifests = BuildManifests();
   let ops = [];
   for (let store of STORES) {
     let directories = config.store[store].msg_manifest_paths[platform][mode];
-    directories.forEach((dir) => {
-      if (mode == "user" || mode == "flatpak") {
-        dir = path.resolve(os.homedir(), dir.replace("~", "."));
+    for (let dir of directories) {
+      if (typeof dir != "string") {
+        let {path, only_if_dir_exists} = dir;
+        dir = path;
+        try {
+          await fs.stat(expand_tilde(only_if_dir_exists));
+        } catch (_) {
+          // Parents doesn't exist. Skip this file.
+          continue;
+        }
       }
+      dir = expand_tilde(dir);
       ops.push({
         path: dir + "/" + config.meta.id + ".json",
         content: JSON.stringify(manifests[store], " ", 2)
       });
-    });
+    }
   }
 
   for (let op of ops) {
@@ -103,27 +129,30 @@ async function SetupFiles(platform, mode, uninstall) {
   DisplayMessage(text, config.meta.name);
 }
 
-function PrepareFlatpak() {
-  const { exec } = require("child_process");
+async function PrepareFlatpak() {
+  let install_dir = path.dirname(process.execPath);
   try {
-    let install_dir = path.dirname(process.execPath);
-    exec(`flatpak override --user --filesystem=${install_dir}:ro`);
-    console.log("flatpak is now aware of the coapp installation directory");
-  } catch (e) {
-    console.error("flatpak override failed");
-    console.error(e);
-    process.exit(1);
+    await exec_p("flatpak --version");
+  } catch (_) {
+    return;
+  }
+  console.log("Flatpak is installed. Making the coapp available from browser sandboxes:");
+  for (let id of config.flatpak.ids) {
+    try {
+      await exec_p(`flatpak override --user --filesystem=${install_dir}:ro ${id}`);
+      console.log(`Linked coapp within ${id}.`);
+    } catch (_) { /* flatpak not installed */ }
   }
 }
 
-function install_uninstall(uninstall = false) {
+async function install_uninstall(uninstall = false) {
   let mode = GetMode();
   let platform = os.platform();
   if (platform == "darwin") {
     SetupFiles("mac", mode, uninstall);
   } else if (platform == "linux") {
-    if (mode == "flatpak") {
-      PrepareFlatpak();
+    if (mode == "user") {
+      await PrepareFlatpak();
     }
     SetupFiles("linux", mode, uninstall);
   } else {

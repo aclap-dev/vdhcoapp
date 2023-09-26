@@ -240,6 +240,10 @@ if [ ! $skip_packaging == 1 ]; then
       yq e ".architecture = \"$deb_arch\"" |\
       yq e ".version = \"$meta_version\"" -o yaml > $target_dist_dir/deb/DEBIAN/control
 
+    ejs -f $target_dist_dir/config.json ./assets/linux/prerm.ejs \
+      > $target_dist_dir/deb/DEBIAN/prerm
+    chmod +x $target_dist_dir/deb/DEBIAN/prerm
+
     ejs -f $target_dist_dir/config.json ./assets/linux/postinst.ejs \
       > $target_dist_dir/deb/DEBIAN/postinst
     chmod +x $target_dist_dir/deb/DEBIAN/postinst

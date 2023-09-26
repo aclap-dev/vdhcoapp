@@ -52,92 +52,188 @@ allowed_origins = [
   "chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/"
 ]
 
+[flatpak]
+# No Firefox as they fixed the native messenging in sandbox
+ids = [
+  "com.brave.Browser",
+  "com.google.Chrome",
+  "com.google.ChromeDev",
+  "org.chromium.Chromium",
+  "com.github.Eloston.UngoogledChromium",
+  "com.microsoft.Edge",
+  "com.microsoft.EdgeDev",
+]
+
 # Location of the native messaging manifests. See:
 # https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_manifests
 # https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/#native-messaging-host-location
 # https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/developer-guide/native-messaging?tabs=v3%2Cwindows
 
-[store.mozilla.msg_manifest_paths.linux]
-user = [ "~/.mozilla/native-messaging-hosts/" ]
-system = [ "/usr/lib/mozilla/native-messaging-hosts/" ]
-flatpak = [ ] # No flatpak path as Firefox supports out-of-sandbox manifest
+### WINDOWS REGS ###
 
 [store.mozilla.msg_manifest_paths.windows]
-regs = [
-  "Software\\Mozilla\\NativeMessagingHosts",
-  "Software\\ComodoGroup\\NativeMessagingHosts",
-]
-
-[store.mozilla.msg_manifest_paths.mac]
-user = [
-  "~/Library/Application Support/Mozilla/NativeMessagingHosts/",
-]
-system = [
-  "/Library/Application Support/Mozilla/NativeMessagingHosts/"
-]
-
-[store.google.msg_manifest_paths.linux]
-user = [
-  "~/.config/google-chrome/NativeMessagingHosts/",
-  "~/.config/chromium/NativeMessagingHosts/",
-  "~/.config/vivaldi/NativeMessagingHosts",
-  "~/.config/vivaldi-snapshot/NativeMessagingHosts",
-  "~/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts",
-  "~/.config/opera/NativeMessagingHosts"
-]
-system = [
-  "/etc/opt/chrome/native-messaging-hosts/",
-  "/etc/chromium/native-messaging-hosts/"
-]
-flatpak = [
-  "~/.var/app/com.brave.Browser/config/BraveSoftware/Brave-Browser/NativeMessagingHosts",
-  "~/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts",
-  "~/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts"
-]
-
-[store.google.msg_manifest_paths.mac]
-user = [
-  "~/Library/Application Support/Vivaldi/NativeMessagingHosts/",
-  "~/Library/Application Support/Chromium/NativeMessagingHosts/",
-  "~/Library/Application Support/Google/Chrome Beta/NativeMessagingHosts/",
-  "~/Library/Application Support/Google/Chrome Canary/NativeMessagingHosts/",
-  "~/Library/Application Support/Google/Chrome Dev/NativeMessagingHosts/",
-  "~/Library/Application Support/Google/Chrome/NativeMessagingHosts/",
-  "~/Library/Application Support/Opera/NativeMessagingHosts/",
-  "~/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/",
-]
-system = [
-  "/Library/Google/Chrome/NativeMessagingHosts/",
-  "/Library/Application Support/Chromium/NativeMessagingHosts/",
-]
+regs = [ "Software\\Mozilla\\NativeMessagingHosts", "Software\\ComodoGroup\\NativeMessagingHosts" ]
 
 [store.google.msg_manifest_paths.windows]
-regs = [
-  "Software\\Google\\Chrome\\NativeMessagingHosts",
-  "Software\\Chromium\\NativeMessagingHosts",
-]
+regs = [ "Software\\Google\\Chrome\\NativeMessagingHosts", "Software\\Chromium\\NativeMessagingHosts" ]
 
-[store.microsoft.msg_manifest_paths.linux]
-user = [
-  "~/.config/microsoft-edge/NativeMessagingHosts",
-]
-system = [
-  "/etc/opt/edge/native-messaging-hosts/",
-]
-flatpak = [ ] # Not supported yet.
-
-[store.microsoft.msg_manifest_paths.mac]
-user = [
-  "~/Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/",
-  "~/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/",
-  "~/Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/",
-  "~/Library/Application Support/Microsoft Edge/NativeMessagingHosts/",
-]
-system = [
-  "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/",
-  "/Library/Microsoft/Edge/NativeMessagingHosts/",
-]
 [store.microsoft.msg_manifest_paths.windows]
-regs = [
-  "Software\\Microsoft\\Edge\\NativeMessagingHosts\\"
-]
+regs = [ "Software\\Microsoft\\Edge\\NativeMessagingHosts\\" ]
+
+### MAC FILES ###
+
+### MAC MOZILLA USER ###
+
+[[store.mozilla.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Mozilla/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Mozilla/"
+
+### MAC MOZILLA SYSTEM ###
+
+[[store.mozilla.msg_manifest_paths.mac.system]]
+path = "/Library/Application Support/Mozilla/NativeMessagingHosts/"
+only_if_dir_exists = "/Library/Application Support/Mozilla/"
+
+### MAC GOOGLE USER ###
+
+[[store.google.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Vivaldi/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Vivaldi/"
+
+[[store.google.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Chromium/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Chromium/"
+
+[[store.google.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Google/Chrome Beta/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Google/Chrome Beta/"
+
+[[store.google.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Google/Chrome Canary/NativeMessagingHosts/"
+only_if_dir_exists =  "~/Library/Application Support/Google/Chrome Canary/"
+
+[[store.google.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Google/Chrome Dev/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Google/Chrome Dev/"
+
+[[store.google.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Google/Chrome/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Google/Chrome/"
+
+[[store.google.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/BraveSoftware/"
+
+[[store.google.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Opera/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Opera/"
+
+### MAC GOOGLE SYSTEM ###
+
+[[store.google.msg_manifest_paths.mac.system]]
+path = "/Library/Google/Chrome/NativeMessagingHosts/"
+only_if_dir_exists = "/Library/Google/Chrome/"
+
+[[store.google.msg_manifest_paths.mac.system]]
+path = "/Library/Application Support/Chromium/NativeMessagingHosts/"
+only_if_dir_exists = "/Library/Application Support/Chromium/"
+
+### MAC MICROSOFT USER ###
+
+[[store.microsoft.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/"
+
+[[store.microsoft.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Microsoft Edge Canary/"
+
+[[store.microsoft.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Microsoft Edge Dev/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Microsoft Edge Dev/"
+
+[[store.microsoft.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Microsoft Edge/"
+
+### MAC MICROSOFT SYSTEM ###
+
+[[store.microsoft.msg_manifest_paths.mac.system]]
+path = "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"
+only_if_dir_exists = "/Library/Application Support/Microsoft Edge/"
+
+[[store.microsoft.msg_manifest_paths.mac.system]]
+path = "/Library/Microsoft/Edge/NativeMessagingHosts/"
+only_if_dir_exists = "/Library/Microsoft/Edge/"
+
+### LINUX MOZILLA ###
+
+
+### LINUX MOZILLA USER ###
+
+[store.mozilla.msg_manifest_paths.linux]
+user = [ "~/.mozilla/native-messaging-hosts/" ]
+
+### LINUX MOZILLA SYSTEM ###
+
+[[store.mozilla.msg_manifest_paths.linux.system]]
+path = "/usr/lib/mozilla/native-messaging-hosts/"
+only_if_dir_exists = "/usr/lib/mozilla/"
+
+### LINUX GOOGLE USER ###
+
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.config/google-chrome/NativeMessagingHosts/"
+only_if_dir_exists = "~/.config/google-chrome/"
+
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.config/chromium/NativeMessagingHosts/"
+only_if_dir_exists = "~/.config/chromium/"
+
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.config/vivaldi/NativeMessagingHosts"
+only_if_dir_exists = "~/.config/vivaldi/"
+
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.config/vivaldi-snapshot/NativeMessagingHosts"
+only_if_dir_exists = "~/.config/vivaldi-snapshot/"
+
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.config/BraveSoftware/Brave-Browser/NativeMessagingHosts"
+only_if_dir_exists = "~/.config/BraveSoftware/"
+
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.config/opera/NativeMessagingHosts"
+only_if_dir_exists = "~/.config/opera/"
+
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.var/app/com.brave.Browser/config/BraveSoftware/Brave-Browser/NativeMessagingHosts"
+only_if_dir_exists = "~/.var/app/com.brave.Browser"
+
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts"
+only_if_dir_exists = "~/.var/app/com.google.Chrome"
+
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts"
+only_if_dir_exists = "~/.var/app/com.chromium.Chromium"
+
+### LINUX GOOGLE SYSTEM ###
+
+[[store.google.msg_manifest_paths.linux.system]]
+path = "/etc/opt/chrome/native-messaging-hosts/"
+only_if_dir_exists = "/etc/opt/chrome/"
+
+[[store.google.msg_manifest_paths.linux.system]]
+path = "/etc/chromium/native-messaging-hosts/"
+only_if_dir_exists = "/etc/chromium/"
+
+### LINUX MICROSOFT USER ###
+[[store.microsoft.msg_manifest_paths.linux.user]]
+path = "~/.config/microsoft-edge/NativeMessagingHosts"
+only_if_dir_exists = "~/.config/microsoft-edge/"
+
+### LINUX MICROSOFT SYSTEM ###
+[[store.microsoft.msg_manifest_paths.linux.system]]
+path = "/etc/opt/edge/native-messaging-hosts/"
+only_if_dir_exists = "/etc/opt/edge/"

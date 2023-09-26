@@ -42,10 +42,29 @@ install the app, then run `<install location>/vdhcoapp install` to register the
 manifest within the different browsers. Re-run the install command if you ever move
 the application to a new location.
 
-# Notes about Flatpak/Snap browsers
+# Notes about Flatpak browsers
 
-**Chromium based browsers (Chrome, Brave, …)**: if the coapp is not visible from your
-browser, you can trigger the coapp flatpak registration with: `vdhcoapp install --flatpak`.
+**Firefox**: it should work out of the box.
 
-**Firefox**: In older version of Flatpak, Snap and Firefox, the application was not
-visible from within the browser. This should not be a problem anymore. Make sure to update your Firefox.
+**Chromium based browsers (Chrome, Brave, …)**: if the coapp is not visible from your browser, you can trigger the coapp flatpak registration with: `vdhcoapp install`.
+
+# Notes about Snap browsers
+
+**Firefox**: it should work out of the box.
+
+Snap Chromium-based browsers do not supported native messenging yet. It is up to Google to fix this issue.
+
+# Note about the registration process
+
+After the app is installed, the coapp installs a json file into browser-specific directories,
+as described by the Mozilla, Google and Microsoft documentation:
+
+- https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_manifests
+- https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/#native-messaging-host-location
+- https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/developer-guide/native-messaging?tabs=v3%2Cwindows
+
+You can see the list of files installed by running the app with the argument `sudo vdhcoapp install`
+(if installed as a root user) and `vdhcoapp install --user` (if installed as non-root user).
+Those files can be remove with `vdhcoapp uninstall [--user]`.
+
+

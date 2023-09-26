@@ -1,0 +1,7 @@
+#!/bin/bash
+
+bin="/opt/<%= package.binary_name %>/<%= package.binary_name %>"
+
+$bin uninstall --system
+user=$(who -m | awk '{print $1}')
+runuser -l $user -c "$bin uninstall --user"
