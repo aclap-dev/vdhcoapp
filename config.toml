@@ -80,21 +80,19 @@ regs = [ "Software\\Google\\Chrome\\NativeMessagingHosts", "Software\\Chromium\\
 [store.microsoft.msg_manifest_paths.windows]
 regs = [ "Software\\Microsoft\\Edge\\NativeMessagingHosts\\" ]
 
-### MAC FILES ###
-
-### MAC MOZILLA USER ###
+### MOZILLA MAC USER ###
 
 [[store.mozilla.msg_manifest_paths.mac.user]]
 path = "~/Library/Application Support/Mozilla/NativeMessagingHosts/"
 only_if_dir_exists = "~/Library/Application Support/Mozilla/"
 
-### MAC MOZILLA SYSTEM ###
+### MOZILLA MAC SYSTEM ###
 
 [[store.mozilla.msg_manifest_paths.mac.system]]
 path = "/Library/Application Support/Mozilla/NativeMessagingHosts/"
 only_if_dir_exists = "/Library/Application Support/Mozilla/"
 
-### MAC GOOGLE USER ###
+### GOOGLE MAC USER ###
 
 [[store.google.msg_manifest_paths.mac.user]]
 path = "~/Library/Application Support/Vivaldi/NativeMessagingHosts/"
@@ -128,7 +126,7 @@ only_if_dir_exists = "~/Library/Application Support/BraveSoftware/"
 path = "~/Library/Application Support/Opera/NativeMessagingHosts/"
 only_if_dir_exists = "~/Library/Application Support/Opera/"
 
-### MAC GOOGLE SYSTEM ###
+### GOOGLE MAC SYSTEM ###
 
 [[store.google.msg_manifest_paths.mac.system]]
 path = "/Library/Google/Chrome/NativeMessagingHosts/"
@@ -138,7 +136,7 @@ only_if_dir_exists = "/Library/Google/Chrome/"
 path = "/Library/Application Support/Chromium/NativeMessagingHosts/"
 only_if_dir_exists = "/Library/Application Support/Chromium/"
 
-### MAC MICROSOFT USER ###
+### MICROSOFT MAC USER ###
 
 [[store.microsoft.msg_manifest_paths.mac.user]]
 path = "~/Library/Application Support/Microsoft Edge Beta/NativeMessagingHosts/"
@@ -156,7 +154,7 @@ only_if_dir_exists = "~/Library/Application Support/Microsoft Edge Dev/"
 path = "~/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"
 only_if_dir_exists = "~/Library/Application Support/Microsoft Edge/"
 
-### MAC MICROSOFT SYSTEM ###
+### MICROSOFT MAC SYSTEM ###
 
 [[store.microsoft.msg_manifest_paths.mac.system]]
 path = "/Library/Application Support/Microsoft Edge/NativeMessagingHosts/"
@@ -166,21 +164,18 @@ only_if_dir_exists = "/Library/Application Support/Microsoft Edge/"
 path = "/Library/Microsoft/Edge/NativeMessagingHosts/"
 only_if_dir_exists = "/Library/Microsoft/Edge/"
 
-### LINUX MOZILLA ###
-
-
-### LINUX MOZILLA USER ###
+### MOZILLA LINUX USER ###
 
 [store.mozilla.msg_manifest_paths.linux]
 user = [ "~/.mozilla/native-messaging-hosts/" ]
 
-### LINUX MOZILLA SYSTEM ###
+### MOZILLA LINUX SYSTEM ###
 
 [[store.mozilla.msg_manifest_paths.linux.system]]
 path = "/usr/lib/mozilla/native-messaging-hosts/"
 only_if_dir_exists = "/usr/lib/mozilla/"
 
-### LINUX GOOGLE USER ###
+### GOOGLE LINUX USER ###
 
 [[store.google.msg_manifest_paths.linux.user]]
 path = "~/.config/google-chrome/NativeMessagingHosts/"
@@ -218,7 +213,7 @@ only_if_dir_exists = "~/.var/app/com.google.Chrome"
 path = "~/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts"
 only_if_dir_exists = "~/.var/app/com.chromium.Chromium"
 
-### LINUX GOOGLE SYSTEM ###
+### GOOGLE LINUX SYSTEM ###
 
 [[store.google.msg_manifest_paths.linux.system]]
 path = "/etc/opt/chrome/native-messaging-hosts/"
@@ -228,12 +223,12 @@ only_if_dir_exists = "/etc/opt/chrome/"
 path = "/etc/chromium/native-messaging-hosts/"
 only_if_dir_exists = "/etc/chromium/"
 
-### LINUX MICROSOFT USER ###
+### MICROSOFT LINUX USER ###
 [[store.microsoft.msg_manifest_paths.linux.user]]
 path = "~/.config/microsoft-edge/NativeMessagingHosts"
 only_if_dir_exists = "~/.config/microsoft-edge/"
 
-### LINUX MICROSOFT SYSTEM ###
+### MICROSOFT LINUX SYSTEM ###
 [[store.microsoft.msg_manifest_paths.linux.system]]
 path = "/etc/opt/edge/native-messaging-hosts/"
 only_if_dir_exists = "/etc/opt/edge/"
