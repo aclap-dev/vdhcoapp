@@ -8,16 +8,8 @@
 bin="/opt/<%= package.binary_name %>/<%= package.binary_name %>"
 
 $bin install --system
-for dir in /home/*; do
-  if [ -d "$dir" ]; then
-    user=$(basename $dir)
-    if [ -f "$dir/.mozilla/native-messaging-hosts/<%= meta.id %>.json" ]; then
-      echo "A previous installation of the coapp was found for user $user. Updating registered path:"
-      runuser -l $user -c "$bin install --user"
-    fi
-    if command -v flatpak &> /dev/null; then
-      echo "Make the coapp available from withing flatpak for user $user"
-      runuser -l $user -c "$bin install --flatpak"
-    fi
-  fi
-done
+user=$(who -m | awk '{print $1}')
+if [ -f "/home/$user/.mozilla/native-messaging-hosts/<%= meta.id %>.json" ]; then
+  echo "A previous installation of the coapp was found for user $user. Updating registered path:"
+  runuser -l $user -c "$bin install --user"
+fi
