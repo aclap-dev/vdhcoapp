@@ -20,6 +20,10 @@ Extra options:
   console.log(help);
 } else {
 
+  console.error(`
+vdhcoapp is running successfully. This is not intended to be used directly from the command line. You should press Ctrl+C to exit. If your browser is unable to detect the coapp, run: "vdhcoapp install".
+`);
+
   const os = require("os");
 
   require('./native-messaging');
