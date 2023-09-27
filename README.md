@@ -1,4 +1,4 @@
-# DownloadHelper CoApp:
+# DownloadHelper CoApp
 
 *DownloadHelper CoApp* is a multi-platform (Windows, Mac, Linux) application
 providing the [Video DownloadHelper](https://downloadhelper.net/)
@@ -22,7 +22,9 @@ from the [releases page](https://github.com/aclap-dev/vdhcoapp/releases).
 
 **Mac**: download the `.pkg` file, double click on it, and follow the instructions.
 
-**Linux**: download the `.deb` file (on Ubuntu and Debian), and install it: `dpkg -i <deb file>`.
+**Linux debian-based**: download the `.deb` file and install it: `sudo dpkg -i <deb file>`.
+
+**Linux other**: download the `.tar.bz2` file, unpack and move to a desired location, and run `./vdhcoapp install`.
 
 At this point, the app should be recognised within your browser.
 
@@ -41,6 +43,18 @@ a notification then close). Re-run the app if you ever move the application to a
 install the app, then run `<install location>/vdhcoapp install` to register the
 manifest within the different browsers. Re-run the install command if you ever move
 the application to a new location.
+
+# Troubleshooting
+
+If the coapp is not recognised by the extension, here are a few things you can try:
+
+- restart your browser
+- make sure the Video DownloadHelper addon is at least version 8, and has been installed from its official location:
+  - Chrome: https://chrome.google.com/webstore/detail/video-downloadhelper/lmjnegcaeklhafolokijcfjliaokphfk
+  - Firefox: https://addons.mozilla.org/en-US/firefox/addon/video-downloadhelper/
+  - Edge: https://microsoftedge.microsoft.com/addons/detail/video-downloadhelper/jmkaglaafmhbcpleggkmaliipiilhldn
+- On Mac, double click on the coapp, this should re-register the app in the relevant browsers.
+- On Linux, run `/opt/vdhcoapp/vdhcoapp install` to re-register the app. And Look at the note below about Flatpak and Snap browsers.
 
 # Notes about Flatpak browsers
 
