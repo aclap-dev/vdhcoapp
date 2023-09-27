@@ -177,6 +177,9 @@ if [ $build_all == 1 ]; then
   log "Building for Linux x86_64"
   ./build.sh --target linux-x86_64
 
+  log "Building for Linux aarch64"
+  ./build.sh --target linux-aarch64
+
   log "Building for Windows x86_64"
   ./build.sh --target windows-x86_64
 
