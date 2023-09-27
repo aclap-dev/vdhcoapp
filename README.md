@@ -49,12 +49,18 @@ the application to a new location.
 If the coapp is not recognised by the extension, here are a few things you can try:
 
 - restart your browser
+<<<<<<< Updated upstream
 - make sure the Video DownloadHelper addon is at least version 8, and has been installed from its official location:
   - Chrome: https://chrome.google.com/webstore/detail/video-downloadhelper/lmjnegcaeklhafolokijcfjliaokphfk
   - Firefox: https://addons.mozilla.org/en-US/firefox/addon/video-downloadhelper/
   - Edge: https://microsoftedge.microsoft.com/addons/detail/video-downloadhelper/jmkaglaafmhbcpleggkmaliipiilhldn
 - On Mac, double click on the coapp, this should re-register the app in the relevant browsers.
 - On Linux, run `/opt/vdhcoapp/vdhcoapp install` to re-register the app. And Look at the note below about Flatpak and Snap browsers.
+=======
+- make sure the Video DownloadHelper addon is at least version 8, and has been installed from its official location: https://www.downloadhelper.net/install
+- on Mac, double click on the coapp, this should re-register the app in the relevant browsers.
+- on Linux, run `/opt/vdhcoapp/vdhcoapp install` to re-register the app. And Look at the note below about Flatpak and Snap browsers.
+>>>>>>> Stashed changes
 
 # Notes about Flatpak browsers
 
