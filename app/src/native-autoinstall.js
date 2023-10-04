@@ -146,17 +146,18 @@ async function PrepareFlatpak() {
 }
 
 async function install_uninstall(uninstall = false) {
-  let mode = GetMode();
   let platform = os.platform();
   if (platform == "darwin") {
+    let mode = GetMode();
     SetupFiles("mac", mode, uninstall);
   } else if (platform == "linux") {
+    let mode = GetMode();
     if (mode == "user") {
       await PrepareFlatpak();
     }
     SetupFiles("linux", mode, uninstall);
   } else {
-    DisplayMessage("Unsupported platform: " + os.platform());
+    DisplayMessage("Installation from command line not supported on " + os.platform());
   }
 }
 
