@@ -183,7 +183,7 @@ let old_coapp;
   assert("info.id", info.id, "net.downloadhelper.coapp");
   if (info.version == "1.6.3") {
     old_coapp = true;
-  } else if (info.version == "2.0.1") {
+  } else if (info.version.startsWith("2.0.")) {
     old_coapp = false;
   } else {
     assert_true("info.version", false);
