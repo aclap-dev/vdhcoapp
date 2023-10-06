@@ -180,9 +180,6 @@ if [ $build_all == 1 ]; then
   log "Building for Linux aarch64"
   ./build.sh --target linux-aarch64
 
-  log "Building for Windows x86_64"
-  ./build.sh --target windows-x86_64
-
   exit 0
 fi
 
@@ -211,7 +208,7 @@ fi
 if [ ! -d "$dist_dir/ffmpeg-$target" ]; then
   log "Retrieving ffmpeg"
   ffmpeg_url_base="https://github.com/aclap-dev/ffmpeg-static-builder/releases/download/"
-  ffmpeg_url=$ffmpeg_url_base/ffmpeg-$package_ffmpeg_build_id/ffmpeg-$target.tar.bz2
+  ffmpeg_url=$ffmpeg_url_base/$package_ffmpeg_build_id/ffmpeg-$target.tar.bz2
   ffmpeg_tarball=$dist_dir/ffmpeg.tar.bz2
   wget --show-progress -c -O $ffmpeg_tarball $ffmpeg_url
   (cd $dist_dir && tar -xf $ffmpeg_tarball)
