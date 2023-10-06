@@ -297,7 +297,7 @@ if [ ! $skip_packaging == 1 ]; then
     chmod +x $macos_dir/register.sh
 
     echo '#!/bin/bash' > $scripts_dir/postinstall
-    echo "\$DSTROOT/$meta_id.app/Contents/MacOS/register.sh" >> $scripts_dir/postinstall
+    echo "su \"\$USER\" -c \$DSTROOT/$meta_id.app/Contents/MacOS/register.sh" >> $scripts_dir/postinstall
     chmod +x $scripts_dir/postinstall
 
     ejs -f $target_dist_dir/config.json ./assets/mac/pkg-distribution.xml.ejs > $target_dist_dir/pkg-distribution.xml
