@@ -57,7 +57,7 @@ If the coapp is not recognised by the extension, here are a few things you can t
 
 **Firefox**: it should work out of the box.
 
-**Chromium based browsers (Chrome, Brave, …)**: if the coapp is not visible from your browser, you can trigger the coapp flatpak registration with: `vdhcoapp install --flatpack`.
+**Chromium based browsers (Chrome, Brave, …)**: if the coapp is not visible from your browser, you can trigger the coapp flatpak registration with: `vdhcoapp install`.
 
 # Notes about Snap browsers
 

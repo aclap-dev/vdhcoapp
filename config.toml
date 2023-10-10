@@ -53,8 +53,8 @@ allowed_origins = [
 ]
 
 [flatpak]
-# No Firefox as they fixed the native messenging in sandbox
 ids = [
+  "org.mozilla.firefox",
   "com.brave.Browser",
   "com.google.Chrome",
   "com.google.ChromeDev",
