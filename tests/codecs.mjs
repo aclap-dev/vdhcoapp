@@ -8,7 +8,6 @@ export const expected_formats = {
   aac: { d: true, e: false, _: 'raw ADTS AAC (Advanced Audio Coding)' },
   aax: { d: true, e: false, _: 'CRI AAX' },
   ac3: { d: true, e: true, _: 'raw AC-3' },
-  ac4: { d: true, e: true, _: 'raw AC-4' },
   ace: { d: true, e: false, _: 'tri-Ace Audio Container' },
   acm: { d: true, e: false, _: 'Interplay ACM' },
   act: { d: true, e: false, _: 'ACT Voice file format' },
@@ -117,7 +116,6 @@ export const expected_formats = {
   ea_cdata: { d: true, e: false, _: 'Electronic Arts cdata' },
   eac3: { d: true, e: true, _: 'raw E-AC-3' },
   epaf: { d: true, e: false, _: 'Ensoniq Paris Audio File' },
-  evc: { d: true, e: true, _: 'raw EVC video' },
   exr_pipe: { d: true, e: false, _: 'piped exr sequence' },
   f32be: { d: true, e: true, _: 'PCM 32-bit floating-point big-endian' },
   f32le: { d: true, e: true, _: 'PCM 32-bit floating-point little-endian' },
@@ -192,7 +190,6 @@ export const expected_formats = {
   jacosub: { d: true, e: true, _: 'JACOsub subtitle format' },
   jpeg_pipe: { d: true, e: false, _: 'piped jpeg sequence' },
   jpegls_pipe: { d: true, e: false, _: 'piped jpegls sequence' },
-  jpegxl_anim: { d: true, e: false, _: 'Animated JPEG XL' },
   jpegxl_pipe: { d: true, e: false, _: 'piped jpegxl sequence' },
   jv: { d: true, e: false, _: 'Bitmap Brothers JV' },
   kux: { d: true, e: false, _: 'KUX (YouKu)' },
@@ -282,7 +279,6 @@ export const expected_formats = {
   pam_pipe: { d: true, e: false, _: 'piped pam sequence' },
   pbm_pipe: { d: true, e: false, _: 'piped pbm sequence' },
   pcx_pipe: { d: true, e: false, _: 'piped pcx sequence' },
-  pdv: { d: true, e: false, _: 'PlayDate Video' },
   pfm_pipe: { d: true, e: false, _: 'piped pfm sequence' },
   pgm_pipe: { d: true, e: false, _: 'piped pgm sequence' },
   pgmyuv_pipe: { d: true, e: false, _: 'piped pgmyuv sequence' },
@@ -1021,15 +1017,6 @@ export const expected_codecs = {
     s: false,
     _: 'Escape 130'
   },
-  evc: {
-    d: false,
-    e: false,
-    t: 'V',
-    i: false,
-    l: true,
-    s: false,
-    _: 'MPEG-5 EVC (Essential Video Coding)'
-  },
   exr: {
     d: true,
     e: true,
@@ -1381,7 +1368,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: true,
-    _: 'JPEG 2000 (encoders: jpeg2000 libopenjpeg )'
+    _: 'JPEG 2000 (decoders: jpeg2000 libopenjpeg ) (encoders: jpeg2000 libopenjpeg )'
   },
   jpegls: { d: true, e: true, t: 'V', i: true, l: true, s: true, _: 'JPEG-LS' },
   jpegxl: {
@@ -1630,7 +1617,7 @@ export const expected_codecs = {
   },
   msrle: {
     d: true,
-    e: true,
+    e: false,
     t: 'V',
     i: false,
     l: false,
@@ -1798,15 +1785,6 @@ export const expected_codecs = {
     l: false,
     s: true,
     _: 'PC Paintbrush PCX image'
-  },
-  pdv: {
-    d: true,
-    e: false,
-    t: 'V',
-    i: false,
-    l: true,
-    s: false,
-    _: 'PDV (PlayDate Video)'
   },
   pfm: {
     d: true,
@@ -2041,15 +2019,6 @@ export const expected_codecs = {
     l: false,
     s: true,
     _: 'innoHeim/Rsupport Screen Capture Codec'
-  },
-  rtv1: {
-    d: true,
-    e: false,
-    t: 'V',
-    i: true,
-    l: true,
-    s: false,
-    _: 'RTV1 (RivaTuner Video)'
   },
   rv10: {
     d: true,
@@ -2530,15 +2499,6 @@ export const expected_codecs = {
     s: false,
     _: 'Sierra VMD video'
   },
-  vmix: {
-    d: true,
-    e: false,
-    t: 'V',
-    i: true,
-    l: true,
-    s: false,
-    _: 'vMix Video'
-  },
   vmnc: {
     d: true,
     e: false,
@@ -2925,15 +2885,6 @@ export const expected_codecs = {
     l: true,
     s: false,
     _: 'ATSC A/52A (AC-3) (decoders: ac3 ac3_fixed ) (encoders: ac3 ac3_fixed )'
-  },
-  ac4: {
-    d: false,
-    e: false,
-    t: 'A',
-    i: false,
-    l: true,
-    s: false,
-    _: 'AC-4'
   },
   'acelp.kelvin': {
     d: true,
