@@ -33,6 +33,8 @@ function ExecConverter(args) {
   });
 }
 
+exports.star_listening = () => {
+
 const convertChildren = new Map();
 
 rpc.listen({
@@ -231,6 +233,7 @@ rpc.listen({
   },
 
 });
+}
 
 exports.info = () => {
   return new Promise((resolve, reject) => {
