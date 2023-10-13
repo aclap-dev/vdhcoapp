@@ -19,34 +19,6 @@ if ! [ -x "$(command -v yq)" ]; then
   error "yq not installed. See https://github.com/mikefarah/yq/#install"
 fi
 
-if ! [ -x "$(command -v node)" ]; then
-  error "Node not installed"
-fi
-
-if [[ $(node -v) != v18.* ]]
-then
-  error "Wrong version of Node (expected v18)"
-fi
-
-if ! [ -x "$(command -v esbuild)" ]; then
-  log "Installing esbuild"
-  npm install -g esbuild
-fi
-
-if ! [ -x "$(command -v pkg)" ]; then
-  log "Installing pkg"
-  npm install -g pkg
-fi
-
-if ! [ -x "$(command -v ejs)" ]; then
-  log "Installing ejs"
-  npm install -g ejs
-fi
-
-if [ ! -d "app/node_modules" ]; then
-  (cd app/ ; npm install)
-fi
-
 dist_dir_name=dist
 
 host_os=$(uname -s)
@@ -72,6 +44,7 @@ skip_packaging=0
 skip_signing=0
 skip_bundling=0
 skip_notary=0
+target_node=18
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -82,13 +55,15 @@ while [[ "$#" -gt 0 ]]; do
       echo "--skip-packaging   # skip packaging operations (including signing)"
       echo "--skip-signing     # do not sign the binaries"
       echo "--skip-notary      # do not send pkg to Apple's notary service"
-      echo "--target <os-arch> # os: linux / mac / windows, arch: x86_64 / i686 / arm64"
+      echo "--force-node10     # use node 10. Automatic for win7-* and *-i686"
+      echo "--target <os-arch> # os: linux / mac / windows / win7, arch: x86_64 / i686 / arm64"
       exit 0
       ;;
     --all) build_all=1 ;;
     --skip-bundling) skip_bundling=1 ;;
     --skip-packaging) skip_packaging=1 ; skip_signing=1 ; skip_notary=1 ;;
     --skip-signing) skip_signing=1 ; skip_notary=1 ;;
+    --force-node10) target_node=10 ;;
     --skip-notary) skip_notary=1 ;;
     --target) target="$2"; shift ;;
     *) error "Unknown parameter passed: $1" ;;
@@ -97,10 +72,13 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 case $target in
+  linux-i686 | \
   linux-aarch64 | \
   linux-x86_64 | \
   windows-x86_64 | \
   windows-i686 | \
+  win7-x86_64 | \
+  win7-i686 | \
   mac-x86_64 | \
   mac-arm64)
       ;;
@@ -112,25 +90,85 @@ esac
 target_os=$(echo $target | cut -f1 -d-)
 target_arch=$(echo $target | cut -f2 -d-)
 
+target_dist_dir_rel=$dist_dir_name/$target_os/$target_arch
+target_dist_dir=$PWD/$target_dist_dir_rel
+dist_dir=$PWD/$dist_dir_name
+
+if [ $target_os == "win7" ]; then
+  target_os="windows"
+  target=$target_os-$target_arch
+  target_node=10
+fi
+
+if [ $target_arch == "i686" ]; then
+  target_node=10
+fi
+
+if ! [ -x "$(command -v node)" ]; then
+  error "Node not installed"
+fi
+
+if [ $target_node == 10 ]; then
+  if [[ $(node -v) != v10.* ]]
+  then
+    error "Wrong version of Node (expected v10)"
+  fi
+else
+  if [[ $(node -v) != v18.* ]]
+  then
+    error "Wrong version of Node (expected v18)"
+  fi
+fi
+
+if ! [ -x "$(command -v esbuild)" ]; then
+  log "Installing esbuild"
+  npm install -g esbuild
+fi
+
+if ! [ -x "$(command -v pkg)" ]; then
+  log "Installing pkg"
+  if [ $target_node == 10 ]; then
+    npm install -g pkg@4.4.9
+  else
+    npm install -g pkg
+  fi
+fi
+
+if [ $target_node == 10 ]; then
+  if [[ $(pkg -v) != 4.4.9 ]]
+  then
+    error "Wrong version of Pkg (expected 4.4.9)"
+  fi
+fi
+
+if ! [ -x "$(command -v ejs)" ]; then
+  log "Installing ejs"
+  npm install -g ejs
+fi
+
+if [ ! -d "app/node_modules" ]; then
+  (cd app/ ; npm install)
+fi
+
 node_arch=$target_arch
 deb_arch=$target_arch
 if [ $target == "linux-aarch64" ]; then
   node_arch="arm64"
   deb_arch="arm64"
 fi
+if [ $target_arch == "i686" ]; then
+  node_arch="x86"
+fi
 if [ $target == "linux-x86_64" ]; then
   deb_arch="amd64"
 fi
-
-target_dist_dir_rel=$dist_dir_name/$target_os/$target_arch
-target_dist_dir=$PWD/$target_dist_dir_rel
-dist_dir=$PWD/$dist_dir_name
 
 log "Building for $target on $host"
 log "Skipping bundling: $skip_bundling"
 log "Skipping packaging: $skip_packaging"
 log "Skipping signing: $skip_signing"
 log "Skipping notary: $skip_notary"
+log "Node version: $target_node"
 log "Installation destination: $target_dist_dir_rel"
 
 if [ $target_os == "windows" ];
@@ -148,7 +186,8 @@ mkdir -p $target_dist_dir
 log "Creating config.json"
 yq . -o yaml ./config.toml | \
   yq e ".target.os = \"$target_os\"" |\
-  yq e ".target.arch = \"$target_arch\"" -o json \
+  yq e ".target.arch = \"$target_arch\"" |\
+  yq e ".target.node = \"$target_node\"" -o json \
   > $target_dist_dir/config.json
 
 # Extract all toml data into shell variables.
@@ -171,14 +210,13 @@ if [ $build_all == 1 ]; then
   log "Building for Mac Intel"
   arch -x86_64 ./build.sh
 
-  log "Building for Mac arm64"
-  ./build.sh --target mac-arm64
-
-  log "Building for Linux x86_64"
-  ./build.sh --target linux-x86_64
-
-  log "Building for Linux aarch64"
-  ./build.sh --target linux-aarch64
+  # FIXME: linux-i686 can't be built under Mac as it needs to Node 10.
+  # To compile for linux-i686 build from a Linux i686 system.
+  for target in "mac-arm64 linux-x86_64 linux-aarch64 win7-i686 win7-x86_64 windows-i686 windows-x86_64"
+  do
+    log "Building for $target"
+    ./build.sh --target $target
+  done
 
   exit 0
 fi
@@ -188,18 +226,32 @@ if [ ! $skip_bundling == 1 ]; then
   # - hardcoding import.meta.url because the `open` module requires it.
   # - faking an electron module because `got` requires on (but it's never used)
   log "Bundling JS code into single file"
+
+  if [ $target_node == 10 ]; then
+    declare -a opts=("--target=es6" "--alias:open=open2")
+  else
+    declare -a opts=("--target=esnext" \
+      "--banner:js=const _importMetaUrl=require('url').pathToFileURL(__filename)" \
+      "--define:import.meta.url=_importMetaUrl")
+  fi
+
   NODE_PATH=app/src:$target_dist_dir esbuild ./app/src/main.js \
+    "${opts[@]}" \
     --format=cjs \
-    --banner:js="const _importMetaUrl=require('url').pathToFileURL(__filename)" \
-    --define:import.meta.url='_importMetaUrl' \
     --bundle --platform=node \
     --tree-shaking=true \
     --alias:electron=electron2 \
     --outfile=$dist_dir/bundled.js
 
+  if [ $target_node == 10 ]; then
+    declare -a opts=("$dist_dir/bundled.js" "--no-bytecode" "--public")
+  else
+    declare -a opts=("$dist_dir/bundled.js")
+  fi
+
   log "Bundling Node binary with code"
-  pkg $dist_dir/bundled.js \
-    --target node18-$target_os-$node_arch \
+  pkg "${opts[@]}" \
+    --target node$target_node-$target_os-$node_arch \
     --output $target_dist_dir/$package_binary_name$exe_extension
 else
   log "Skipping bundling"
