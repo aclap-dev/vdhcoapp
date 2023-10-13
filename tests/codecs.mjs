@@ -1021,15 +1021,6 @@ export const expected_codecs = {
     s: false,
     _: 'Escape 130'
   },
-  evc: {
-    d: false,
-    e: false,
-    t: 'V',
-    i: false,
-    l: true,
-    s: false,
-    _: 'MPEG-5 EVC (Essential Video Coding)'
-  },
   exr: {
     d: true,
     e: true,
@@ -1381,7 +1372,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: true,
-    _: 'JPEG 2000 (encoders: jpeg2000 libopenjpeg )'
+    _: 'JPEG 2000 (decoders: jpeg2000 libopenjpeg ) (encoders: jpeg2000 libopenjpeg )'
   },
   jpegls: { d: true, e: true, t: 'V', i: true, l: true, s: true, _: 'JPEG-LS' },
   jpegxl: {
@@ -1630,7 +1621,7 @@ export const expected_codecs = {
   },
   msrle: {
     d: true,
-    e: true,
+    e: false,
     t: 'V',
     i: false,
     l: false,
@@ -1798,15 +1789,6 @@ export const expected_codecs = {
     l: false,
     s: true,
     _: 'PC Paintbrush PCX image'
-  },
-  pdv: {
-    d: true,
-    e: false,
-    t: 'V',
-    i: false,
-    l: true,
-    s: false,
-    _: 'PDV (PlayDate Video)'
   },
   pfm: {
     d: true,
@@ -2041,15 +2023,6 @@ export const expected_codecs = {
     l: false,
     s: true,
     _: 'innoHeim/Rsupport Screen Capture Codec'
-  },
-  rtv1: {
-    d: true,
-    e: false,
-    t: 'V',
-    i: true,
-    l: true,
-    s: false,
-    _: 'RTV1 (RivaTuner Video)'
   },
   rv10: {
     d: true,
@@ -2530,15 +2503,6 @@ export const expected_codecs = {
     s: false,
     _: 'Sierra VMD video'
   },
-  vmix: {
-    d: true,
-    e: false,
-    t: 'V',
-    i: true,
-    l: true,
-    s: false,
-    _: 'vMix Video'
-  },
   vmnc: {
     d: true,
     e: false,
@@ -2925,15 +2889,6 @@ export const expected_codecs = {
     l: true,
     s: false,
     _: 'ATSC A/52A (AC-3) (decoders: ac3 ac3_fixed ) (encoders: ac3 ac3_fixed )'
-  },
-  ac4: {
-    d: false,
-    e: false,
-    t: 'A',
-    i: false,
-    l: true,
-    s: false,
-    _: 'AC-4'
   },
   'acelp.kelvin': {
     d: true,

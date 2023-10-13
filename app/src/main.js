@@ -33,9 +33,9 @@ if (process.argv[2] == "install") {
 } else if (process.argv[2] == "--version") {
   console.log(config.meta.version);
 } else if (process.argv[2] == "--info") {
-  info().then(info => {
+  info().then((info) => {
     console.log(JSON.stringify(info, null, "  "));
-  }).catch(error => {
+  }).catch((error) => {
     console.error(error);
   });
 } else if (process.argv[2] == "--help") {

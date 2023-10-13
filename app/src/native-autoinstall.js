@@ -109,7 +109,9 @@ async function SetupFiles(platform, mode, uninstall) {
       try {
         await fs.unlink(op.path);
         console.log(`Removing file ${op.path}`);
-      } catch (_) { }
+      } catch (_) {
+        // Nothing to unlink
+      }
     } else {
       try {
         console.log(`Writing ${op.path}`);
