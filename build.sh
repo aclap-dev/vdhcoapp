@@ -210,9 +210,19 @@ if [ $build_all == 1 ]; then
   log "Building for Mac Intel"
   arch -x86_64 ./build.sh
 
+  targets=("mac-arm64" "linux-x86_64" "linux-aarch64" "windows-x86_64")
+  for target in "${targets[@]}"
+  do
+    log "Building for $target"
+    ./build.sh --target $target
+  done
+
+  fnm use 10
+
   # FIXME: linux-i686 can't be built under Mac as it needs to Node 10.
   # To compile for linux-i686 build from a Linux i686 system.
-  for target in "mac-arm64 linux-x86_64 linux-aarch64 win7-i686 win7-x86_64 windows-i686 windows-x86_64"
+  targets=("win7-i686" "win7-x86_64" "windows-i686")
+  for target in "${targets[@]}"
   do
     log "Building for $target"
     ./build.sh --target $target
