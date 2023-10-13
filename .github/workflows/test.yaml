@@ -13,5 +13,5 @@ jobs:
     - run: eslint app tests/*.mjs
     - run: sudo snap install yq
     - run: ./build.sh
-    - run: sudo dpkg -i ./dist/linux/x86_64/vdhcoapp-2.0.2-linux-x86_64.deb
+    - run: sudo dpkg -i ./dist/linux/x86_64/vdhcoapp-2.0.3-linux-x86_64.deb
     - run: ./tests/test.mjs /opt/vdhcoapp/vdhcoapp --with-network
