@@ -1,8 +1,14 @@
 const os = require("os");
-const fs = require("node:fs/promises");
 const path = require("path");
 const { spawn, exec } = require('child_process');
 const config = require('config.json');
+
+let fs;
+if (process.versions.node.startsWith("10")) {
+  fs = require('fs').promises;
+} else {
+  fs = require('node:fs/promises');
+}
 
 const STORES = Object.keys(config.store);
 
@@ -101,17 +107,20 @@ async function SetupFiles(platform, mode, uninstall) {
   for (let op of ops) {
     if (uninstall) {
       try {
+        await fs.unlink(op.path);
         console.log(`Removing file ${op.path}`);
-        await fs.rm(op.path, { force: true });
-      } catch (err) {
-        DisplayMessage("Cannot delete manifest file: " + err.message, op.path);
-        process.exit(1);
+      } catch (_) {
+        // Nothing to unlink
       }
     } else {
       try {
         console.log(`Writing ${op.path}`);
         let dir = path.dirname(op.path);
-        await fs.mkdir(dir, { recursive: true });
+        try {
+          await fs.mkdir(dir, { recursive: true });
+        } catch (_) {
+          // With node 10, this fails if directory exists.
+        }
         const data = new Uint8Array(Buffer.from(op.content));
         await fs.writeFile(op.path, data);
       } catch (err) {

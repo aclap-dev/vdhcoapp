@@ -1,4 +1,30 @@
 const config = require('config.json');
+const converter = require('./converter');
+const os = require("os");
+
+function info() {
+  let result = {
+    id: config.meta.id,
+    name: config.meta.name,
+    version: config.meta.version,
+    binary: process.execPath,
+    displayName: config.meta.name,
+    description: config.meta.description,
+    target: config.target,
+    home: os.homedir() || ""
+  };
+  return converter.info().then((convInfo) => {
+    return Object.assign(result, {
+      converterBinary: convInfo.converterBinary,
+      converterBase: convInfo.program,
+      converterBaseVersion: convInfo.version
+    });
+  }).catch((error) => {
+    return Object.assign(result, {
+      converterError: error.message
+    });
+  });
+}
 
 if (process.argv[2] == "install") {
   require("./native-autoinstall").install();
@@ -6,25 +32,27 @@ if (process.argv[2] == "install") {
   require("./native-autoinstall").uninstall();
 } else if (process.argv[2] == "--version") {
   console.log(config.meta.version);
+} else if (process.argv[2] == "--info") {
+  info().then((info) => {
+    console.log(JSON.stringify(info, null, "  "));
+  }).catch((error) => {
+    console.error(error);
+  });
 } else if (process.argv[2] == "--help") {
   let help = `
-vdhcoapp --help     # this help
-vdhcoapp --version  # show coapp version
-vdhcoapp install    # register browser JSON files in browser-specific locations.
-vdhcoapp uninstall  # remove JSON files.
+Commands:
+  vdhcoapp install    # register browser JSON files in browser-specific locations.
+  vdhcoapp uninstall  # remove JSON files.
 
-Extra options:
+Options:
+  --help    # this help
+  --info    # list extra info from converter
+  --version # show coapp version
   --user    # force installation in user mode (automatic if run as non-root user)
   --system  # force installation system wide (automatic if run as root user)
 `;
   console.log(help);
 } else {
-
-  console.error(`
-vdhcoapp is running successfully. This is not intended to be used directly from the command line. You should press Ctrl+C to exit. If your browser is unable to detect the coapp, run: "vdhcoapp install".
-`);
-
-  const os = require("os");
 
   require('./native-messaging');
   const logger = require('./logger');
@@ -33,11 +61,12 @@ vdhcoapp is running successfully. This is not intended to be used directly from 
   rpc.setLogger(logger);
   rpc.setDebugLevel(2);
 
-  const converter = require('./converter');
   require('./file');
   require('./downloads');
   require('./request');
   require('./vm');
+
+  converter.star_listening();
 
   rpc.listen({
     // In test suite
@@ -53,29 +82,12 @@ vdhcoapp is running successfully. This is not intended to be used directly from 
       return arg;
     },
     // In test suite
-    info: () => {
-      let result = {
-        id: config.meta.id,
-        name: config.meta.name,
-        version: config.meta.version,
-        binary: process.execPath,
-        displayName: config.meta.name,
-        description: config.meta.description,
-        target_os: config.target.os,
-        target_arch: config.target.arch,
-        home: os.homedir() || ""
-      };
-      return converter.info().then((convInfo) => {
-        return Object.assign(result, {
-          converterBinary: convInfo.converterBinary,
-          converterBase: convInfo.program,
-          converterBaseVersion: convInfo.version
-        });
-      }).catch((error) => {
-        return Object.assign(result, {
-          converterError: error.message
-        });
-      });
-    }
+    info,
   });
+
+  let m = `vdhcoapp is running successfully. `;
+  m += `This is not intended to be used directly from the command line. `;
+  m += `You should press Ctrl+C to exit. `;
+  m += `If your browser is unable to detect the coapp, run: "vdhcoapp install".`;
+  console.error(m);
 }
