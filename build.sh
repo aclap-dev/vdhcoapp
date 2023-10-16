@@ -95,8 +95,6 @@ target_dist_dir=$PWD/$target_dist_dir_rel
 dist_dir=$PWD/$dist_dir_name
 
 if [ $target_os == "win7" ]; then
-  target_os="windows"
-  target=$target_os-$target_arch
   target_node=10
 fi
 
@@ -151,13 +149,22 @@ if [ ! -d "app/node_modules" ]; then
 fi
 
 node_arch=$target_arch
+node_os=$target_os
 deb_arch=$target_arch
+ffmpeg_target=ffmpeg-$target
+if [ $target_os == "win7" ]; then
+  node_os="windows"
+  ffmpeg_target=ffmpeg-windows-$target_arch
+fi
 if [ $target == "linux-aarch64" ]; then
   node_arch="arm64"
   deb_arch="arm64"
 fi
 if [ $target_arch == "i686" ]; then
   node_arch="x86"
+fi
+if [ $target == "linux-i686" ]; then
+  deb_arch="i386"
 fi
 if [ $target == "linux-x86_64" ]; then
   deb_arch="amd64"
@@ -171,7 +178,7 @@ log "Skipping notary: $skip_notary"
 log "Node version: $target_node"
 log "Installation destination: $target_dist_dir_rel"
 
-if [ $target_os == "windows" ];
+if [ $node_os == "windows" ];
 then
   exe_extension=".exe"
 else
@@ -261,16 +268,16 @@ if [ ! $skip_bundling == 1 ]; then
 
   log "Bundling Node binary with code"
   pkg "${opts[@]}" \
-    --target node$target_node-$target_os-$node_arch \
+    --target node$target_node-$node_os-$node_arch \
     --output $target_dist_dir/$package_binary_name$exe_extension
 else
   log "Skipping bundling"
 fi
 
-if [ ! -d "$dist_dir/ffmpeg-$target" ]; then
+if [ ! -d "$dist_dir/$ffmpeg_target" ]; then
   log "Retrieving ffmpeg"
   ffmpeg_url_base="https://github.com/aclap-dev/ffmpeg-static-builder/releases/download/"
-  ffmpeg_url=$ffmpeg_url_base/$package_ffmpeg_build_id/ffmpeg-$target.tar.bz2
+  ffmpeg_url=$ffmpeg_url_base/$package_ffmpeg_build_id/$ffmpeg_target.tar.bz2
   ffmpeg_tarball=$dist_dir/ffmpeg.tar.bz2
   wget --show-progress -c -O $ffmpeg_tarball $ffmpeg_url
   (cd $dist_dir && tar -xf $ffmpeg_tarball)
@@ -279,8 +286,8 @@ else
   log "ffmpeg already downloaded"
 fi
 
-cp $dist_dir/ffmpeg-$target/ffmpeg$exe_extension \
-  $dist_dir/ffmpeg-$target/ffprobe$exe_extension \
+cp $dist_dir/$ffmpeg_target/ffmpeg$exe_extension \
+  $dist_dir/$ffmpeg_target/ffprobe$exe_extension \
   $target_dist_dir/
 
 if [ ! $skip_packaging == 1 ]; then
@@ -425,7 +432,7 @@ if [ ! $skip_packaging == 1 ]; then
     fi
   fi
 
-  if [ $target_os == "windows" ]; then
+  if [ $node_os == "windows" ]; then
     install_dir=$target_dist_dir/install_dir
     mkdir -p $install_dir
 
@@ -465,7 +472,7 @@ rm $target_dist_dir/config.json
 
 target_dist_dir=$dist_dir/$target_os/$target_arch
 
-if [ $target_os == "windows" ]; then
+if [ $node_os == "windows" ]; then
   log "Binary available: $target_dist_dir_rel/$package_binary_name.exe"
   log "Binary available: $target_dist_dir_rel/ffmpeg.exe"
   log "Binary available: $target_dist_dir_rel/ffprobe.exe"
