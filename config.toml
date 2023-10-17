@@ -167,7 +167,10 @@ only_if_dir_exists = "/Library/Microsoft/Edge/"
 ### MOZILLA LINUX USER ###
 
 [store.mozilla.msg_manifest_paths.linux]
-user = [ "~/.mozilla/native-messaging-hosts/" ]
+user = [
+  "~/.mozilla/native-messaging-hosts/",
+  "~/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts"
+]
 
 ### MOZILLA LINUX SYSTEM ###
 
