@@ -2,7 +2,6 @@ import open from 'open';
 
 const os = require("os");
 const path = require('path');
-const { spawn } = require('child_process');
 
 const logger = require('./logger');
 const rpc = require('./weh-rpc');
@@ -14,6 +13,33 @@ let ffprobe = path.join(exec_dir, "ffprobe");
 if (os.platform() == "win32") {
   ffmpeg += ".exe";
   ffprobe += ".exe";
+}
+
+// Record all started processes, and kill them if the coapp
+// ends, crashes or is killed by the browser.
+let to_kill = new Set();
+
+function spawn(arg0, argv) {
+  const { spawn } = require('child_process');
+  let process = spawn(arg0, argv);
+  if (process.pid) {
+    to_kill.add(process);
+    process.on("exit", () => to_kill.delete(process));
+  }
+  return process;
+}
+
+for (let e of ["exit", "SIGINT", "SIGTERM", "uncaughtException"]) {
+  process.on(e, () => {
+    for (let process of to_kill) {
+      try {
+        process.kill(9);
+      } catch (_) {
+        /* */
+      }
+    }
+    process.exit(0);
+  });
 }
 
 function ExecConverter(args) {
