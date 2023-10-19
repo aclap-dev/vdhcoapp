@@ -53,6 +53,8 @@ If the coapp is not recognised by the extension, here are a few things you can t
 - on Mac, double click on the coapp, this should re-register the app in the relevant browsers.
 - on Linux, run `/opt/vdhcoapp/vdhcoapp install` to re-register the app. And Look at the note below about Flatpak and Snap browsers.
 
+If you are comfortable with the command line, move to the installation folder of the coapp, and run: `./vdhcoapp --info`. It will run some diagnostic operations.
+
 # Notes about Flatpak browsers
 
 **Firefox**: it should work out of the box.
