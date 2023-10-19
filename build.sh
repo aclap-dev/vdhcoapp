@@ -40,6 +40,7 @@ host="${host_os}-${host_arch}"
 
 target=$host
 build_all=0
+publish=0
 skip_packaging=0
 skip_signing=0
 skip_bundling=0
@@ -51,6 +52,7 @@ while [[ "$#" -gt 0 ]]; do
     -h|--help)
       echo "Usage:"
       echo "--all              # Build all targets. Only works from a Apple Silicon host"
+      echo "--publish          # make the built packages available online"
       echo "--skip-bundling    # skip bundling JS code into binary. Packaging will reuse already built binaries"
       echo "--skip-packaging   # skip packaging operations (including signing)"
       echo "--skip-signing     # do not sign the binaries"
@@ -60,6 +62,7 @@ while [[ "$#" -gt 0 ]]; do
       exit 0
       ;;
     --all) build_all=1 ;;
+    --publish) publish=1 ;;
     --skip-bundling) skip_bundling=1 ;;
     --skip-packaging) skip_packaging=1 ; skip_signing=1 ; skip_notary=1 ;;
     --skip-signing) skip_signing=1 ; skip_notary=1 ;;
@@ -170,6 +173,75 @@ if [ $target == "linux-x86_64" ]; then
   deb_arch="amd64"
 fi
 
+if [ $node_os == "windows" ];
+then
+  exe_extension=".exe"
+else
+  exe_extension=""
+fi
+
+# Extract all toml data into shell variables.
+eval $(yq ./config.toml -o shell)
+
+if [ $publish == 1 ]; then
+  files=(
+    "dist/linux/i686/$package_binary_name-$meta_version-linux-i686.tar.bz2"
+    "dist/linux/i686/$package_binary_name-$meta_version-linux-i686.deb"
+    "dist/linux/x86_64/$package_binary_name-$meta_version-linux-x86_64.tar.bz2"
+    "dist/linux/x86_64/$package_binary_name-$meta_version-linux-x86_64.deb"
+    "dist/linux/aarch64/$package_binary_name-$meta_version-linux-aarch64.tar.bz2"
+    "dist/linux/aarch64/$package_binary_name-$meta_version-linux-aarch64.deb"
+    "dist/mac/x86_64/$package_binary_name-$meta_version-mac-x86_64.dmg"
+    "dist/mac/x86_64/$package_binary_name-$meta_version-mac-x86_64-installer.pkg"
+    "dist/mac/arm64/$package_binary_name-$meta_version-mac-arm64.dmg"
+    "dist/mac/arm64/$package_binary_name-$meta_version-mac-arm64-installer.pkg"
+    "dist/win7/i686/$package_binary_name-$meta_version-win7-i686-installer.exe"
+    "dist/win7/x86_64/$package_binary_name-$meta_version-win7-x86_64-installer.exe"
+    "dist/windows/i686/$package_binary_name-$meta_version-windows-i686-installer.exe"
+    "dist/windows/x86_64/$package_binary_name-$meta_version-windows-x86_64-installer.exe"
+  )
+
+  gh release upload v$meta_version "${files[@]}" --clobber
+
+  exit 0
+fi
+
+if [ $build_all == 1 ]; then
+  if [ $host != "mac-arm64" ]; then
+    error "Can only build all targets on Apple Silicon"
+  fi
+
+  targets=("mac-arm64" "linux-x86_64" "linux-aarch64" "windows-x86_64")
+  for target in "${targets[@]}"
+  do
+    log "Building for $target"
+    ./build.sh --target $target
+  done
+
+  # Ensuring Rosetta is installed
+  softwareupdate --install-rosetta --agree-to-license
+
+  log "Building for mac-x86_64"
+  arch -x86_64 ./build.sh
+
+  fnm use 10
+
+  # FIXME: linux-i686 can't be built under Mac as it needs to Node 10.
+  # To compile for linux-i686 build from a Linux i686 system.
+  targets=("win7-i686" "win7-x86_64" "windows-i686")
+  for target in "${targets[@]}"
+  do
+    log "Building for $target"
+    ./build.sh --target $target
+  done
+
+  fnm use 18
+
+  exit 0
+fi
+
+## ACTUALLY BUILDING
+
 log "Building for $target on $host"
 log "Skipping bundling: $skip_bundling"
 log "Skipping packaging: $skip_packaging"
@@ -177,13 +249,6 @@ log "Skipping signing: $skip_signing"
 log "Skipping notary: $skip_notary"
 log "Node version: $target_node"
 log "Installation destination: $target_dist_dir_rel"
-
-if [ $node_os == "windows" ];
-then
-  exe_extension=".exe"
-else
-  exe_extension=""
-fi
 
 rm -rf $target_dist_dir
 mkdir -p $target_dist_dir
@@ -197,46 +262,11 @@ yq . -o yaml ./config.toml | \
   yq e ".target.node = \"$target_node\"" -o json \
   > $target_dist_dir/config.json
 
-# Extract all toml data into shell variables.
-eval $(yq ./config.toml -o shell)
-
 out_deb_file="$package_binary_name-$meta_version-$target.deb"
 out_bz2_file="$package_binary_name-$meta_version-$target.tar.bz2"
 out_pkg_file="$package_binary_name-$meta_version-$target-installer.pkg"
 out_dmg_file="$package_binary_name-$meta_version-$target.dmg"
 out_win_file="$package_binary_name-$meta_version-$target-installer.exe"
-
-if [ $build_all == 1 ]; then
-  if [ $host != "mac-arm64" ]; then
-    error "Can only build all targets on Apple Silicon"
-  fi
-
-  # Ensuring Rosetta is installed
-  softwareupdate --install-rosetta --agree-to-license
-
-  log "Building for Mac Intel"
-  arch -x86_64 ./build.sh
-
-  targets=("mac-arm64" "linux-x86_64" "linux-aarch64" "windows-x86_64")
-  for target in "${targets[@]}"
-  do
-    log "Building for $target"
-    ./build.sh --target $target
-  done
-
-  fnm use 10
-
-  # FIXME: linux-i686 can't be built under Mac as it needs to Node 10.
-  # To compile for linux-i686 build from a Linux i686 system.
-  targets=("win7-i686" "win7-x86_64" "windows-i686")
-  for target in "${targets[@]}"
-  do
-    log "Building for $target"
-    ./build.sh --target $target
-  done
-
-  exit 0
-fi
 
 if [ ! $skip_bundling == 1 ]; then
   # This could be done by pkg directly, but esbuild is more tweakable.
