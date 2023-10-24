@@ -1,8 +1,8 @@
-const dl = require('download');
 const path = require('path');
 const fs = require('node:fs');
 const rpc = require('./weh-rpc');
 const os = require("os");
+const got = require('got');
 
 let downloadFolder = path.join(os.homedir(), "dwhelper");
 
@@ -43,7 +43,7 @@ function download(options) {
     dlOptions.proxy += options.proxy.host + ":" + options.proxy.port + "/";
   }
   let downloadId = ++currentDownloadId;
-  let downloadItem = dl(options.url, dlOptions);
+  let downloadItem = got.stream(options.url, dlOptions);
   downloads[downloadId] = {
     downloadItem,
     totalBytes: 0,
@@ -62,7 +62,10 @@ function download(options) {
 
   function FailedDownload(err) {
     let downloadEntry = downloads[downloadId];
-    if (downloadEntry) {
+    // We can be in a situation where we force a download as complete
+    // and then an error is thrown. We ignore that late error.
+    // See the ECONNRESET comment in downloadItem.on("error").
+    if (downloadEntry && downloadEntry.state != "complete") {
       downloadEntry.state = "interrupted";
       downloadEntry.error = err.message || "" + err;
       RemoveEntry();
@@ -89,6 +92,24 @@ function download(options) {
         response.on("data", (data) => {
           downloadEntry.bytesReceived += data.length;
         });
+      }
+    });
+    downloadItem.on('error', (error) => {
+      if (error.code == 'ECONNRESET') {
+        // This happens sometimes when the server ends the connection.
+        // Their advertised length is different from the actual length,
+        // (most likely due to a video & audio duration mismatch),
+        // creating an error + force-disconnect server side.
+        // But the downloaded content is actually valid, no need to bail.
+        // We ignore the error, and assume the file is valid.
+        // ffmpeg will complain about the video being truncated or shorter
+        // than its audio counterpart, but it will recover nicely and produce
+        // a valid file.
+        let downloadEntry = downloads[downloadId];
+        if (downloadEntry) {
+          downloadEntry.state = "complete";
+          RemoveEntry();
+        }
       }
     });
     downloadItem.pipe(fs.createWriteStream(filename))
