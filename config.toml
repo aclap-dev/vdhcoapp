@@ -3,7 +3,7 @@ id = "net.downloadhelper.coapp"
 name = "VdhCoApp"
 long_name = "DownloadHelper CoApp"
 description = "Video DownloadHelper companion app"
-version = "2.0.4"
+version = "2.0.5"
 
 [package]
 binary_name = "vdhcoapp" # .exe added automatically
