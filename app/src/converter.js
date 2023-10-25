@@ -68,7 +68,13 @@ exports.star_listening = () => {
     "abortConvert": (pid) => {
       let child = convertChildren.get(pid);
       if (child && child.exitCode == null) {
-        child.kill();
+        // Give ffmpeg a chance to gracefully die.
+        child.stdin.write("q");
+        setTimeout(() => {
+          if (child && child.exitCode == null) {
+            child.kill(9);
+          }
+        }, 4000);
       }
     },
 
