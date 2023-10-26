@@ -201,6 +201,14 @@ if [ $publish == 1 ]; then
     "dist/windows/x86_64/$package_binary_name-$meta_version-windows-x86_64-installer.exe"
   )
 
+  checksums=dist/checksums_v${meta_version}.json
+  echo "\"$meta_version\": {" > $checksums
+  for file in "${files[@]}"; do
+    echo "  \"$(basename $file)\": \"$(sha256sum $file | cut -f 1 -d " ")\","  >> $checksums
+  done
+  echo "}" >> $checksums
+
+  gh release upload v$meta_version $checksums --clobber
   gh release upload v$meta_version "${files[@]}" --clobber
 
   exit 0
