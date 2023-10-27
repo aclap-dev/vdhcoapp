@@ -59,7 +59,7 @@ If you are comfortable with the command line, move to the installation folder of
 
 # Notes about Flatpak browsers
 
-Do not install vdhcoapp within the `/usr/` directory, it won't be detected by your browser. [See here why]([url](https://github.com/aclap-dev/vdhcoapp/issues/160)).
+Do not install vdhcoapp within the `/usr/` directory, it won't be detected by your browser. [See here why](https://github.com/aclap-dev/vdhcoapp/issues/160#issuecomment-1780765719).
 
 **Firefox**: it should work out of the box.
 
