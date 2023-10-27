@@ -83,14 +83,3 @@ as described by the Mozilla, Google and Microsoft documentation:
 You can see the list of files installed by running the app with the argument `sudo vdhcoapp install`
 (if installed as a root user) and `vdhcoapp install --user` (if installed as non-root user).
 Those files can be remove with `vdhcoapp uninstall [--user]`.
-
-# Note about Linux 32 bits architecture
-
-The coapp application is based on *node.js* and coapp v2.x.x is specifically based on *node.js 18*. Unfortunately,
-*node.js* has dropped support for Linux 32 bits since *node.js 12*. As a consequence, the VDH companion app in versions 2.x.x does not offer binaries for Linux 32 bits anymore.
-
-You can still use the <a href="https://github.com/aclap-dev/vdhcoapp/releases/tag/v1.6.3">companion app version 1.6.3</a> as the VDH addon remains compatible with older coapp versions, but some newest features might be missing.
-
-An alternative if you are a developer: you may want to consider compiling *node.js 18* for 32 bits and rebuild the coapp with it. On our side, we cannot release publicly a binary based on an unsupported version of *node.js*.
-
-
