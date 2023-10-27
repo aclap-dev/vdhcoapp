@@ -48,14 +48,18 @@ the application to a new location.
 
 If the coapp is not recognised by the extension, here are a few things you can try:
 
-- restart your browser
-- make sure the Video DownloadHelper addon is at least version 8, and has been installed from its official location: https://www.downloadhelper.net/install
-- on Mac, double click on the coapp, this should re-register the app in the relevant browsers.
-- on Linux, run `/opt/vdhcoapp/vdhcoapp install` to re-register the app. And Look at the note below about Flatpak and Snap browsers.
+- Try the latest coapp. You will find the download links here: https://www.downloadhelper.net/install-coapp-v2
+- Are you on Windows 7 or Linux 32 bits? We have dedicated builds for these platforms. You will find the download links here: https://www.downloadhelper.net/install-coapp-v2
+- Make sure the Video DownloadHelper addon is at least version 8, and has been installed from its official location: https://www.downloadhelper.net/install
+- If you use Edge, make sure to install the addon from the Microsoft store, not the Google store. See relevant links here: https://www.downloadhelper.net/install
+- On Mac, double click on the coapp, this should re-register the app in the relevant browsers.
+- On Linux, run `/opt/vdhcoapp/vdhcoapp install` to re-register the app. And look at the note below about Flatpak and Snap browsers.
 
-If you are comfortable with the command line, move to the installation folder of the coapp, and run: `./vdhcoapp --info`. It will run some diagnostic operations.
+If you are comfortable with the command line, move to the installation folder of the coapp in your terminal or by running CMD on Windows, and run: `./vdhcoapp --info` or `vdhcoapp.exe --info`. It will run some diagnostic operations.
 
 # Notes about Flatpak browsers
+
+Do not install vdhcoapp within the `/usr/` directory, it won't be detected by your browser. [See here why]([url](https://github.com/aclap-dev/vdhcoapp/issues/160)).
 
 **Firefox**: it should work out of the box.
 
