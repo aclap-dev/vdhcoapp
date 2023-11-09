@@ -161,13 +161,20 @@ exports.star_listening = () => {
       return on_exit;
     },
     // FIXME: Partly in test suite. But just for hls retrieval.
-    "probe": (input, json = false) => {
+    "probe": (input, json = false, headers = []) => {
       return new Promise((resolve, reject) => {
         let args = [];
         if (json) {
           args = ["-v", "quiet", "-print_format", "json", "-show_format", "-show_streams"];
         }
+        if (headers.length) {
+          args.push("-headers");
+          args.push(headers.map((h) => {
+            return h.name + ": " + h.value;
+          }).join("\r\n") + "\r\n");
+        }
         args.push(input);
+
         let probeProcess = spawn(ffprobe, args);
         let stdout = "";
         let stderr = "";
