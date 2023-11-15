@@ -43,7 +43,8 @@ allowed_extensions = [
 [store.google.manifest]
 type = "stdio"
 allowed_origins = [
-  "chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/"
+  "chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/", # Chrome Stable
+  "chrome-extension://FIXME/", # Chrome Beta
 ]
 
 [store.microsoft.manifest]
