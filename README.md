@@ -57,7 +57,20 @@ If the coapp is not recognised by the extension, here are a few things you can t
 
 If you are comfortable with the command line, move to the installation folder of the coapp in your terminal or by running CMD on Windows, and run: `./vdhcoapp --info` or `vdhcoapp.exe --info`. It will run some diagnostic operations.
 
-# Notes about Flatpak browsers
+## Ubuntu Firefox: missed prompt
+
+On Ubuntu, Firefox should have showed you a prompt to allow the coapp to communicate with the extension.
+Some people miss the prompt, or the prompt just never shows up.
+
+There's no user interface to change that setting.
+To solve this, run these commands (even if you don't use Flatpak):
+
+```
+sudo apt-get install -y flatpak
+flatpak permission-set webextensions net.downloadhelper.coapp snap.firefox yes
+```
+
+## Notes about Flatpak browsers
 
 Do not install vdhcoapp within the `/usr/` directory, it won't be detected by your browser. [See here why](https://github.com/aclap-dev/vdhcoapp/issues/160#issuecomment-1780765719).
 
@@ -65,7 +78,7 @@ Do not install vdhcoapp within the `/usr/` directory, it won't be detected by yo
 
 **Chromium based browsers (Chrome, Brave, …)**: if the coapp is not visible from your browser, you can trigger the coapp flatpak registration with: `vdhcoapp install`.
 
-# Notes about Snap browsers
+## Notes about Snap browsers
 
 **Firefox**: it should work out of the box.
 
