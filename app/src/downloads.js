@@ -26,6 +26,7 @@ function download(options) {
   }
   let filename = path.join(options.directory || downloadFolder, options.filename);
   let dlOptions = {
+    rejectUnauthorized: !!options.rejectUnauthorized,
     headers: {}
   };
   (options.headers || []).forEach((header) => {
