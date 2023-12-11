@@ -40,16 +40,24 @@ allowed_extensions = [
   "{b9db16a4-6edc-47ec-a1f4-b86292ed211d}",
 ]
 
+# Note: we allow Chrome extensions to work with Edge and vice versa.
+# This allows some exotic configurations like Chrome extensions on
+# Edge and Microsft extension on Brave for example.
+
 [store.google.manifest]
 type = "stdio"
 allowed_origins = [
   "chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/", # Chrome Stable
   "chrome-extension://pfoiagbblcbmognbkekfpodpidedkmcc/", # Chrome Beta
+  "chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/", # Edge Stable
+  "chrome-extension://fojefjolbhfidomcaelhceoldmmpcaga/", # Edge Beta
 ]
 
 [store.microsoft.manifest]
 type = "stdio"
 allowed_origins = [
+  "chrome-extension://lmjnegcaeklhafolokijcfjliaokphfk/", # Chrome Stable
+  "chrome-extension://pfoiagbblcbmognbkekfpodpidedkmcc/", # Chrome Beta
   "chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/", # Edge Stable
   "chrome-extension://fojefjolbhfidomcaelhceoldmmpcaga/", # Edge Beta
 ]
@@ -122,7 +130,11 @@ only_if_dir_exists = "~/Library/Application Support/Google/Chrome/"
 
 [[store.google.msg_manifest_paths.mac.user]]
 path = "~/Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/"
-only_if_dir_exists = "~/Library/Application Support/BraveSoftware/"
+only_if_dir_exists = "~/Library/Application Support/BraveSoftware/Brave-Browser/"
+
+[[store.google.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/BraveSoftware/Brave-Browser-Nightly/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/BraveSoftware/Brave-Browser-Nightly/"
 
 [[store.google.msg_manifest_paths.mac.user]]
 path = "~/Library/Application Support/Opera/NativeMessagingHosts/"
