@@ -210,13 +210,18 @@ let old_coapp;
 }
 
 if (!old_coapp) {
-  const codecs = await exec("codecs");
-  assert_deep_equal("codecs", codecs, expected_codecs);
-  const formats = await exec("formats");
-  if (os.platform() == "darwin") {
-    assert_deep_equal("formats", formats, expected_formats);
+  const use_prebuilt_ffmpeg = await exec("use_prebuilt_ffmpeg");
+  if (use_prebuilt_ffmpeg) {
+    const codecs = await exec("codecs");
+    assert_deep_equal("codecs", codecs, expected_codecs);
+    const formats = await exec("formats");
+    if (os.platform() == "darwin") {
+      assert_deep_equal("formats", formats, expected_formats);
+    } else {
+      console.warn("Skipping format test as it fails on Linux and Windows");
+    }
   } else {
-    console.warn("Skipping format test as it fails on Linux and Windows");
+    console.warn("Skipping codecs and format tests as it fails when using ffmpeg provided by system.");
   }
 }
 

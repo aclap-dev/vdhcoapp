@@ -15,3 +15,9 @@ jobs:
     - run: ./build.sh
     - run: sudo dpkg -i ./dist/linux/x86_64/vdhcoapp-linux-x86_64.deb
     - run: ./tests/test.mjs /opt/vdhcoapp/vdhcoapp --with-network
+    - run: sudo dpkg -r net.downloadhelper.coapp
+    - run: sudo apt-get update
+    - run: sudo apt-get install ffmpeg
+    - run: sudo dpkg -i ./dist/linux/x86_64/vdhcoapp-no-ffmpeg-2.0.9-linux-x86_64.deb
+    - run: ./tests/test.mjs /opt/vdhcoapp/vdhcoapp --with-network
+    - run: sudo dpkg -r net.downloadhelper.coapp.noffmpeg
