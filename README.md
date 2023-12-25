@@ -49,40 +49,25 @@ the application to a new location.
 If the coapp is not recognised by the extension, here are a few things you can try:
 
 - Try the latest coapp. You will find the download links here: https://www.downloadhelper.net/install-coapp-v2
-- Are you on Windows 7 or Linux 32 bits? We have dedicated builds for these platforms. You will find the download links here: https://www.downloadhelper.net/install-coapp-v2
 - Make sure the Video DownloadHelper addon is at least version 8.1, and has been installed from its official location: https://www.downloadhelper.net/install
 - If you use Edge, make sure to install the addon from the Microsoft store, not the Google store. See relevant links here: https://www.downloadhelper.net/install
-- On Mac, double click on the coapp, this should re-register the app in the relevant browsers.
-- On Linux, run `/opt/vdhcoapp/vdhcoapp install` (**not as root! Don't use sudo**) to re-register the app. And look at the note below about Flatpak and Snap browsers.
-
-If you are comfortable with the command line, move to the installation folder of the coapp in your terminal or by running CMD on Windows, and run: `./vdhcoapp --info` or `vdhcoapp.exe --info`. It will run some diagnostic operations.
-
-## Ubuntu Firefox: missed prompt
-
-On Ubuntu, Firefox should have showed you a prompt to allow the coapp to communicate with the extension.
-Some people miss the prompt, or the prompt just never shows up.
-
-There's no user interface to change that setting.
+- **Windows 7**
+  - We have dedicated builds for Windows 7. You will find the download links here: https://www.downloadhelper.net/install-coapp-v2 - Make sure to install the Windows 7 version.
+- **Mac**
+  - Double click on the coapp, this should re-register the app in the relevant browsers.
+- **Linux**
+  - Run `/opt/vdhcoapp/vdhcoapp install` (**not as root! Don't use sudo**) to re-register the app.
+  - Move to the installation folder of the coapp in your terminal, and run: `./vdhcoapp --info`. It will run some diagnostic operations.
+- **Ubuntu** (and Flatpak / Snap based distributions)
+  - do not install vdhcoapp within the `/usr/` directory, it won't be detected by your browser. [See here why](https://github.com/aclap-dev/vdhcoapp/issues/160#issuecomment-1780765719).
+  - Firefox should have showed you a prompt to allow the coapp to communicate with the extension. Some people miss the prompt, or the prompt just never shows up. There's no user interface to change that setting.
 To solve this, run these commands (even if you don't use Flatpak):
-
 ```
 sudo apt-get install -y flatpak
 flatpak permission-set webextensions net.downloadhelper.coapp snap.firefox yes
 ```
-
-## Notes about Flatpak browsers
-
-Do not install vdhcoapp within the `/usr/` directory, it won't be detected by your browser. [See here why](https://github.com/aclap-dev/vdhcoapp/issues/160#issuecomment-1780765719).
-
-**Firefox**: it should work out of the box.
-
-**Chromium based browsers (Chrome, Brave, …)**: if the coapp is not visible from your browser, you can trigger the coapp flatpak registration with: `vdhcoapp install`.
-
-## Notes about Snap browsers
-
-**Firefox**: it should work out of the box.
-
-Snap Chromium-based browsers do not support native messaging yet. It is up to Google to fix this issue.
+- **Snap Chromium-based browsers**
+  - They do not support native messaging yet. It is up to Google to fix this issue.
 
 # Note about the registration process
 
@@ -93,6 +78,5 @@ as described by the Mozilla, Google and Microsoft documentation:
 - https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/#native-messaging-host-location
 - https://learn.microsoft.com/en-us/microsoft-edge/extensions-chromium/developer-guide/native-messaging?tabs=v3%2Cwindows
 
-You can see the list of files installed by running the app with the argument `sudo vdhcoapp install`
-(if installed as a root user) and `vdhcoapp install --user` (if installed as non-root user).
-Those files can be remove with `vdhcoapp uninstall [--user]`.
+You can see the list of files installed by running `vdhcoapp install`.
+Those files can be remove with `vdhcoapp uninstall`.
