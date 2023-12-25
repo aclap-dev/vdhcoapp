@@ -8,15 +8,30 @@ const logger = require('./logger');
 const rpc = require('./weh-rpc');
 
 const exec_dir = path.dirname(process.execPath);
-let ffmpeg = ensureProgramExt(path.join(exec_dir, "ffmpeg"));
-let ffprobe = ensureProgramExt(path.join(exec_dir, "ffprobe"));
 
-function findExecutableFullPath (programName) {
+const ffmpeg = findExecutableFullPath("ffmpeg", exec_dir);
+const ffprobe = findExecutableFullPath("ffprobe", exec_dir);
+
+if (!fileExistsSync(ffmpeg)) {
+  logger.error("ffmpeg not found. Please ensure if ffmpeg is installed and try again.");
+  process.exit(1);
+}
+if (!fileExistsSync(ffprobe)) {
+  logger.error("ffprobe not found. Please ensure if ffprobe is installed and try again.");
+  process.exit(1);
+}
+
+function findExecutableFullPath(programName, extraPath = "") {
+  programName = ensureProgramExt(programName);
   const envPath = (process.env.PATH || '');
-  const foundExecutablePath = envPath.split(path.delimiter)
-    .map(x => path.join(x, programName))
-    .find(x => fileExistsSync(x));
-  return foundExecutablePath || ''
+  const pathArr = envPath.split(path.delimiter);
+  if (extraPath) {
+    pathArr.unshift(extraPath);
+  }
+  const foundExecutablePath = pathArr
+    .map((x) => path.join(x, programName))
+    .find((x) => fileExistsSync(x));
+  return foundExecutablePath || '';
 }
 
 function fileExistsSync (filePath) {
@@ -32,22 +47,6 @@ function ensureProgramExt(programPath) {
     return programPath + ".exe";
   }
   return programPath;
-}
-
-if (!fileExistsSync(ffmpeg)) {
-  ffmpeg = findExecutableFullPath("ffmpeg")
-}
-if (!fileExistsSync(ffprobe)) {
-  ffprobe = findExecutableFullPath("ffprobe")
-}
-
-if (!fileExistsSync(ffmpeg)) {
-  logger.error("ffmpeg not found. Please ensure if ffmpeg is installed and try again.");
-  process.exit(1);
-}
-if (!fileExistsSync(ffprobe)) {
-  logger.error("ffprobe not found. Please ensure if ffprobe is installed and try again.");
-  process.exit(1);
 }
 
 // Record all started processes, and kill them if the coapp
