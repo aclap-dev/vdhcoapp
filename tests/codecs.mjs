@@ -455,7 +455,7 @@ export const expected_formats = {
   xwma: { d: true, e: false, _: 'Microsoft xWMA' },
   yop: { d: true, e: false, _: 'Psygnosis YOP' },
   yuv4mpegpipe: { d: true, e: true, _: 'YUV4MPEG pipe' }
-}
+};
 
 export const expected_codecs = {
   '012v': {
