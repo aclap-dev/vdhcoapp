@@ -151,13 +151,16 @@ if [ ! -d "app/node_modules" ]; then
   (cd app/ ; npm install)
 fi
 
+# Extract all toml data into shell variables.
+eval $(yq ./config.toml -o shell)
+
 node_arch=$target_arch
 node_os=$target_os
 deb_arch=$target_arch
-ffmpeg_target=ffmpeg-$target
+ffmpeg_target=ffmpeg-$package_ffmpeg_build_version-$target
 if [ $target_os == "win7" ]; then
   node_os="windows"
-  ffmpeg_target=ffmpeg-windows-$target_arch
+  ffmpeg_target=ffmpeg-$package_ffmpeg_build_version-windows-$target_arch
 fi
 if [ $target == "linux-aarch64" ]; then
   node_arch="arm64"
@@ -179,9 +182,6 @@ then
 else
   exe_extension=""
 fi
-
-# Extract all toml data into shell variables.
-eval $(yq ./config.toml -o shell)
 
 if [ $publish == 1 ]; then
   files=(
@@ -315,7 +315,7 @@ fi
 if [ ! -d "$dist_dir/$ffmpeg_target" ]; then
   log "Retrieving ffmpeg"
   ffmpeg_url_base="https://github.com/aclap-dev/ffmpeg-static-builder/releases/download/"
-  ffmpeg_url=$ffmpeg_url_base/$package_ffmpeg_build_id/$ffmpeg_target.tar.bz2
+  ffmpeg_url=$ffmpeg_url_base/v$package_ffmpeg_build_version/$ffmpeg_target.tar.bz2
   ffmpeg_tarball=$dist_dir/ffmpeg.tar.bz2
   wget --show-progress -c -O $ffmpeg_tarball $ffmpeg_url
   (cd $dist_dir && tar -xf $ffmpeg_tarball)
@@ -324,8 +324,8 @@ else
   log "ffmpeg already downloaded"
 fi
 
-cp $dist_dir/$ffmpeg_target/ffmpeg$exe_extension \
-  $dist_dir/$ffmpeg_target/ffprobe$exe_extension \
+cp $dist_dir/ffmpeg-$target/ffmpeg$exe_extension \
+  $dist_dir/ffmpeg-$target/ffprobe$exe_extension \
   $target_dist_dir/
 
 if [ ! $skip_packaging == 1 ]; then

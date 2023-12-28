@@ -7,7 +7,7 @@ version = "2.0.11"
 
 [package]
 binary_name = "vdhcoapp" # .exe added automatically
-ffmpeg_build_id = "v2.0.3"
+ffmpeg_build_version = "2.0.3"
 
 [package.windows]
 publisher = "ACLAP"
