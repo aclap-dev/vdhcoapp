@@ -8,6 +8,7 @@ export const expected_formats = {
   aac: { d: true, e: false, _: 'raw ADTS AAC (Advanced Audio Coding)' },
   aax: { d: true, e: false, _: 'CRI AAX' },
   ac3: { d: true, e: true, _: 'raw AC-3' },
+  ac4: { d: true, e: true, _: 'raw AC-4' },
   ace: { d: true, e: false, _: 'tri-Ace Audio Container' },
   acm: { d: true, e: false, _: 'Interplay ACM' },
   act: { d: true, e: false, _: 'ACT Voice file format' },
@@ -90,7 +91,7 @@ export const expected_formats = {
   concat: { d: true, e: false, _: 'Virtual concatenation script' },
   crc: { d: false, e: true, _: 'CRC testing' },
   cri_pipe: { d: true, e: false, _: 'piped cri sequence' },
-  dash: { d: false, e: true, _: 'DASH Muxer' },
+  dash: { d: true, e: true, _: 'DASH Muxer' },
   data: { d: true, e: true, _: 'raw data' },
   daud: { d: true, e: true, _: 'D-Cinema audio' },
   dcstr: { d: true, e: false, _: 'Sega DC STR' },
@@ -116,6 +117,7 @@ export const expected_formats = {
   ea_cdata: { d: true, e: false, _: 'Electronic Arts cdata' },
   eac3: { d: true, e: true, _: 'raw E-AC-3' },
   epaf: { d: true, e: false, _: 'Ensoniq Paris Audio File' },
+  evc: { d: true, e: true, _: 'raw EVC video' },
   exr_pipe: { d: true, e: false, _: 'piped exr sequence' },
   f32be: { d: true, e: true, _: 'PCM 32-bit floating-point big-endian' },
   f32le: { d: true, e: true, _: 'PCM 32-bit floating-point little-endian' },
@@ -176,6 +178,7 @@ export const expected_formats = {
   ilbc: { d: true, e: true, _: 'iLBC storage' },
   image2: { d: true, e: true, _: 'image2 sequence' },
   image2pipe: { d: true, e: true, _: 'piped image2 sequence' },
+  imf: { d: true, e: false, _: 'IMF (Interoperable Master Format)' },
   ingenient: { d: true, e: false, _: 'raw Ingenient MJPEG' },
   ipmovie: { d: true, e: false, _: 'Interplay MVE' },
   ipod: { d: false, e: true, _: 'iPod H.264 MP4 (MPEG-4 Part 14)' },
@@ -190,6 +193,7 @@ export const expected_formats = {
   jacosub: { d: true, e: true, _: 'JACOsub subtitle format' },
   jpeg_pipe: { d: true, e: false, _: 'piped jpeg sequence' },
   jpegls_pipe: { d: true, e: false, _: 'piped jpegls sequence' },
+  jpegxl_anim: { d: true, e: false, _: 'Animated JPEG XL' },
   jpegxl_pipe: { d: true, e: false, _: 'piped jpegxl sequence' },
   jv: { d: true, e: false, _: 'Bitmap Brothers JV' },
   kux: { d: true, e: false, _: 'KUX (YouKu)' },
@@ -275,10 +279,12 @@ export const expected_formats = {
   ogv: { d: false, e: true, _: 'Ogg Video' },
   oma: { d: true, e: true, _: 'Sony OpenMG audio' },
   opus: { d: false, e: true, _: 'Ogg Opus' },
+  osq: { d: true, e: false, _: 'raw OSQ' },
   paf: { d: true, e: false, _: 'Amazing Studio Packed Animation File' },
   pam_pipe: { d: true, e: false, _: 'piped pam sequence' },
   pbm_pipe: { d: true, e: false, _: 'piped pbm sequence' },
   pcx_pipe: { d: true, e: false, _: 'piped pcx sequence' },
+  pdv: { d: true, e: false, _: 'PlayDate Video' },
   pfm_pipe: { d: true, e: false, _: 'piped pfm sequence' },
   pgm_pipe: { d: true, e: false, _: 'piped pgm sequence' },
   pgmyuv_pipe: { d: true, e: false, _: 'piped pgmyuv sequence' },
@@ -353,7 +359,7 @@ export const expected_formats = {
   smoothstreaming: { d: false, e: true, _: 'Smooth Streaming Muxer' },
   smush: { d: true, e: false, _: 'LucasArts Smush' },
   sol: { d: true, e: false, _: 'Sierra SOL' },
-  sox: { d: true, e: true, _: 'SoX native' },
+  sox: { d: true, e: true, _: 'SoX (Sound eXchange) native' },
   spdif: { d: true, e: true, _: 'IEC 61937 (used on S/PDIF - IEC958)' },
   spx: { d: false, e: true, _: 'Ogg Speex' },
   srt: { d: true, e: true, _: 'SubRip subtitle' },
@@ -394,6 +400,7 @@ export const expected_formats = {
   u32le: { d: true, e: true, _: 'PCM unsigned 32-bit little-endian' },
   u8: { d: true, e: true, _: 'PCM unsigned 8-bit' },
   uncodedframecrc: { d: false, e: true, _: 'uncoded framecrc testing' },
+  usm: { d: true, e: false, _: 'CRI USM' },
   v210: { d: true, e: false, _: 'Uncompressed 4:2:2 10-bit' },
   v210x: { d: true, e: false, _: 'Uncompressed 4:2:2 10-bit' },
   vag: { d: true, e: false, _: 'Sony PS2 VAG' },
@@ -419,6 +426,7 @@ export const expected_formats = {
     e: false,
     _: 'Nippon Telegraph and Telephone Corporation (NTT) TwinVQ'
   },
+  vvc: { d: true, e: true, _: 'raw H.266/VVC video' },
   w64: { d: true, e: true, _: 'Sony Wave64' },
   wady: { d: true, e: false, _: 'Marble WADY' },
   wav: { d: true, e: true, _: 'WAV / WAVE (Waveform Audio)' },
@@ -447,7 +455,7 @@ export const expected_formats = {
   xwma: { d: true, e: false, _: 'Microsoft xWMA' },
   yop: { d: true, e: false, _: 'Psygnosis YOP' },
   yuv4mpegpipe: { d: true, e: true, _: 'YUV4MPEG pipe' }
-};
+}
 
 export const expected_codecs = {
   '012v': {
@@ -484,7 +492,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'Multicolor charset for Commodore 64 (encoders: a64multi )'
+    _: 'Multicolor charset for Commodore 64 (encoders: a64multi)'
   },
   a64_multi5: {
     d: false,
@@ -493,7 +501,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'Multicolor charset for Commodore 64, extended with 5th color (colram) (encoders: a64multi5 )'
+    _: 'Multicolor charset for Commodore 64, extended with 5th color (colram) (encoders: a64multi5)'
   },
   aasc: {
     d: true,
@@ -628,7 +636,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'Alliance for Open Media AV1 (decoders: libaom-av1 av1 ) (encoders: libaom-av1 )'
+    _: 'Alliance for Open Media AV1 (decoders: libaom-av1 av1) (encoders: libaom-av1)'
   },
   avrn: {
     d: true,
@@ -862,7 +870,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'Electronic Arts CMV video (decoders: eacmv )'
+    _: 'Electronic Arts CMV video (decoders: eacmv)'
   },
   cpia: {
     d: true,
@@ -889,7 +897,7 @@ export const expected_codecs = {
     i: false,
     l: false,
     s: true,
-    _: 'CamStudio (decoders: camstudio )'
+    _: 'CamStudio (decoders: camstudio)'
   },
   cyuv: {
     d: true,
@@ -934,7 +942,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: true,
-    _: 'Dirac (encoders: vc2 )'
+    _: 'Dirac (encoders: vc2)'
   },
   dnxhd: {
     d: true,
@@ -1017,6 +1025,15 @@ export const expected_codecs = {
     s: false,
     _: 'Escape 130'
   },
+  evc: {
+    d: false,
+    e: false,
+    t: 'V',
+    i: false,
+    l: true,
+    s: false,
+    _: 'MPEG-5 EVC (Essential Video Coding)'
+  },
   exr: {
     d: true,
     e: true,
@@ -1096,7 +1113,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'FLV / Sorenson Spark / Sorenson H.263 (Flash Video) (decoders: flv ) (encoders: flv )'
+    _: 'FLV / Sorenson Spark / Sorenson H.263 (Flash Video) (decoders: flv) (encoders: flv)'
   },
   fmvc: {
     d: true,
@@ -1188,7 +1205,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: true,
-    _: 'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 (encoders: libx264 libx264rgb )'
+    _: 'H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 (encoders: libx264 libx264rgb)'
   },
   hap: {
     d: true,
@@ -1215,7 +1232,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'H.265 / HEVC (High Efficiency Video Coding) (encoders: libx265 )'
+    _: 'H.265 / HEVC (High Efficiency Video Coding) (encoders: libx265)'
   },
   hnm4video: {
     d: true,
@@ -1269,7 +1286,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'id Quake II CIN video (decoders: idcinvideo )'
+    _: 'id Quake II CIN video (decoders: idcinvideo)'
   },
   idf: {
     d: true,
@@ -1287,7 +1304,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'IFF ACBM/ANIM/DEEP/ILBM/PBM/RGB8/RGBN (decoders: iff )'
+    _: 'IFF ACBM/ANIM/DEEP/ILBM/PBM/RGB8/RGBN (decoders: iff)'
   },
   imm4: {
     d: true,
@@ -1368,7 +1385,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: true,
-    _: 'JPEG 2000 (decoders: jpeg2000 libopenjpeg ) (encoders: jpeg2000 libopenjpeg )'
+    _: 'JPEG 2000 (encoders: jpeg2000 libopenjpeg)'
   },
   jpegls: { d: true, e: true, t: 'V', i: true, l: true, s: true, _: 'JPEG-LS' },
   jpegxl: {
@@ -1451,7 +1468,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'Electronic Arts Madcow Video (decoders: eamad )'
+    _: 'Electronic Arts Madcow Video (decoders: eamad)'
   },
   magicyuv: {
     d: true,
@@ -1550,7 +1567,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'MPEG-2 video (decoders: mpeg2video mpegvideo )'
+    _: 'MPEG-2 video (decoders: mpeg2video mpegvideo)'
   },
   mpeg4: {
     d: true,
@@ -1559,7 +1576,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'MPEG-4 part 2 (encoders: mpeg4 libxvid )'
+    _: 'MPEG-4 part 2 (encoders: mpeg4 libxvid)'
   },
   msa1: {
     d: true,
@@ -1604,7 +1621,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'MPEG-4 part 2 Microsoft variant version 3 (decoders: msmpeg4 ) (encoders: msmpeg4 )'
+    _: 'MPEG-4 part 2 Microsoft variant version 3 (decoders: msmpeg4) (encoders: msmpeg4)'
   },
   msp2: {
     d: true,
@@ -1617,7 +1634,7 @@ export const expected_codecs = {
   },
   msrle: {
     d: true,
-    e: false,
+    e: true,
     t: 'V',
     i: false,
     l: false,
@@ -1786,6 +1803,15 @@ export const expected_codecs = {
     s: true,
     _: 'PC Paintbrush PCX image'
   },
+  pdv: {
+    d: true,
+    e: false,
+    t: 'V',
+    i: false,
+    l: true,
+    s: false,
+    _: 'PDV (PlayDate Video)'
+  },
   pfm: {
     d: true,
     e: true,
@@ -1883,7 +1909,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'Apple ProRes (iCodec Pro) (encoders: prores prores_aw prores_ks )'
+    _: 'Apple ProRes (iCodec Pro) (encoders: prores prores_aw prores_ks)'
   },
   prosumer: {
     d: true,
@@ -2000,7 +2026,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'id RoQ video (decoders: roqvideo ) (encoders: roqvideo )'
+    _: 'id RoQ video (decoders: roqvideo) (encoders: roqvideo)'
   },
   rpza: {
     d: true,
@@ -2019,6 +2045,15 @@ export const expected_codecs = {
     l: false,
     s: true,
     _: 'innoHeim/Rsupport Screen Capture Codec'
+  },
+  rtv1: {
+    d: true,
+    e: false,
+    t: 'V',
+    i: true,
+    l: true,
+    s: false,
+    _: 'RTV1 (RivaTuner Video)'
   },
   rv10: {
     d: true,
@@ -2135,7 +2170,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'Smacker video (decoders: smackvid )'
+    _: 'Smacker video (decoders: smackvid)'
   },
   smc: {
     d: true,
@@ -2245,7 +2280,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'Electronic Arts TGQ video (decoders: eatgq )'
+    _: 'Electronic Arts TGQ video (decoders: eatgq)'
   },
   tgv: {
     d: true,
@@ -2254,7 +2289,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'Electronic Arts TGV video (decoders: eatgv )'
+    _: 'Electronic Arts TGV video (decoders: eatgv)'
   },
   theora: {
     d: true,
@@ -2263,7 +2298,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'Theora (encoders: libtheora )'
+    _: 'Theora (encoders: libtheora)'
   },
   thp: {
     d: true,
@@ -2308,7 +2343,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'Electronic Arts TQI video (decoders: eatqi )'
+    _: 'Electronic Arts TQI video (decoders: eatqi)'
   },
   truemotion1: {
     d: true,
@@ -2344,7 +2379,7 @@ export const expected_codecs = {
     i: false,
     l: false,
     s: true,
-    _: 'TechSmith Screen Capture Codec (decoders: camtasia )'
+    _: 'TechSmith Screen Capture Codec (decoders: camtasia)'
   },
   tscc2: {
     d: true,
@@ -2371,7 +2406,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'IBM UltiMotion (decoders: ultimotion )'
+    _: 'IBM UltiMotion (decoders: ultimotion)'
   },
   utvideo: {
     d: true,
@@ -2488,7 +2523,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'Miro VideoXL (decoders: xl )'
+    _: 'Miro VideoXL (decoders: xl)'
   },
   vmdvideo: {
     d: true,
@@ -2498,6 +2533,15 @@ export const expected_codecs = {
     l: true,
     s: false,
     _: 'Sierra VMD video'
+  },
+  vmix: {
+    d: true,
+    e: false,
+    t: 'V',
+    i: true,
+    l: true,
+    s: false,
+    _: 'vMix Video'
   },
   vmnc: {
     d: true,
@@ -2587,7 +2631,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'On2 VP8 (decoders: vp8 libvpx ) (encoders: libvpx )'
+    _: 'On2 VP8 (decoders: vp8 libvpx) (encoders: libvpx)'
   },
   vp9: {
     d: true,
@@ -2596,7 +2640,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'Google VP9 (decoders: vp9 libvpx-vp9 ) (encoders: libvpx-vp9 )'
+    _: 'Google VP9 (decoders: vp9 libvpx-vp9) (encoders: libvpx-vp9)'
   },
   vqc: {
     d: true,
@@ -2641,7 +2685,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: true,
-    _: 'WebP (encoders: libwebp_anim libwebp )'
+    _: 'WebP (encoders: libwebp_anim libwebp)'
   },
   wmv1: {
     d: true,
@@ -2704,7 +2748,7 @@ export const expected_codecs = {
     i: false,
     l: true,
     s: false,
-    _: 'Westwood Studios VQA (Vector Quantized Animation) video (decoders: vqavideo )'
+    _: 'Westwood Studios VQA (Vector Quantized Animation) video (decoders: vqavideo)'
   },
   xan_wc3: {
     d: true,
@@ -2866,7 +2910,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'AAC (Advanced Audio Coding) (decoders: aac aac_fixed )'
+    _: 'AAC (Advanced Audio Coding) (decoders: aac aac_fixed)'
   },
   aac_latm: {
     d: true,
@@ -2884,7 +2928,16 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'ATSC A/52A (AC-3) (decoders: ac3 ac3_fixed ) (encoders: ac3 ac3_fixed )'
+    _: 'ATSC A/52A (AC-3) (decoders: ac3 ac3_fixed) (encoders: ac3 ac3_fixed)'
+  },
+  ac4: {
+    d: false,
+    e: false,
+    t: 'A',
+    i: false,
+    l: true,
+    s: false,
+    _: 'AC-4'
   },
   'acelp.kelvin': {
     d: true,
@@ -3028,7 +3081,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'G.722 ADPCM (decoders: g722 ) (encoders: g722 )'
+    _: 'G.722 ADPCM (decoders: g722) (encoders: g722)'
   },
   adpcm_g726: {
     d: true,
@@ -3037,7 +3090,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'G.726 ADPCM (decoders: g726 ) (encoders: g726 )'
+    _: 'G.726 ADPCM (decoders: g726) (encoders: g726)'
   },
   adpcm_g726le: {
     d: true,
@@ -3046,7 +3099,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'G.726 ADPCM little-endian (decoders: g726le ) (encoders: g726le )'
+    _: 'G.726 ADPCM little-endian (decoders: g726le) (encoders: g726le)'
   },
   adpcm_ima_acorn: {
     d: true,
@@ -3379,7 +3432,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'AMR-NB (Adaptive Multi-Rate NarrowBand) (decoders: amrnb libopencore_amrnb ) (encoders: libopencore_amrnb )'
+    _: 'AMR-NB (Adaptive Multi-Rate NarrowBand) (decoders: amrnb libopencore_amrnb) (encoders: libopencore_amrnb)'
   },
   amr_wb: {
     d: true,
@@ -3388,7 +3441,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'AMR-WB (Adaptive Multi-Rate WideBand) (decoders: amrwb libopencore_amrwb ) (encoders: libvo_amrwbenc )'
+    _: 'AMR-WB (Adaptive Multi-Rate WideBand) (decoders: amrwb libopencore_amrwb) (encoders: libvo_amrwbenc)'
   },
   anull: {
     d: true,
@@ -3469,7 +3522,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'ATRAC3+ (Adaptive TRansform Acoustic Coding 3+) (decoders: atrac3plus )'
+    _: 'ATRAC3+ (Adaptive TRansform Acoustic Coding 3+) (decoders: atrac3plus)'
   },
   atrac3pal: {
     d: true,
@@ -3478,7 +3531,7 @@ export const expected_codecs = {
     i: true,
     l: false,
     s: true,
-    _: 'ATRAC3+ AL (Adaptive TRansform Acoustic Coding 3+ Advanced Lossless) (decoders: atrac3plusal )'
+    _: 'ATRAC3+ AL (Adaptive TRansform Acoustic Coding 3+ Advanced Lossless) (decoders: atrac3plusal)'
   },
   atrac9: {
     d: true,
@@ -3496,7 +3549,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'On2 Audio for Video Codec (decoders: on2avc )'
+    _: 'On2 Audio for Video Codec (decoders: on2avc)'
   },
   binkaudio_dct: {
     d: true,
@@ -3676,7 +3729,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: true,
-    _: 'DCA (DTS Coherent Acoustics) (decoders: dca ) (encoders: dca )'
+    _: 'DCA (DTS Coherent Acoustics) (decoders: dca) (encoders: dca)'
   },
   dvaudio: {
     d: true,
@@ -3876,7 +3929,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'MP1 (MPEG audio layer 1) (decoders: mp1 mp1float )'
+    _: 'MP1 (MPEG audio layer 1) (decoders: mp1 mp1float)'
   },
   mp2: {
     d: true,
@@ -3885,7 +3938,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'MP2 (MPEG audio layer 2) (decoders: mp2 mp2float ) (encoders: mp2 mp2fixed )'
+    _: 'MP2 (MPEG audio layer 2) (decoders: mp2 mp2float) (encoders: mp2 mp2fixed)'
   },
   mp3: {
     d: true,
@@ -3894,7 +3947,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'MP3 (MPEG audio layer 3) (decoders: mp3float mp3 ) (encoders: libmp3lame )'
+    _: 'MP3 (MPEG audio layer 3) (decoders: mp3float mp3) (encoders: libmp3lame)'
   },
   mp3adu: {
     d: true,
@@ -3903,7 +3956,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'ADU (Application Data Unit) MP3 (MPEG audio layer 3) (decoders: mp3adufloat mp3adu )'
+    _: 'ADU (Application Data Unit) MP3 (MPEG audio layer 3) (decoders: mp3adufloat mp3adu)'
   },
   mp3on4: {
     d: true,
@@ -3912,7 +3965,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'MP3onMP4 (decoders: mp3on4float mp3on4 )'
+    _: 'MP3onMP4 (decoders: mp3on4float mp3on4)'
   },
   mp4als: {
     d: true,
@@ -3921,7 +3974,7 @@ export const expected_codecs = {
     i: true,
     l: false,
     s: true,
-    _: 'MPEG-4 Audio Lossless Coding (ALS) (decoders: als )'
+    _: 'MPEG-4 Audio Lossless Coding (ALS) (decoders: als)'
   },
   mpegh_3d_audio: {
     d: false,
@@ -3948,7 +4001,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'Musepack SV7 (decoders: mpc7 )'
+    _: 'Musepack SV7 (decoders: mpc7)'
   },
   musepack8: {
     d: true,
@@ -3957,7 +4010,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'Musepack SV8 (decoders: mpc8 )'
+    _: 'Musepack SV8 (decoders: mpc8)'
   },
   nellymoser: {
     d: true,
@@ -3975,7 +4028,16 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'Opus (Opus Interactive Audio Codec) (decoders: opus libopus ) (encoders: opus libopus )'
+    _: 'Opus (Opus Interactive Audio Codec) (decoders: opus libopus) (encoders: opus libopus)'
+  },
+  osq: {
+    d: true,
+    e: false,
+    t: 'A',
+    i: true,
+    l: false,
+    s: true,
+    _: 'OSQ (Original Sound Quality)'
   },
   paf_audio: {
     d: true,
@@ -4335,7 +4397,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'RealAudio 1.0 (14.4K) (decoders: real_144 ) (encoders: real_144 )'
+    _: 'RealAudio 1.0 (14.4K) (decoders: real_144) (encoders: real_144)'
   },
   ra_288: {
     d: true,
@@ -4344,7 +4406,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'RealAudio 2.0 (28.8K) (decoders: real_288 )'
+    _: 'RealAudio 2.0 (28.8K) (decoders: real_288)'
   },
   ralf: {
     d: true,
@@ -4426,7 +4488,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'Smacker audio (decoders: smackaud )'
+    _: 'Smacker audio (decoders: smackaud)'
   },
   smv: {
     d: false,
@@ -4518,7 +4580,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'Vorbis (decoders: vorbis libvorbis ) (encoders: vorbis libvorbis )'
+    _: 'Vorbis (decoders: vorbis libvorbis) (encoders: vorbis libvorbis)'
   },
   wady_dpcm: {
     d: true,
@@ -4555,7 +4617,7 @@ export const expected_codecs = {
     i: true,
     l: true,
     s: false,
-    _: 'Westwood Audio (SND1) (decoders: ws_snd1 )'
+    _: 'Westwood Audio (SND1) (decoders: ws_snd1)'
   },
   wmalossless: {
     d: true,
@@ -4645,7 +4707,7 @@ export const expected_codecs = {
     i: false,
     l: false,
     s: false,
-    _: 'ASS (Advanced SSA) subtitle (decoders: ssa ass ) (encoders: ssa ass )'
+    _: 'ASS (Advanced SSA) subtitle (decoders: ssa ass) (encoders: ssa ass)'
   },
   dvb_subtitle: {
     d: true,
@@ -4654,7 +4716,7 @@ export const expected_codecs = {
     i: false,
     l: false,
     s: false,
-    _: 'DVB subtitles (decoders: dvbsub ) (encoders: dvbsub )'
+    _: 'DVB subtitles (decoders: dvbsub) (encoders: dvbsub)'
   },
   dvb_teletext: {
     d: false,
@@ -4672,7 +4734,7 @@ export const expected_codecs = {
     i: false,
     l: false,
     s: false,
-    _: 'DVD subtitles (decoders: dvdsub ) (encoders: dvdsub )'
+    _: 'DVD subtitles (decoders: dvdsub) (encoders: dvdsub)'
   },
   eia_608: {
     d: true,
@@ -4681,7 +4743,7 @@ export const expected_codecs = {
     i: false,
     l: false,
     s: false,
-    _: 'EIA-608 closed captions (decoders: cc_dec )'
+    _: 'EIA-608 closed captions (decoders: cc_dec)'
   },
   hdmv_pgs_subtitle: {
     d: true,
@@ -4690,7 +4752,7 @@ export const expected_codecs = {
     i: false,
     l: false,
     s: false,
-    _: 'HDMV Presentation Graphic Stream subtitles (decoders: pgssub )'
+    _: 'HDMV Presentation Graphic Stream subtitles (decoders: pgssub)'
   },
   hdmv_text_subtitle: {
     d: false,
@@ -4798,7 +4860,7 @@ export const expected_codecs = {
     i: false,
     l: false,
     s: false,
-    _: 'SubRip subtitle (decoders: srt subrip ) (encoders: srt subrip )'
+    _: 'SubRip subtitle (decoders: srt subrip) (encoders: srt subrip)'
   },
   subviewer: {
     d: true,
