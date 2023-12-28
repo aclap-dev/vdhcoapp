@@ -158,9 +158,11 @@ node_arch=$target_arch
 node_os=$target_os
 deb_arch=$target_arch
 ffmpeg_target=ffmpeg-$package_ffmpeg_build_version-$target
+ffmpeg_target_dir=ffmpeg-$target
 if [ $target_os == "win7" ]; then
   node_os="windows"
   ffmpeg_target=ffmpeg-$package_ffmpeg_build_version-windows-$target_arch
+  ffmpeg_target_dir=ffmpeg-windows-$target_arch
 fi
 if [ $target == "linux-aarch64" ]; then
   node_arch="arm64"
@@ -324,8 +326,8 @@ else
   log "ffmpeg already downloaded"
 fi
 
-cp $dist_dir/ffmpeg-$target/ffmpeg$exe_extension \
-  $dist_dir/ffmpeg-$target/ffprobe$exe_extension \
+cp $dist_dir/$ffmpeg_target_dir/ffmpeg$exe_extension \
+  $dist_dir/$ffmpeg_target_dir/ffprobe$exe_extension \
   $target_dist_dir/
 
 if [ ! $skip_packaging == 1 ]; then
