@@ -2,17 +2,17 @@
 
 If the coapp is not recognised by the extension, here are a few things you can try:
 
-- Try the latest coapp. You will find the download links [https://www.downloadhelper.net/install-coapp-v2](here).
-- If you use Edge, make sure to install the addon from the Microsoft store, not the Google store. See relevant links [https://www.downloadhelper.net/install](here).
+- Try the latest coapp. You will find the download links [here](https://www.downloadhelper.net/install-coapp-v2).
+- If you use Edge, make sure to install the addon from the Microsoft store, not the Google store. See relevant links [here](https://www.downloadhelper.net/install).
 
 ## Windows 7
 
-We have dedicated builds for Windows 7. You will find the download links [https://www.downloadhelper.net/install-coapp-v2](here). **Make sure to install the Windows 7 version** (vdhcoapp-2.0.10-win7-x86_64-installer.exe).
+We have dedicated builds for Windows 7. You will find the download links [here](https://www.downloadhelper.net/install-coapp-v2). **Make sure to install the Windows 7 version** (vdhcoapp-2.0.10-win7-x86_64-installer.exe).
 
 ## Mac
 
 After install, start the coapp (only on time after intallation), this should re-register the app in the relevant browsers.
-If you use an old version of MacOS, [https://github.com/aclap-dev/vdhcoapp/issues/190](see this).
+If you use an old version of MacOS, [see this](https://github.com/aclap-dev/vdhcoapp/issues/190).
 
 ## Ubuntu (and Flatpak / Snap based distributions)
 
