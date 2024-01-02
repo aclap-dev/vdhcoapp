@@ -27,7 +27,7 @@ flatpak permission-set webextensions net.downloadhelper.coapp snap.firefox yes
 
 Add `/opt/vdhcoapp/vdhcoapp ux,` to `/etc/apparmor.d/local/usr.bin.firefox`.
 
-Then restart *apparmor.service*.
+Then restart *apparmor.service* and *Firefox*.
 
 ## Linux (all)
 
