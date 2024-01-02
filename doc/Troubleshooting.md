@@ -14,7 +14,7 @@ We have dedicated builds for Windows 7. You will find the download links [here](
 After install, start the coapp (only on time after intallation), this should re-register the app in the relevant browsers.
 If you use an old version of MacOS, [see this](https://github.com/aclap-dev/vdhcoapp/issues/190).
 
-## Ubuntu (and Flatpak / Snap based distributions)
+## Ubuntu (and Flatpak / Snap based systems)
 
 Most of the time, the issue is a missed prompt. Firefox should have showed you a prompt to allow the coapp to communicate with the extension. Some people miss the prompt, or the prompt just never shows up. There's no user interface to change that setting. To solve this, run these commands (even if you don't use Flatpak):
 
@@ -23,15 +23,15 @@ sudo apt-get install -y flatpak
 flatpak permission-set webextensions net.downloadhelper.coapp snap.firefox yes
 ```
 
-Also:
+## KDE Neon (and AppArmor based systems)
+
+Add `/opt/vdhcoapp/vdhcoapp ux,` to `/etc/apparmor.d/local/usr.bin.firefox`.
+
+Then restart *apparmor.service*.
+
+## Linux (all)
 
 - Run `/opt/vdhcoapp/vdhcoapp install` (**not as root! Don't use sudo**) to re-register the app.
-- Move to the installation folder of the coapp in your terminal, and run: `./vdhcoapp --info`. It will run some diagnostic operations.
+- Move to the installation folder of the coapp in your terminal, and run: `/opt/vdhcoapp/vdhcoapp --info`. It will run some diagnostic operations.
 - do not install vdhcoapp within the `/usr/` directory, it won't be detected by your browser. [See here why](https://github.com/aclap-dev/vdhcoapp/issues/160#issuecomment-1780765719).
 - **Snap Chromium-based browsers**: they do not support native messaging yet. It is up to Google to fix this issue.
-
-## Linux (generic)
-
-- Run `/opt/vdhcoapp/vdhcoapp install` (**not as root! Don't use sudo**) to re-register the app.
-- Move to the installation folder of the coapp in your terminal, and run: `./vdhcoapp --info`. It will run some diagnostic operations.
-
