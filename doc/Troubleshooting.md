@@ -4,6 +4,7 @@ If the coapp is not recognised by the extension, here are a few things you can t
 
 - Try the latest coapp. You will find the download links [here](https://www.downloadhelper.net/install-coapp-v2).
 - If you use Edge, make sure to install the addon from the Microsoft store, not the Google store. See relevant links [here](https://www.downloadhelper.net/install).
+- If you use a 64-bit machine, ensure that the installer places the application in the 'C:\Program Files (x86)' directory, rather than 'C:\Program Files'.
 
 ## Windows 7
 
