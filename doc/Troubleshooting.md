@@ -5,6 +5,10 @@ If the coapp is not recognised by the extension, here are a few things you can t
 - Try the latest coapp. You will find the download links [here](https://www.downloadhelper.net/install-coapp-v2).
 - If you use Edge, make sure to install the addon from the Microsoft store, not the Google store. See relevant links [here](https://www.downloadhelper.net/install).
 
+## Windows
+
+If the CoApp installer fails, please close Chrome and Firefox first.
+
 ## Windows 7
 
 We have dedicated builds for Windows 7. You will find the download links [here](https://www.downloadhelper.net/install-coapp-v2). **Make sure to install the Windows 7 version** (_vdhcoapp-xxx-win7-x86_64-installer.exe_).
