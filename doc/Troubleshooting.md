@@ -5,6 +5,17 @@ If the coapp is not recognised by the extension, here are a few things you can t
 - Try the latest coapp. You will find the download links [here](https://www.downloadhelper.net/install-coapp-v2).
 - If you use Edge, make sure to install the addon from the Microsoft store, not the Google store. See relevant links [here](https://www.downloadhelper.net/install).
 
+## Windows Antivirus
+
+It's possible that your Antivirus blocks the CoApp. Sadly, Antivirus can be overly protective. Our application is OpenSource, and not malicious in any way, you can look at the source code [right here](https://github.com/aclap-dev/vdhcoapp). Video Downloadhelper has been validated by Google, Microsoft and Mozilla organizations. We recommend either:
+
+- using the [Microsoft Antivirus](https://www.microsoft.com/en-us/windows/comprehensive-security) - it is free and [recommended by Microsoft](https://learn.microsoft.com/en-us/microsoft-365/security/defender-endpoint/why-use-microsoft-defender-antivirus?view=o365-worldwide);
+- or allowing the CoApp (you'll need to allow the 3 ".exe" files located in the installation directory).
+
+## Windows Installation Error
+
+If you're getting an error during installation, try installing after closing your browser (Firefox, Chrome, Edge).
+
 ## Windows 7
 
 We have dedicated builds for Windows 7. You will find the download links [here](https://www.downloadhelper.net/install-coapp-v2). **Make sure to install the Windows 7 version** (_vdhcoapp-xxx-win7-x86_64-installer.exe_).
