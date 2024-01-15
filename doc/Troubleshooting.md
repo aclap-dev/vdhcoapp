@@ -10,13 +10,17 @@ If the coapp is not recognised by the extension, here are a few things you can t
 Make sure you use Windows 64 bits, with Firefox 64 bits, with CoApp 64 bits, or
 Windows 32 bits, with Firefox 32 bits, with CoApp 32 bits.
 
-You can check where the CoApp registered its manifests:
+You can check where the CoApp registered its manifests. Run these commands in a `CMD` prompt:
+
+For 64 bits system:
 
 ```
-# For 64 bits system
 reg query HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Mozilla\NativeMessagingHosts\net.downloadhelper.coapp
+```
 
-# For 32 bits system
+For a 32 bits system:
+
+```
 reg query HKEY_LOCAL_MACHINE\SOFTWARE\Mozilla\NativeMessagingHosts\net.downloadhelper.coapp
 ```
 
