@@ -22,7 +22,7 @@ We have dedicated builds for Windows 7. You will find the download links [here](
 
 ## Mac
 
-After install, start the coapp (only on time after intallation), this should re-register the app in the relevant browsers.
+After install, start the coapp (only one time after intallation), this should re-register the app in the relevant browsers.
 If you use an old version of MacOS, [see this](https://github.com/aclap-dev/vdhcoapp/issues/190).
 
 ## Ubuntu (and Flatpak / Snap based systems)

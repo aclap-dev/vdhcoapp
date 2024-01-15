@@ -46,7 +46,7 @@ the application to a new location.
 
 # Troubleshooting
 
-See out troubleshooting section [here](doc/Troubleshooting.md).
+See our troubleshooting section [here](doc/Troubleshooting.md).
 
 # Note about the registration process
 
