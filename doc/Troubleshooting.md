@@ -5,6 +5,28 @@ If the coapp is not recognised by the extension, here are a few things you can t
 - Try the latest coapp. You will find the download links [here](https://www.downloadhelper.net/install-coapp-v2).
 - If you use Edge, make sure to install the addon from the Microsoft store, not the Google store. See relevant links [here](https://www.downloadhelper.net/install).
 
+## Windows CoApp not found by extension
+
+Make sure you use Windows 64 bits, with Firefox 64 bits, with CoApp 64 bits, or
+Windows 32 bits, with Firefox 32 bits, with CoApp 32 bits.
+
+You can check where the CoApp registered its manifests:
+
+```
+# For 64 bits system
+reg query HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Mozilla\NativeMessagingHosts\net.downloadhelper.coapp
+
+# For 32 bits system
+reg query HKEY_LOCAL_MACHINE\SOFTWARE\Mozilla\NativeMessagingHosts\net.downloadhelper.coapp
+```
+
+If this returns nothing, something was wrong during the coapp installation process.
+
+If this returns something, but it doesn't point to an existing file, re-install the CoApp.
+
+If this return something, and it does point to an existing file, your Firefox might be using
+the wrong architecture.
+
 ## Windows Antivirus
 
 It's possible that your Antivirus blocks the CoApp. Sadly, Antivirus can be overly protective. Our application is OpenSource, and not malicious in any way, you can look at the source code [right here](https://github.com/aclap-dev/vdhcoapp). Video Downloadhelper has been validated by Google, Microsoft and Mozilla organizations. We recommend either:
