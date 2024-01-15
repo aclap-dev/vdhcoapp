@@ -34,6 +34,10 @@ sudo apt-get install -y flatpak
 flatpak permission-set webextensions net.downloadhelper.coapp snap.firefox yes
 ```
 
+## Firejail-based systems
+
+See this [comment]([url](https://github.com/aclap-dev/vdhcoapp/issues/189#issuecomment-1888447688)).
+
 ## KDE Neon (and AppArmor based systems)
 
 Add `/opt/vdhcoapp/vdhcoapp ux,` to `/etc/apparmor.d/local/usr.bin.firefox`.
