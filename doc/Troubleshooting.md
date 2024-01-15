@@ -36,7 +36,7 @@ flatpak permission-set webextensions net.downloadhelper.coapp snap.firefox yes
 
 ## Firejail-based systems
 
-See this [comment]([url](https://github.com/aclap-dev/vdhcoapp/issues/189#issuecomment-1888447688)).
+See this [comment](https://github.com/aclap-dev/vdhcoapp/issues/189#issuecomment-1888447688).
 
 ## KDE Neon (and AppArmor based systems)
 
