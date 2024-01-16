@@ -5,6 +5,26 @@ If the coapp is not recognised by the extension, here are a few things you can t
 - Try the latest coapp. You will find the download links [here](https://www.downloadhelper.net/install-coapp-v2).
 - If you use Edge, make sure to install the addon from the Microsoft store, not the Google store. See relevant links [here](https://www.downloadhelper.net/install).
 
+## If you're reporting an issue, please read this first
+
+Make sure to read this document thoroughly. The answer of your problem is most likely in here. If you can't find a solution to your problem, please report it, and include these information:
+
+If the app is not recognized:
+
+- The browser you're using (be as specific as possible)
+- OS (Linux/Windows/Mac) & OS version
+- OS 64bits or 32bits
+- Link to the coapp you installed
+- On Mac, the output of `/Applications/net.downloadhelper.coapp.app/Contents/MacOS/vdhcoapp --info`
+- On Windows, open a CMD shell, go to the install directory, and type `./vdhcoapp.exe --info`
+- On Linux, your sandbox mechanism (if any): flatpak/snap/…
+- On Linux, the output of `/opt/vdhcoapp/vdhcoapp --info`
+
+If the download video is not valid or missing audio:
+
+- version of Video DownloadHelper addon
+- link to the page with the video
+
 ## Windows CoApp not found by extension
 
 Make sure you use Windows 64 bits, with Firefox 64 bits, with CoApp 64 bits, or
