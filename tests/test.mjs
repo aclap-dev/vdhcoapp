@@ -75,29 +75,33 @@ const install_locations = {
 let is_windows = process.platform == "win32";
 
 let bin_path;
-let arg1 = process.argv[2];
-let arg2 = process.argv[3];
+let arg2 = process.argv[2];
+let arg3n = process.argv.slice(3);
 
 let with_network = false;
-if (arg1 == "--with-network" || arg2 == "--with-network") {
+let no_ffmpeg_codecs_tests = false;
+if (arg2 === "--with-network" || arg3n.includes("--with-network")) {
   with_network = true;
 }
-
-let arg1_is_bin = false;
-if (arg1 && !arg1.startsWith("-")) {
-  arg1_is_bin = true;
+if (arg2 === "--no-ffmpeg-codecs-tests" || arg3n.includes("--no-ffmpeg-codecs-tests")) {
+  no_ffmpeg_codecs_tests = true;
 }
 
-if (!arg1_is_bin && !is_windows) {
+let arg2_is_bin = false;
+if (arg2 && !arg2.startsWith("-")) {
+  arg2_is_bin = true;
+}
+
+if (!arg2_is_bin && !is_windows) {
   let dir = install_locations[process.platform].user[0][0];
   let json_path = path.resolve(os.homedir(), dir, "net.downloadhelper.coapp.json");
   let json = JSON.parse(await fs.readFile(json_path));
   bin_path = json.path;
-} else if (!arg1_is_bin && is_windows) {
+} else if (!arg2_is_bin && is_windows) {
   console.error("Not supported (FIXME)");
   process.exit(1);
 } else {
-  bin_path = path.resolve(arg1);
+  bin_path = path.resolve(arg2);
 }
 
 if (!is_windows) {
@@ -210,8 +214,9 @@ let old_coapp;
 }
 
 if (!old_coapp) {
-  const use_prebuilt_ffmpeg = await exec("use_prebuilt_ffmpeg");
-  if (use_prebuilt_ffmpeg) {
+  if (no_ffmpeg_codecs_tests) {
+    console.warn("Skipping codecs and format tests because of flag --no-ffmpeg-codecs-tests.");
+  } else {
     const codecs = await exec("codecs");
     assert_deep_equal("codecs", codecs, expected_codecs);
     const formats = await exec("formats");
@@ -220,8 +225,6 @@ if (!old_coapp) {
     } else {
       console.warn("Skipping format test as it fails on Linux and Windows");
     }
-  } else {
-    console.warn("Skipping codecs and format tests as it fails when using ffmpeg provided by system.");
   }
 }
 
