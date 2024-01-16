@@ -29,10 +29,9 @@ function findExecutableFullPath(programName, extraPath = "") {
   if (extraPath) {
     pathArr.unshift(extraPath);
   }
-  const foundExecutablePath = pathArr
+  return pathArr
     .map((x) => path.join(x, programName))
     .find((x) => fileExistsSync(x));
-  return foundExecutablePath || '';
 }
 
 function fileExistsSync (filePath) {

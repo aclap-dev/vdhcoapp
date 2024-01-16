@@ -367,7 +367,7 @@ if [ ! $skip_packaging == 1 ]; then
     yq ".package.deb" ./config.toml -o yaml | \
       yq e ".package = \"${meta_id}.noffmpeg\"" |\
       yq e ".conflicts = \"${meta_id}\"" |\
-      yq e ".description = \"${meta_description} (No pre-built ffmpeg binary shipped; use ffmpeg on system instead)\"" |\
+      yq e ".description = \"${meta_description} (does not come with pre-built ffmpeg. Relies on system's ffmpeg)\"" |\
       yq e ".architecture = \"${deb_arch}\"" |\
       yq e ".depends = \"ffmpeg\"" |\
       yq e ".version = \"${meta_version}\"" > $target_dist_dir/deb/DEBIAN/control
