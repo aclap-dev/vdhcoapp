@@ -3,7 +3,7 @@ id = "net.downloadhelper.coapp"
 name = "VdhCoApp"
 long_name = "DownloadHelper CoApp"
 description = "Video DownloadHelper companion app"
-version = "2.0.11"
+version = "2.0.12"
 
 [package]
 binary_name = "vdhcoapp" # .exe added automatically
@@ -37,6 +37,7 @@ Files = "*"
 type = "stdio"
 allowed_extensions = [
   "weh-native-test@downloadhelper.net",
+  "video-downloadhelper-dev@aclap.com",
   "{b9db16a4-6edc-47ec-a1f4-b86292ed211d}",
 ]
 
