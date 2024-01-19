@@ -187,20 +187,20 @@ fi
 
 if [ $publish == 1 ]; then
   files=(
-    "dist/linux/i686/$package_binary_name-$meta_version-linux-i686.tar.bz2"
-    "dist/linux/i686/$package_binary_name-$meta_version-linux-i686.deb"
-    "dist/linux/x86_64/$package_binary_name-$meta_version-linux-x86_64.tar.bz2"
-    "dist/linux/x86_64/$package_binary_name-$meta_version-linux-x86_64.deb"
-    "dist/linux/aarch64/$package_binary_name-$meta_version-linux-aarch64.tar.bz2"
-    "dist/linux/aarch64/$package_binary_name-$meta_version-linux-aarch64.deb"
-    "dist/mac/x86_64/$package_binary_name-$meta_version-mac-x86_64.dmg"
-    "dist/mac/x86_64/$package_binary_name-$meta_version-mac-x86_64-installer.pkg"
-    "dist/mac/arm64/$package_binary_name-$meta_version-mac-arm64.dmg"
-    "dist/mac/arm64/$package_binary_name-$meta_version-mac-arm64-installer.pkg"
-    "dist/win7/i686/$package_binary_name-$meta_version-win7-i686-installer.exe"
-    "dist/win7/x86_64/$package_binary_name-$meta_version-win7-x86_64-installer.exe"
-    "dist/windows/i686/$package_binary_name-$meta_version-windows-i686-installer.exe"
-    "dist/windows/x86_64/$package_binary_name-$meta_version-windows-x86_64-installer.exe"
+    "dist/linux/i686/$package_binary_name-linux-i686.tar.bz2"
+    "dist/linux/i686/$package_binary_name-linux-i686.deb"
+    "dist/linux/x86_64/$package_binary_name-linux-x86_64.tar.bz2"
+    "dist/linux/x86_64/$package_binary_name-linux-x86_64.deb"
+    "dist/linux/aarch64/$package_binary_name-linux-aarch64.tar.bz2"
+    "dist/linux/aarch64/$package_binary_name-linux-aarch64.deb"
+    "dist/mac/x86_64/$package_binary_name-mac-x86_64.dmg"
+    "dist/mac/x86_64/$package_binary_name-mac-x86_64-installer.pkg"
+    "dist/mac/arm64/$package_binary_name-mac-arm64.dmg"
+    "dist/mac/arm64/$package_binary_name-mac-arm64-installer.pkg"
+    "dist/win7/i686/$package_binary_name-win7-i686-installer.exe"
+    "dist/win7/x86_64/$package_binary_name-win7-x86_64-installer.exe"
+    "dist/windows/i686/$package_binary_name-windows-i686-installer.exe"
+    "dist/windows/x86_64/$package_binary_name-windows-x86_64-installer.exe"
   )
 
   checksums=dist/checksums_v${meta_version}.json
@@ -272,11 +272,11 @@ yq . -o yaml ./config.toml | \
   yq e ".target.node = \"$target_node\"" -o json \
   > $target_dist_dir/config.json
 
-out_deb_file="$package_binary_name-$meta_version-$target.deb"
-out_bz2_file="$package_binary_name-$meta_version-$target.tar.bz2"
-out_pkg_file="$package_binary_name-$meta_version-$target-installer.pkg"
-out_dmg_file="$package_binary_name-$meta_version-$target.dmg"
-out_win_file="$package_binary_name-$meta_version-$target-installer.exe"
+out_deb_file="$package_binary_name-$target.deb"
+out_bz2_file="$package_binary_name-$target.tar.bz2"
+out_pkg_file="$package_binary_name-$target-installer.pkg"
+out_dmg_file="$package_binary_name-$target.dmg"
+out_win_file="$package_binary_name-$target-installer.exe"
 
 if [ ! $skip_bundling == 1 ]; then
   # This could be done by pkg directly, but esbuild is more tweakable.
