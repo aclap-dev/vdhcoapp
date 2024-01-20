@@ -1,3 +1,11 @@
+⚠️ This is a developer dedicated place. If you are a user and need help with Video DownloadHelper and/or its companion app:
+
+- you can find [all relevant links here](https://github.com/aclap-dev/video-downloadhelper).
+- if you have an issue with the CoApp not being registered, [read this](https://github.com/aclap-dev/video-downloadhelper/wiki/CoApp-not-recognized).
+- [all the documentation is here](https://github.com/aclap-dev/video-downloadhelper/wiki).
+- you can [ask questions here](https://github.com/aclap-dev/video-downloadhelper/discussions).
+
+
 # DownloadHelper CoApp
 
 *DownloadHelper CoApp* is a multi-platform (Windows, Mac, Linux) application
@@ -15,38 +23,6 @@ and is not intended to be used directly from the command line.
 
 Installer executables for the various platforms are available
 from the [releases page](https://github.com/aclap-dev/vdhcoapp/releases).
-
-# Installation
-
-**Windows**: download the `.exe` file, double click on it, and follow the instructions.
-
-**Mac**: download the `.pkg` file, double click on it, and follow the instructions.
-
-**Linux debian-based**: download the `.deb` file and install it: `sudo dpkg -i <deb file>`.
-
-**Linux other**: download the `.tar.bz2` file, unpack and move to a desired location, and run `./vdhcoapp install`.
-
-At this point, the app should be recognised within your browser.
-
-You can check in the Video DownloadHelper add-on settings:
-
-![settings](./assets/instruction1.png "Settings")
-![app check](./assets/instruction2.png "App check")
-
-# Alternative installation methods
-
-**Mac DMG**: download the `.dmg` file, open it and move the app to **Application** folder.
-Launch the app once to register its manifest within the different browsers (it will show
-a notification then close). Re-run the app if you ever move the application to a new location.
-
-**Linux tar.bz2**: download the `.tar.bz2` file, extract it where ever you want to
-install the app, then run `<install location>/vdhcoapp install` to register the
-manifest within the different browsers. Re-run the install command if you ever move
-the application to a new location.
-
-# Troubleshooting
-
-See our troubleshooting section [here](doc/Troubleshooting.md).
 
 # Note about the registration process
 
