@@ -285,12 +285,12 @@ exports.info = () => {
       }
       let str = data.toString("utf8");
       logger.info("stdout:", str);
-      let m = /^(\S+).*?v.*?((?:\d+\.)+\d+)/.exec(str);
-      if (m) {
+      let words = str.split(" ");
+      if (words[0] == "ffmpeg" && words[1] == "version") {
         done = true;
         resolve({
-          program: m[1],
-          version: m[2],
+          program: "ffmpeg",
+          version: words[2],
           converterBinary: ffmpeg,
         });
       }
