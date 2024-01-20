@@ -62,7 +62,7 @@ allowed_origins = [
   "chrome-extension://pfoiagbblcbmognbkekfpodpidedkmcc/", # Chrome Beta
   "chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/", # Edge Stable
   "chrome-extension://fojefjolbhfidomcaelhceoldmmpcaga/", # Edge Beta
-  "chrome-extension://pjnmophheinoclbleifnpiagghigifbm/", # Dev
+  "chrome-extension://dnkjiebmgeilonmpeimgdgngbdbmfgda/", # Dev
 ]
 
 [flatpak]
