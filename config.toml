@@ -62,7 +62,7 @@ allowed_origins = [
   "chrome-extension://pfoiagbblcbmognbkekfpodpidedkmcc/", # Chrome Beta
   "chrome-extension://jmkaglaafmhbcpleggkmaliipiilhldn/", # Edge Stable
   "chrome-extension://fojefjolbhfidomcaelhceoldmmpcaga/", # Edge Beta
-  "chrome-extension://dnkjiebmgeilonmpeimgdgngbdbmfgda/", # Dev
+  "chrome-extension://pjnmophheinoclbleifnpiagghigifbm/", # Dev
 ]
 
 [flatpak]
@@ -233,6 +233,10 @@ only_if_dir_exists = "~/.var/app/com.google.Chrome"
 path = "~/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts"
 only_if_dir_exists = "~/.var/app/com.chromium.Chromium"
 
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.var/app/com.github.Eloston.UngoogledChromium/config/chromium/NativeMessagingHosts"
+only_if_dir_exists = "~/.var/app/com.github.Eloston.UngoogledChromium"
+
 ### GOOGLE LINUX SYSTEM ###
 
 [[store.google.msg_manifest_paths.linux.system]]
@@ -247,6 +251,10 @@ only_if_dir_exists = "/etc/chromium/"
 [[store.microsoft.msg_manifest_paths.linux.user]]
 path = "~/.config/microsoft-edge/NativeMessagingHosts"
 only_if_dir_exists = "~/.config/microsoft-edge/"
+
+[[store.microsoft.msg_manifest_paths.linux.user]]
+path = "~/.var/app/com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts"
+only_if_dir_exists = "~/.var/app/com.microsoft.Edge"
 
 ### MICROSOFT LINUX SYSTEM ###
 [[store.microsoft.msg_manifest_paths.linux.system]]
