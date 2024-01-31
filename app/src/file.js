@@ -120,7 +120,11 @@ rpc.listen({
 
       function Check() {
         uniqueFileNames[filePath] = index + 1;
-        let fileName = fileParts[1] + (index ? "-" + index : "") + extName;
+        let index_str = index.toFixed();
+        if (index > 0 && index < 10) {
+          index_str = "0" + index_str;
+        }
+        let fileName = fileParts[1] + (index ? "-" + index_str : "") + extName;
         let fullName = path.join(dirName, fileName);
         fs.stat(fullName, (err) => {
           if (err) {
