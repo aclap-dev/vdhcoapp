@@ -82,6 +82,7 @@ case $target in
   windows-i686 | \
   win7-x86_64 | \
   win7-i686 | \
+  mac13-x86_64 | \
   mac-x86_64 | \
   mac-arm64)
       ;;
@@ -164,6 +165,9 @@ if [ $target_os == "win7" ]; then
   ffmpeg_target=ffmpeg-$package_ffmpeg_build_version-windows-$target_arch
   ffmpeg_target_dir=ffmpeg-windows-$target_arch
 fi
+if [ $target_os == "mac13" ]; then
+  node_os="mac"
+fi
 if [ $target == "linux-aarch64" ]; then
   node_arch="arm64"
   deb_arch="arm64"
@@ -197,6 +201,8 @@ if [ $publish == 1 ]; then
     "dist/mac/x86_64/$package_binary_name-mac-x86_64-installer.pkg"
     "dist/mac/arm64/$package_binary_name-mac-arm64.dmg"
     "dist/mac/arm64/$package_binary_name-mac-arm64-installer.pkg"
+    "dist/mac13/x86_64/$package_binary_name-mac13-x86_64.dmg"
+    "dist/mac13/x86_64/$package_binary_name-mac13-x86_64-installer.pkg"
     "dist/win7/i686/$package_binary_name-win7-i686-installer.exe"
     "dist/win7/x86_64/$package_binary_name-win7-x86_64-installer.exe"
     "dist/windows/i686/$package_binary_name-windows-i686-installer.exe"
@@ -235,6 +241,9 @@ if [ $build_all == 1 ]; then
   arch -x86_64 ./build.sh
 
   fnm use 10
+
+  log "Building for mac13-x86_64"
+  arch -x86_64 ./build.sh --target mac13-x86_64
 
   # FIXME: linux-i686 can't be built under Mac as it needs to Node 10.
   # To compile for linux-i686 build from a Linux i686 system.
@@ -375,7 +384,7 @@ if [ ! $skip_packaging == 1 ]; then
     rm -rf $target_dist_dir/deb
   fi
 
-  if [ $target_os == "mac" ]; then
+  if [[ $node_os == "mac" ]]; then
     if ! [ -x "$(command -v create-dmg)" ]; then
       error "create-dmg not installed"
     fi
