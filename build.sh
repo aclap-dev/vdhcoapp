@@ -240,10 +240,10 @@ if [ $build_all == 1 ]; then
   log "Building for mac-x86_64"
   arch -x86_64 ./build.sh
 
-  fnm use 10
-
   log "Building for mac13-x86_64"
   arch -x86_64 ./build.sh --target mac13-x86_64
+
+  fnm use 10
 
   # FIXME: linux-i686 can't be built under Mac as it needs to Node 10.
   # To compile for linux-i686 build from a Linux i686 system.
