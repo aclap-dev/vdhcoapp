@@ -2,17 +2,52 @@ import open from 'open';
 
 const os = require("os");
 const path = require('path');
+const fs = require("node:fs");
 
 const logger = require('./logger');
 const rpc = require('./weh-rpc');
 
 const exec_dir = path.dirname(process.execPath);
-let ffmpeg = path.join(exec_dir, "ffmpeg");
-let ffprobe = path.join(exec_dir, "ffprobe");
+let ffmpeg = ensureProgramExt(path.join(exec_dir, "ffmpeg"));
+let ffprobe = ensureProgramExt(path.join(exec_dir, "ffprobe"));
 
-if (os.platform() == "win32") {
-  ffmpeg += ".exe";
-  ffprobe += ".exe";
+function findExecutableFullPath (programName) {
+  const envPath = (process.env.PATH || '');
+  const foundExecutablePath = envPath.split(path.delimiter)
+    .map(x => path.join(x, programName))
+    .find(x => fileExistsSync(x));
+  return foundExecutablePath || ''
+}
+
+function fileExistsSync (filePath) {
+  try {
+    return fs.statSync(filePath).isFile();
+  } catch (error) {
+    return false;
+  }
+}
+
+function ensureProgramExt(programPath) {
+  if (os.platform() == "win32") {
+    return programPath + ".exe";
+  }
+  return programPath;
+}
+
+if (!fileExistsSync(ffmpeg)) {
+  ffmpeg = findExecutableFullPath("ffmpeg")
+}
+if (!fileExistsSync(ffprobe)) {
+  ffprobe = findExecutableFullPath("ffprobe")
+}
+
+if (!fileExistsSync(ffmpeg)) {
+  logger.error("ffmpeg not found. Please ensure if ffmpeg is installed and try again.");
+  process.exit(1);
+}
+if (!fileExistsSync(ffprobe)) {
+  logger.error("ffprobe not found. Please ensure if ffprobe is installed and try again.");
+  process.exit(1);
 }
 
 // Record all started processes, and kill them if the coapp
