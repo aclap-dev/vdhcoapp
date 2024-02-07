@@ -79,12 +79,12 @@ let arg2 = process.argv[2];
 let arg3n = process.argv.slice(3);
 
 let with_network = false;
-let no_ffmpeg_codecs_tests = false;
+let skip_codecs_tests = false;
 if (arg2 === "--with-network" || arg3n.includes("--with-network")) {
   with_network = true;
 }
-if (arg2 === "--no-ffmpeg-codecs-tests" || arg3n.includes("--no-ffmpeg-codecs-tests")) {
-  no_ffmpeg_codecs_tests = true;
+if (arg2 === "--skip-codecs-tests" || arg3n.includes("--skip-codecs-tests")) {
+  skip_codecs_tests = true;
 }
 
 let arg2_is_bin = false;
@@ -214,8 +214,8 @@ let old_coapp;
 }
 
 if (!old_coapp) {
-  if (no_ffmpeg_codecs_tests) {
-    console.warn("Skipping codecs and format tests because of flag --no-ffmpeg-codecs-tests.");
+  if (skip_codecs_tests) {
+    console.warn("Skipping codecs and format tests because of flag --skip-codecs-tests.");
   } else {
     const codecs = await exec("codecs");
     assert_deep_equal("codecs", codecs, expected_codecs);

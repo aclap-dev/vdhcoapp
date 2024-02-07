@@ -18,6 +18,6 @@ jobs:
     - run: sudo dpkg -r net.downloadhelper.coapp
     - run: sudo apt-get update
     - run: sudo apt-get install ffmpeg
-    - run: sudo dpkg -i ./dist/linux/x86_64/vdhcoapp-no-ffmpeg-linux-x86_64.deb
-    - run: ./tests/test.mjs /opt/vdhcoapp/vdhcoapp --with-network --no-ffmpeg-codecs-tests
+    - run: sudo dpkg -i ./dist/linux/x86_64/vdhcoapp-noffmpeg-linux-x86_64.deb
+    - run: ./tests/test.mjs /opt/vdhcoapp/vdhcoapp --skip-codecs-tests
     - run: sudo dpkg -r net.downloadhelper.coapp.noffmpeg
