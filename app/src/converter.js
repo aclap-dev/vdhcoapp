@@ -134,7 +134,7 @@ exports.star_listening = () => {
           if (child && child.exitCode == null) {
             child.kill(9);
           }
-        }, 4000);
+        }, 10000);
       }
     },
 
