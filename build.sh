@@ -159,19 +159,26 @@ node_arch=$target_arch
 node_os=$target_os
 deb_arch=$target_arch
 
-filepicker_target=filepicker-$target
-filepicker_target_dir=filepicker-$target
+if [[ $target_os == "win7" || $target_os == "windows" ]];
+then
+  exe_extension=".exe"
+else
+  exe_extension=""
+fi
+
+
+filepicker_target=filepicker-$target$exe_extension
 ffmpeg_target=ffmpeg-$package_ffmpeg_build_version-$target
 ffmpeg_target_dir=ffmpeg-$target
 if [ $target_os == "win7" ]; then
   node_os="windows"
   ffmpeg_target=ffmpeg-$package_ffmpeg_build_version-windows-$target_arch
   ffmpeg_target_dir=ffmpeg-windows-$target_arch
-  filepicker_target=filepicker-windows-$target_arch
-  filepicker_target_dir=filepicker-windows-$target_arch
+  filepicker_target=filepicker-windows-$target_arch$exe_extension
 fi
 if [ $target_os == "mac13" ]; then
   node_os="mac"
+  filepicker_target=filepicker-mac-$target_arch$exe_extension
 fi
 if [ $target == "linux-aarch64" ]; then
   node_arch="arm64"
@@ -185,13 +192,6 @@ if [ $target == "linux-i686" ]; then
 fi
 if [ $target == "linux-x86_64" ]; then
   deb_arch="amd64"
-fi
-
-if [ $node_os == "windows" ];
-then
-  exe_extension=".exe"
-else
-  exe_extension=""
 fi
 
 if [ $publish == 1 ]; then
@@ -336,7 +336,7 @@ else
   log "Skipping bundling"
 fi
 
-if [[ ! -f $dist_dir/filepicker-$target ]]; then
+if [[ ! -f $dist_dir/$filepicker_target ]]; then
   log "Retrieving filepicker"
   filepicker_url_base="https://github.com/paulrouget/static-filepicker/releases/download/"
   filepicker_url=$filepicker_url_base/v$package_filepicker_build_version/$filepicker_target
@@ -344,7 +344,7 @@ if [[ ! -f $dist_dir/filepicker-$target ]]; then
   chmod +x $dist_dir/$filepicker_target
 fi
 
-cp $dist_dir/filepicker-$target $target_dist_dir/filepicker$exe_extension
+cp $dist_dir/$filepicker_target $target_dist_dir/filepicker$exe_extension
 
 if [[ ! -d $dist_dir/$ffmpeg_target_dir ]]; then
   log "Retrieving ffmpeg"
