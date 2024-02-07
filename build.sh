@@ -397,6 +397,10 @@ if [ ! $skip_packaging == 1 ]; then
     # --------------------------------
     # Variation: ffmpeg binary shipped
     # --------------------------------
+    rm -rf $target_dist_dir/deb
+    mkdir -p $target_dist_dir/deb/opt/$package_binary_name
+    mkdir -p $target_dist_dir/deb/DEBIAN
+
     cp LICENSE.txt README.md app/node_modules/open/xdg-open \
       $target_dist_dir/$package_binary_name \
       $target_dist_dir/ffmpeg \
