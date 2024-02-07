@@ -13,11 +13,11 @@ const ffmpeg = findExecutableFullPath("ffmpeg", exec_dir);
 const ffprobe = findExecutableFullPath("ffprobe", exec_dir);
 
 if (!fileExistsSync(ffmpeg)) {
-  logger.error("ffmpeg not found. Please ensure if ffmpeg is installed and try again.");
+  logger.error("ffmpeg not found. Install ffmpeg and make sure it's in your path.");
   process.exit(1);
 }
 if (!fileExistsSync(ffprobe)) {
-  logger.error("ffprobe not found. Please ensure if ffprobe is installed and try again.");
+  logger.error("ffprobe not found. Install ffmpeg and make sure it's in your path.");
   process.exit(1);
 }
 

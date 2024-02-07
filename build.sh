@@ -367,7 +367,7 @@ if [ ! $skip_packaging == 1 ]; then
     yq ".package.deb" ./config.toml -o yaml | \
       yq e ".package = \"${meta_id}.noffmpeg\"" |\
       yq e ".conflicts = \"${meta_id}\"" |\
-      yq e ".description = \"${meta_description} (does not come with pre-built ffmpeg. Relies on system's ffmpeg)\"" |\
+      yq e ".description = \"${meta_description} (with system ffmpeg)\"" |\
       yq e ".architecture = \"${deb_arch}\"" |\
       yq e ".depends = \"ffmpeg\"" |\
       yq e ".version = \"${meta_version}\"" > $target_dist_dir/deb/DEBIAN/control
@@ -380,7 +380,7 @@ if [ ! $skip_packaging == 1 ]; then
       > $target_dist_dir/deb/DEBIAN/postinst
     chmod +x $target_dist_dir/deb/DEBIAN/postinst
 
-    log "Building .deb file"
+    log "Building noffmpeg.deb file"
     dpkg-deb --build $target_dist_dir/deb $target_dist_dir/$out_noffmpeg_deb_file
 
     rm -rf $target_dist_dir/$package_binary_name-$meta_version
@@ -406,7 +406,7 @@ if [ ! $skip_packaging == 1 ]; then
     yq ".package.deb" ./config.toml -o yaml | \
       yq e ".package = \"${meta_id}\"" |\
       yq e ".conflicts = \"${meta_id}.noffmpeg\"" |\
-      yq e ".description = \"${meta_description} (With pre-built ffmpeg shipped.)\"" |\
+      yq e ".description = \"${meta_description} (with builtin ffmpeg.)\"" |\
       yq e ".architecture = \"${deb_arch}\"" |\
       yq e ".version = \"${meta_version}\"" > $target_dist_dir/deb/DEBIAN/control
 
