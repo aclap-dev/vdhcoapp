@@ -110,10 +110,10 @@ exports.star_listening = () => {
       if (filename) {
         args.push(filename);
       }
-      let stdout = await new Promise((ok, ko) => {
+      let stdout = await new Promise((ok, _ko) => {
         let proc = spawn(filepicker, args);
         let stdout = "";
-        proc.stdout.on("data", data => stdout += data);
+        proc.stdout.on("data", (data) => stdout += data);
         proc.on("exit", (code) => {
           if (code == 0) {
             ok(stdout);
