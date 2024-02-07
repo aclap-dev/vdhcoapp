@@ -11,13 +11,20 @@ const exec_dir = path.dirname(process.execPath);
 
 const ffmpeg = findExecutableFullPath("ffmpeg", exec_dir);
 const ffprobe = findExecutableFullPath("ffprobe", exec_dir);
+const filepicker = findExecutableFullPath("filepicker", exec_dir);
 
 if (!fileExistsSync(ffmpeg)) {
   logger.error("ffmpeg not found. Install ffmpeg and make sure it's in your path.");
   process.exit(1);
 }
+
 if (!fileExistsSync(ffprobe)) {
   logger.error("ffprobe not found. Install ffmpeg and make sure it's in your path.");
+  process.exit(1);
+}
+
+if (!fileExistsSync(filepicker)) {
+  logger.error("filepicker not found.");
   process.exit(1);
 }
 
@@ -97,6 +104,26 @@ exports.star_listening = () => {
   const convertChildren = new Map();
 
   rpc.listen({
+
+    "filepicker": async (action, directory, title, filename) => {
+      let args = [action, directory, title];
+      if (filename) {
+        args.push(filename);
+      }
+      let stdout = await new Promise((ok, ko) => {
+        let proc = spawn(filepicker, args);
+        let stdout = "";
+        proc.stdout.on("data", data => stdout += data);
+        proc.on("exit", (code) => {
+          if (code == 0) {
+            ok(stdout);
+          } else {
+            ok("");
+          }
+        });
+      });
+      return stdout;
+    },
 
     "abortConvert": (pid) => {
       let child = convertChildren.get(pid);

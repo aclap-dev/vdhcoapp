@@ -158,12 +158,17 @@ eval $(yq ./config.toml -o shell)
 node_arch=$target_arch
 node_os=$target_os
 deb_arch=$target_arch
+
+filepicker_target=filepicker-$target
+filepicker_target_dir=filepicker-$target
 ffmpeg_target=ffmpeg-$package_ffmpeg_build_version-$target
 ffmpeg_target_dir=ffmpeg-$target
 if [ $target_os == "win7" ]; then
   node_os="windows"
   ffmpeg_target=ffmpeg-$package_ffmpeg_build_version-windows-$target_arch
   ffmpeg_target_dir=ffmpeg-windows-$target_arch
+  filepicker_target=filepicker-windows-$target_arch
+  filepicker_target_dir=filepicker-windows-$target_arch
 fi
 if [ $target_os == "mac13" ]; then
   node_os="mac"
@@ -331,16 +336,23 @@ else
   log "Skipping bundling"
 fi
 
-if [ ! -d "$dist_dir/$ffmpeg_target" ]; then
+if [[ ! -f $dist_dir/filepicker-$target ]]; then
+  log "Retrieving filepicker"
+  filepicker_url_base="https://github.com/paulrouget/static-filepicker/releases/download/"
+  filepicker_url=$filepicker_url_base/v$package_filepicker_build_version/$filepicker_target
+  wget -c $filepicker_url -O $dist_dir/$filepicker_target
+  chmod +x $dist_dir/$filepicker_target
+fi
+
+cp $dist_dir/filepicker-$target $target_dist_dir/filepicker$exe_extension
+
+if [[ ! -d $dist_dir/$ffmpeg_target_dir ]]; then
   log "Retrieving ffmpeg"
   ffmpeg_url_base="https://github.com/aclap-dev/ffmpeg-static-builder/releases/download/"
   ffmpeg_url=$ffmpeg_url_base/v$package_ffmpeg_build_version/$ffmpeg_target.tar.bz2
   ffmpeg_tarball=$dist_dir/$ffmpeg_target.tar.bz2
   wget --show-progress -c -O $ffmpeg_tarball $ffmpeg_url
   (cd $dist_dir && tar -xf $ffmpeg_tarball)
-  rm $ffmpeg_tarball
-else
-  log "ffmpeg already downloaded"
 fi
 
 cp $dist_dir/$ffmpeg_target_dir/ffmpeg$exe_extension \
@@ -361,6 +373,7 @@ if [ ! $skip_packaging == 1 ]; then
     # Variation: No ffmpeg shipped
     # --------------------------------
     cp LICENSE.txt README.md app/node_modules/open/xdg-open \
+      $target_dist_dir/filepicker \
       $target_dist_dir/$package_binary_name \
       $target_dist_dir/deb/opt/$package_binary_name
 
@@ -403,6 +416,7 @@ if [ ! $skip_packaging == 1 ]; then
 
     cp LICENSE.txt README.md app/node_modules/open/xdg-open \
       $target_dist_dir/$package_binary_name \
+      $target_dist_dir/filepicker \
       $target_dist_dir/ffmpeg \
       $target_dist_dir/ffprobe \
       $target_dist_dir/deb/opt/$package_binary_name
@@ -462,6 +476,7 @@ if [ ! $skip_packaging == 1 ]; then
 
     cp $target_dist_dir/ffmpeg \
       $target_dist_dir/ffprobe \
+      $target_dist_dir/filepicker \
       $target_dist_dir/$package_binary_name \
       $macos_dir
 
@@ -490,6 +505,7 @@ if [ ! $skip_packaging == 1 ]; then
         --options=runtime --timestamp -v -f \
         -s "$package_mac_signing_app_cert" \
         $macos_dir/ffmpeg \
+        $macos_dir/filepicker \
         $macos_dir/ffprobe \
         $macos_dir/vdhcoapp \
         $macos_dir/register.sh
@@ -558,6 +574,7 @@ if [ ! $skip_packaging == 1 ]; then
     done
 
     cp $target_dist_dir/$package_binary_name.exe \
+      $target_dist_dir/filepicker.exe \
       $target_dist_dir/ffmpeg.exe \
       $target_dist_dir/ffprobe.exe \
       $install_dir
@@ -586,6 +603,7 @@ target_dist_dir=$dist_dir/$target_os/$target_arch
 
 if [ $node_os == "windows" ]; then
   log "Binary available: $target_dist_dir_rel/$package_binary_name.exe"
+  log "Binary available: $target_dist_dir_rel/filepicker.exe"
   log "Binary available: $target_dist_dir_rel/ffmpeg.exe"
   log "Binary available: $target_dist_dir_rel/ffprobe.exe"
   if [ ! $skip_packaging == 1 ]; then
@@ -595,6 +613,7 @@ fi
 
 if [ $target_os == "linux" ]; then
   log "Binary available: $target_dist_dir_rel/$package_binary_name"
+  log "Binary available: $target_dist_dir_rel/filepicker"
   log "Binary available: $target_dist_dir_rel/ffmpeg"
   log "Binary available: $target_dist_dir_rel/ffprobe"
   if [ ! $skip_packaging == 1 ]; then
@@ -607,6 +626,7 @@ fi
 
 if [ $target_os == "mac" ]; then
   log "Binary available: $target_dist_dir_rel/$package_binary_name"
+  log "Binary available: $target_dist_dir_rel/filepicker"
   log "Binary available: $target_dist_dir_rel/ffmpeg"
   log "Binary available: $target_dist_dir_rel/ffprobe"
   if [ ! $skip_packaging == 1 ]; then

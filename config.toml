@@ -3,11 +3,12 @@ id = "net.downloadhelper.coapp"
 name = "VdhCoApp"
 long_name = "DownloadHelper CoApp"
 description = "Video DownloadHelper companion app"
-version = "2.0.15"
+version = "2.0.16"
 
 [package]
 binary_name = "vdhcoapp" # .exe added automatically
 ffmpeg_build_version = "2.0.3"
+filepicker_build_version = "1.0.0"
 
 [package.windows]
 publisher = "ACLAP"
