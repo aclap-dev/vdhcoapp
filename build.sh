@@ -196,6 +196,7 @@ fi
 
 if [ $publish == 1 ]; then
   files=(
+    "assets/install.sh"
     "dist/linux/i686/$package_binary_name-linux-i686.tar.bz2"
     "dist/linux/i686/$package_binary_name-noffmpeg-linux-i686.tar.bz2"
     "dist/linux/i686/$package_binary_name-linux-i686.deb"
