@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "dependencies": {
     "simple-node-logger": "^21.8.12",
     "base64-js": "^1.5.1",

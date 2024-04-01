@@ -1,11 +1,9 @@
 import open from 'open';
+import os from "os";
+import path from "path";
+import fs from "node:fs";
 
-const os = require("os");
-const path = require('path');
-const fs = require("node:fs");
-
-const logger = require('./logger');
-const rpc = require('./weh-rpc');
+export default ({logger, rpc}) => {
 
 const exec_dir = path.dirname(process.execPath);
 
@@ -99,7 +97,7 @@ function ExecConverter(args) {
   });
 }
 
-exports.star_listening = () => {
+const start_listening = () => {
 
   const convertChildren = new Map();
 
@@ -334,7 +332,7 @@ exports.star_listening = () => {
   });
 };
 
-exports.info = () => {
+const info = () => {
   return new Promise((resolve, reject) => {
     let convProcess = spawn(ffmpeg, ["-h"]);
     let done = false;
@@ -365,3 +363,10 @@ exports.info = () => {
     });
   });
 };
+
+return {
+  start_listening,
+  info,
+};
+
+}

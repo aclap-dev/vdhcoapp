@@ -1,8 +1,7 @@
-const path = require('path');
-const fs = require('node:fs');
-const rpc = require('./weh-rpc');
-const os = require("os");
-const got = require('got');
+import path from "path";
+import fs from "node:fs";
+import os from "os";
+import got from "got";
 
 let downloadFolder = path.join(os.homedir(), "dwhelper");
 
@@ -156,7 +155,7 @@ function cancel(downloadId) {
   }
 }
 
-rpc.listen({
+export default ({rpc}) => rpc.listen({
   "downloads.download": download,
   "downloads.search": search,
   "downloads.cancel": cancel
