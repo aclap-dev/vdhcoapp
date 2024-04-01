@@ -1,6 +1,13 @@
-const config = require('config.json');
-const converter = require('./converter');
-const os = require("os");
+import config from './config.js';
+
+import os from 'os';
+
+const globalState = {
+  config,
+  logger: null,
+  rpc: null,
+  converter: null,
+};
 
 function info() {
   let result = {
@@ -13,7 +20,7 @@ function info() {
     target: config.target,
     home: os.homedir() || ""
   };
-  return converter.info().then((convInfo) => {
+  return globalState.converter.info().then((convInfo) => {
     return Object.assign(result, {
       converterBinary: convInfo.converterBinary,
       converterBase: convInfo.program,
@@ -27,9 +34,9 @@ function info() {
 }
 
 if (process.argv[2] == "install") {
-  require("./native-autoinstall").install();
+  (await import("./native-autoinstall.js")).install();
 } else if (process.argv[2] == "uninstall") {
-  require("./native-autoinstall").uninstall();
+  (await import("./native-autoinstall.js")).uninstall();
 } else if (process.argv[2] == "--version") {
   console.log(config.meta.version);
 } else if (process.argv[2] == "--info") {
@@ -54,19 +61,27 @@ Options:
   console.log(help);
 } else {
 
-  require('./native-messaging');
-  const logger = require('./logger');
-  const rpc = require('./weh-rpc');
+  // note: this disables the exception handler
+  // so exceptions will silently fail
+  // fix: WEH_NATIVE_LOGFILE=/dev/stderr vdhcoapp
 
+  const logger = (await import('./logger.js')).default();
+  globalState.logger = logger;
+
+  const rpc = (await import('./weh-rpc.js')).default();
   rpc.setLogger(logger);
   rpc.setDebugLevel(2);
+  globalState.rpc = rpc;
 
-  require('./file');
-  require('./downloads');
-  require('./request');
-  require('./vm');
+  const converter = (await import('./converter.js')).default(globalState);
+  globalState.converter = converter;
 
-  converter.star_listening();
+  (await import('./file.js')).default(globalState);
+  (await import('./downloads.js')).default(globalState);
+  (await import('./request.js')).default(globalState);
+  (await import('./vm.js')).default(globalState);
+
+  converter.start_listening();
 
   rpc.listen({
     // In test suite
@@ -84,6 +99,9 @@ Options:
     // In test suite
     info,
   });
+
+  // start listening for RPC requests from stdin
+  (await import('./native-messaging.js')).default(globalState);
 
   let m = `vdhcoapp is running successfully. `;
   m += `This is not intended to be used directly from the command line. `;

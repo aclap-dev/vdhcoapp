@@ -1,13 +1,16 @@
-const os = require("os");
-const path = require("path");
-const { spawn, exec } = require('child_process');
-const config = require('config.json');
+import os from "os";
+import path from "path";
+import { spawn, exec } from "child_process";
+import config from "./config.js";
+
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 
 let fs;
 if (process.versions.node.startsWith("10")) {
-  fs = require('fs').promises;
+  fs = await require('fs').promises;
 } else {
-  fs = require('node:fs/promises');
+  fs = await require('node:fs/promises');
 }
 
 const STORES = Object.keys(config.store);
@@ -170,12 +173,12 @@ async function install_uninstall(uninstall = false) {
   }
 }
 
-exports.install = () => {
+export const install = async () => {
   console.log("Installing…");
-  install_uninstall();
+  await install_uninstall();
 };
 
-exports.uninstall = () => {
+export const uninstall = async () => {
   console.log("Uninstalling…");
-  install_uninstall(true);
+  await install_uninstall(true);
 };
