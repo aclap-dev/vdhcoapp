@@ -68,7 +68,10 @@ function spawn(arg0, argv) {
 }
 
 for (let e of ["exit", "SIGINT", "SIGTERM", "uncaughtException"]) {
-  process.on(e, () => {
+  process.on(e, (...args) => {
+    if (e == "uncaughtException") {
+      console.error(args[0]);
+    }
     for (let process of to_kill) {
       try {
         process.kill(9);
