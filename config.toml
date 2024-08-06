@@ -94,6 +94,9 @@ regs = [ "Software\\Google\\Chrome\\NativeMessagingHosts", "Software\\Chromium\\
 [store.microsoft.msg_manifest_paths.windows]
 regs = [ "Software\\Microsoft\\Edge\\NativeMessagingHosts\\" ]
 
+[store.yandex.msg_manifest_paths.windows]
+regs = [ "Software\\Yandex\\YandexBrowser\\NativeMessagingHosts", "Software\\YandexBrowser\\NativeMessagingHosts" ]
+
 ### MOZILLA MAC USER ###
 
 [[store.mozilla.msg_manifest_paths.mac.user]]
@@ -143,6 +146,10 @@ only_if_dir_exists = "~/Library/Application Support/BraveSoftware/Brave-Browser-
 [[store.google.msg_manifest_paths.mac.user]]
 path = "~/Library/Application Support/Opera/NativeMessagingHosts/"
 only_if_dir_exists = "~/Library/Application Support/Opera/"
+
+[[store.google.msg_manifest_paths.mac.user]]
+path = "~/Library/Application Support/Yandex/YandexBrowser/NativeMessagingHosts/"
+only_if_dir_exists = "~/Library/Application Support/Yandex/YandexBrowser/"
 
 ### GOOGLE MAC SYSTEM ###
 
@@ -237,6 +244,10 @@ only_if_dir_exists = "~/.var/app/com.chromium.Chromium"
 [[store.google.msg_manifest_paths.linux.user]]
 path = "~/.var/app/com.github.Eloston.UngoogledChromium/config/chromium/NativeMessagingHosts"
 only_if_dir_exists = "~/.var/app/com.github.Eloston.UngoogledChromium"
+
+[[store.google.msg_manifest_paths.linux.user]]
+path = "~/.config/yandex-browser/NativeMessagingHosts"
+only_if_dir_exists = "~/.config/yandex-browser/"
 
 ### GOOGLE LINUX SYSTEM ###
 
