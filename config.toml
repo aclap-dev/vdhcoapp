@@ -182,6 +182,13 @@ only_if_dir_exists = "/Library/Application Support/Microsoft Edge/"
 path = "/Library/Microsoft/Edge/NativeMessagingHosts/"
 only_if_dir_exists = "/Library/Microsoft/Edge/"
 
+### LIBREWOLF LINUX USER ###
+
+[store.librewolf.msg_manifest_paths.linux]
+user = [
+  "~/.librewolf/native-messaging-hosts"
+]
+
 ### MOZILLA LINUX USER ###
 
 [store.mozilla.msg_manifest_paths.linux]
