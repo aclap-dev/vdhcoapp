@@ -40,6 +40,7 @@ const install_locations = {
       [".config/vivaldi-snapshot/NativeMessagingHosts", "ggl"],
       [".config/opera/NativeMessagingHosts", "ggl"],
       [".config/BraveSoftware/Brave-Browser/NativeMessagingHosts", "ggl"],
+      [".config/yandex-browser/NativeMessagingHosts/", "ggl"],
     ],
     system: [
       ["/etc/opt/edge/native-messaging-hosts/", "ms"],
@@ -63,6 +64,7 @@ const install_locations = {
       ["Library/Application Support/Mozilla/NativeMessagingHosts/", "amo"],
       ["Library/Application Support/Opera/NativeMessagingHosts/", "ggl"],
       ["Library/Application Support/BraveSoftware/Brave-Browser/NativeMessagingHosts/", "ggl"],
+      ["Library/Application Support/Yandex/YandexBrowser/NativeMessagingHosts/", "ggl"],
     ],
     system: [
       ["/Library/Google/Chrome/NativeMessagingHosts/", "ggl"],
