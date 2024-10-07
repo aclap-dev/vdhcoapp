@@ -1,5 +1,4 @@
-const rpc = require('./weh-rpc');
-const logger = require('./logger');
+export default ({logger, rpc}) => {
 
 logger.info("\n\n\n\n=================== started ====================");
 
@@ -56,3 +55,5 @@ rpc.setPost(Send);
 process.stdin.on('data', (chunk) => {
   AppendInputString(chunk);
 });
+
+}

@@ -1,11 +1,9 @@
 import open from 'open';
+import os from "os";
+import path from "path";
+import fs from "node:fs";
 
-const os = require("os");
-const path = require('path');
-const fs = require("node:fs");
-
-const logger = require('./logger');
-const rpc = require('./weh-rpc');
+export default ({logger, rpc}) => {
 
 const exec_dir = path.dirname(process.execPath);
 
@@ -70,7 +68,10 @@ function spawn(arg0, argv) {
 }
 
 for (let e of ["exit", "SIGINT", "SIGTERM", "uncaughtException"]) {
-  process.on(e, () => {
+  process.on(e, (...args) => {
+    if (e == "uncaughtException") {
+      console.error(args[0]);
+    }
     for (let process of to_kill) {
       try {
         process.kill(9);
@@ -99,7 +100,7 @@ function ExecConverter(args) {
   });
 }
 
-exports.star_listening = () => {
+const start_listening = () => {
 
   const convertChildren = new Map();
 
@@ -334,7 +335,7 @@ exports.star_listening = () => {
   });
 };
 
-exports.info = () => {
+const info = () => {
   return new Promise((resolve, reject) => {
     let convProcess = spawn(ffmpeg, ["-h"]);
     let done = false;
@@ -365,3 +366,10 @@ exports.info = () => {
     });
   });
 };
+
+return {
+  start_listening,
+  info,
+};
+
+}
