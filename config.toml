@@ -76,6 +76,7 @@ ids = [
   "com.github.Eloston.UngoogledChromium",
   "com.microsoft.Edge",
   "com.microsoft.EdgeDev",
+  "app.zen_browser.zen",
 ]
 
 # Location of the native messaging manifests. See:

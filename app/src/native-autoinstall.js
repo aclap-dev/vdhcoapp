@@ -138,19 +138,68 @@ async function SetupFiles(platform, mode, uninstall) {
   DisplayMessage(text, config.meta.name);
 }
 
-async function PrepareFlatpak() {
+function ZenFlatpakCommands(uninstall, home_dir) {
+  const coappShareDir = path.join(home_dir, ".local/share/vdhcoapp");
+  if (uninstall) {
+    return [
+      {
+        command: `flatpak override --user --no-persist=.mozilla app.zen_browser.zen`,
+        message: `Stopped persisting .mozilla for app.zen_browser.zen.`
+      },
+      {
+        command: `flatpak override --user --nofilesystem=${coappShareDir} app.zen_browser.zen`,
+        message: `Revoked access to ${coappShareDir} for app.zen_browser.zen.`
+      }
+    ];
+  }
+  return [
+    {
+      command: `flatpak override --user --persist=.mozilla app.zen_browser.zen`,
+      message: `Persistent .mozilla directory enabled for app.zen_browser.zen.`
+    },
+    {
+      command: `flatpak override --user --filesystem=${coappShareDir} app.zen_browser.zen`,
+      message: `Shared ${coappShareDir} with app.zen_browser.zen.`
+    }
+  ];
+}
+
+async function PrepareFlatpak(uninstall = false) {
   let install_dir = path.dirname(process.execPath);
+  const home_dir = os.homedir();
   try {
     await exec_p("flatpak --version");
   } catch (_) {
     return;
   }
-  console.log("Flatpak is installed. Making the coapp available from browser sandboxes:");
+  const action_text = uninstall ? "Reverting browser sandbox access for the coapp" : "Making the coapp available from browser sandboxes";
+  console.log(`Flatpak is installed. ${action_text}:`);
   for (let id of config.flatpak.ids) {
-    try {
-      await exec_p(`flatpak override --user --filesystem=${install_dir}:ro ${id}`);
-      console.log(`Linked coapp within ${id}.`);
-    } catch (_) { /* flatpak not installed */ }
+    const commands = [];
+    if (uninstall) {
+      commands.push({
+        command: `flatpak override --user --nofilesystem=${install_dir} ${id}`,
+        message: `Cleared coapp filesystem override for ${id}.`
+      });
+    } else {
+      commands.push({
+        command: `flatpak override --user --filesystem=${install_dir}:ro ${id}`,
+        message: `Linked coapp within ${id}.`
+      });
+    }
+
+    if (id === "app.zen_browser.zen") {
+      commands.push(...ZenFlatpakCommands(uninstall, home_dir));
+    }
+
+    for (const { command, message } of commands) {
+      try {
+        await exec_p(command);
+        console.log(message);
+      } catch (_) {
+        // Ignore failures, we still want to process other overrides.
+      }
+    }
   }
 }
 
@@ -162,7 +211,7 @@ async function install_uninstall(uninstall = false) {
   } else if (platform == "linux") {
     let mode = GetMode();
     if (mode == "user") {
-      await PrepareFlatpak();
+      await PrepareFlatpak(uninstall);
     }
     SetupFiles("linux", mode, uninstall);
   } else {
