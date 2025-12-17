@@ -194,4 +194,4 @@ class RPC {
 
 }
 
-module.exports = new RPC();
+export default () => new RPC();

@@ -1,15 +1,14 @@
-const fs = require('node:fs');
-const path = require('path');
-const tmp = require('tmp');
-const rpc = require('./weh-rpc');
-const { spawn } = require('child_process');
-const os = require('os');
-const base64 = require("base64-js");
+import fs from 'node:fs';
+import path from 'path';
+import tmp from 'tmp';
+import { spawn } from 'child_process';
+import os from 'os';
+import base64 from "base64-js";
 
 const uniqueFileNames = {};
 const MAX_FILE_ENTRIES = 1000;
 
-rpc.listen({
+export default ({rpc}) => rpc.listen({
   // In test suite
   "listFiles": (directory) => {
     return new Promise((resolve, reject) => {
