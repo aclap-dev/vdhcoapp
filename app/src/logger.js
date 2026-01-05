@@ -1,15 +1,15 @@
-let simplelogger = require("simple-node-logger");
+import simplelogger from "simple-node-logger";
 
-let logfile = process.env.WEH_NATIVE_LOGFILE;
+const logfile = process.env.WEH_NATIVE_LOGFILE;
+//const logfile = "/run/user/1000/vdhcoapp.log"; // debug
 
-if (!logfile) {
-  module.exports = {
+export default () => (!logfile) ? (
+  {
     info: () => {},
     error: () => {},
     warn: () => {},
     log: () => {},
-  };
-} else {
-  let logger = simplelogger.createSimpleFileLogger(logfile);
-  module.exports = logger;
-}
+  }
+) : (
+  simplelogger.createSimpleFileLogger(logfile)
+);

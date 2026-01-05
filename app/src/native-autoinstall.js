@@ -1,13 +1,16 @@
-const os = require("os");
-const path = require("path");
-const { spawn, exec } = require('child_process');
-const config = require('config.json');
+import os from "os";
+import path from "path";
+import { spawn, exec } from "child_process";
+import config from "./config.js";
+
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 
 let fs;
 if (process.versions.node.startsWith("10")) {
-  fs = require('fs').promises;
+  fs = await require('fs').promises;
 } else {
-  fs = require('node:fs/promises');
+  fs = await require('node:fs/promises');
 }
 
 const STORES = Object.keys(config.store);
@@ -155,6 +158,10 @@ async function PrepareFlatpak() {
 }
 
 async function install_uninstall(uninstall = false) {
+  if (process.env.VDHCOAPP_INSTALL_ON_BUILDTIME != "1") {
+    // VDHCOAPP_INSTALL_ON_BUILDTIME=1 vdhcoapp install
+    return await install_uninstall_on_runtime(uninstall);
+  }
   let platform = os.platform();
   if (platform == "darwin") {
     let mode = GetMode();
@@ -170,12 +177,77 @@ async function install_uninstall(uninstall = false) {
   }
 }
 
-exports.install = () => {
+export const install = async () => {
   console.log("Installing…");
-  install_uninstall();
+  await install_uninstall();
 };
 
-exports.uninstall = () => {
+export const uninstall = async () => {
   console.log("Uninstalling…");
-  install_uninstall(true);
+  await install_uninstall(true);
 };
+
+async function fs_exists(path) {
+  try {
+    await fs.access(path, fs.constants.F_OK);
+    return true;
+  }
+  catch (e) {
+    if (e.errno == -2) {
+      return false;
+    }
+    throw e;
+  }
+}
+
+async function install_uninstall_on_runtime(uninstall) {
+  const glob = (await import('glob')).default;
+  const srcMainJsPath = await fs.realpath(process.argv[1]);
+  const srcConfigDirPath = path.join(path.dirname(srcMainJsPath), "../config", os.platform());
+  if (!await fs_exists(srcConfigDirPath)) {
+    console.error(`error: not found config dir: ${srcConfigDirPath}`);
+    process.exit(1);
+  }
+  const pattern = "**/*.json";
+  const options = {
+    cwd: srcConfigDirPath,
+    nodir: true, // Do not match directories, only files
+    follow: true, // Follow symlinked directories when expanding ** patterns
+    dot: true, // match hidden paths
+    //realpath: true, // call fs.realpath on all of the results
+  };
+  const homedir = os.homedir();
+  for (const configPath of glob.sync(pattern, options)) {
+    const dstConfigPath = path.join(homedir, configPath);
+    const dstConfigDirPath = path.join(homedir, path.dirname(configPath), "..");
+    if (!await fs_exists(dstConfigDirPath)) {
+      console.log(`missing ${dstConfigDirPath}`);
+      continue;
+    }
+    const srcConfigPath = await fs.realpath(path.join(srcConfigDirPath, configPath));
+    if (uninstall) {
+      if (await fs_exists(dstConfigPath)) {
+        console.log(`deleting ${dstConfigPath}`);
+        await fs.unlink(dstConfigPath);
+      }
+      continue;
+    }
+    if (!await fs_exists(dstConfigPath)) {
+      console.log(`creating ${dstConfigPath}`);
+      await fs.mkdir(path.dirname(dstConfigPath), { recursive: true });
+      await fs.symlink(srcConfigPath, dstConfigPath);
+      continue;
+    }
+    // check if file is up to date
+    const oldLinkTarget = await fs.realpath(dstConfigPath);
+    if (oldLinkTarget == srcConfigPath) {
+      // file is up to date
+      console.log(`keeping ${dstConfigPath}`);
+      continue;
+    }
+    // found different file. delete the old file
+    console.log(`replacing ${dstConfigPath}`);
+    await fs.unlink(dstConfigPath);
+    await fs.symlink(srcConfigPath, dstConfigPath);
+  }
+}

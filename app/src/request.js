@@ -1,6 +1,4 @@
-const rpc = require('./weh-rpc');
-const got = require('got');
-const logger = require('./logger');
+import got from 'got';
 
 let currentIndex = 0;
 
@@ -8,6 +6,8 @@ let requestStore = {};
 
 const MAX_SIZE = 50000;
 const EXPIRE_DATA_TIMEOUT = 30000;
+
+export default ({logger, rpc}) => {
 
 function GetData(id) {
   let reqInfo = requestStore[id];
@@ -184,3 +184,5 @@ rpc.listen({
     return GetData(id);
   }
 });
+
+}

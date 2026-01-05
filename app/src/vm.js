@@ -1,7 +1,6 @@
-const vm = require('vm');
-const rpc = require('./weh-rpc');
+import vm from 'vm';
 
-rpc.listen({
+export default ({rpc}) => rpc.listen({
   "vm.run": async (code) => {
     const sandbox = {};
     const script = new vm.Script(code);
